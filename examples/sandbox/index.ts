@@ -287,7 +287,13 @@ $getXpubs.on('click', (e) => {
       addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
       curve: "secp256k1",
       coin: "Litecoin"
-    }
+    },
+    //TODO debug invalid coin name
+    // {
+    //   addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0],
+    //   curve: "secp256k1",
+    //   coin: "Cosmos"
+    // }
   ]).then(result => { $manageResults.val(JSON.stringify(result)) })
 })
 
@@ -308,6 +314,129 @@ $doLoadDevice.on('click', (e) => {
   if (!wallet) { $manageResults.val("No wallet?"); return}
   wallet.loadDevice({ mnemonic: /*trezor test seed:*/'alcohol woman abuse must during monitor noble actual mixed trade anger aisle' })
 })
+
+/*
+      Cosmos
+        * segwit: false
+        * mutltisig: false
+        * Bech32: true
+*/
+const $atomAddr = $('#atomAddr')
+const $atomTx = $('#atomTx')
+const $atomSign = $('#atomSign')
+const $atomVerify = $('#atomVerify')
+const $atomResults = $('#atomResults')
+
+/*
+  Tx types
+  send atom
+  deligate atom
+  undeligate atom
+  claim rewards
+ */
+
+let atomTxSend = {
+  "msg":[
+    {
+      "type":"cosmos-sdk/MsgSend",
+      "value":{
+        "from_address":"cosmos1zymku32dmnwwy0gwggxzzqqvzzfa2r0xthdlw0",
+        "to_address":"cosmos1qjwdyn56ecagk8rjf7crrzwcyz6775cj89njn3",
+        "amount":[
+          {
+            "denom":"uatom",
+            "amount":"100"
+          }
+        ]
+      }
+    }
+  ],
+  "fee":{
+    "amount":[
+      {
+        "denom":"uatom",
+        "amount":"100"
+      }
+    ],
+    "gas":"100000"
+  },
+  "signatures":[
+    {
+      "signature": null,
+      "account_number":"12978",
+      "sequence":"7",
+      "pub_key":{
+        "type":"tendermint/PubKeySecp256k1",
+        "value":"Au6gqMARLRX+wrhqtuhuNu1V1/XnLsUBhWVqy3wFhzI0"
+      }
+    }
+  ],
+  chain_id:"cosmoshub-2",
+  "memo":"sent from the citadel"
+}
+
+
+let atomTxDelegate = {
+
+}
+
+let atomTxUnDelegate = {
+
+}
+
+let atomTxClaim = {
+  type: `auth/StdTx`,
+  value: {
+    msg: [
+      {
+        type: `cosmos-sdk/MsgWithdrawValidatorCommission`,
+        value: {
+          validator_address: `cosmos18ymm350peujvq2xy9ymyqj4v34ekvnk3wydrs3`
+        }
+      }
+    ],
+    fee: {
+      amount: [{ amount: `3421`, denom: `uatom` }],
+      gas: `500000`
+    },
+    memo: `TESTING (Sent via Lunie)`
+  }
+}
+
+$atomAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $btcResults.val("No wallet?"); return}
+  if (supportsBTC(wallet)) {
+    console.log("checkpoint")
+
+    //coin 0 (mainnet cosmos)
+    //path 0
+    let res = await wallet.btcGetAddress({
+      addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0, 0, 0],
+      coin: "Bitcoin",
+      scriptType: BTCInputScriptType.SpendWitness,
+      showDisplay: true
+    })
+    $atomResults.val(res)
+  } else {
+    console.log("checkpoint1b")
+    let label = await wallet.getLabel()
+    $atomResults.val(label + " does not support atom")
+  }
+})
+
+$atomTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $atomResults.val("No wallet?"); return}
+  if (supportsETH(wallet)) {
+    let res = await wallet.atomSignTx(atomTxSend)
+    $atomResults.val(JSON.stringify(res))
+  } else {
+    let label = await wallet.getLabel()
+    $atomResults.val(label + " does not support ATOM")
+  }
+})
+
 
 /*
       Ethereum
