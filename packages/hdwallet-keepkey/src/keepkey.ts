@@ -94,6 +94,8 @@ export class KeepKeyHDWallet extends HDWallet {
       ) as Event
       if (event.message_type === Events.FAILURE) throw event
       const publicKey = event.proto as Messages.PublicKey
+      console.log("publicKey: ",publicKey)
+      console.log("1publicKey: ",publicKey.getNode())
 
       publicKeys.push({ xpub: publicKey.getXpub() })
     }

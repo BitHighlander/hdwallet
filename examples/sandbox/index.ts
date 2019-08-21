@@ -288,12 +288,11 @@ $getXpubs.on('click', (e) => {
       curve: "secp256k1",
       coin: "Litecoin"
     },
-    //TODO debug invalid coin name
-    // {
-    //   addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0],
-    //   curve: "secp256k1",
-    //   coin: "Cosmos"
-    // }
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0],
+      curve: "secp256k1",
+      coin: "Cosmos"
+    }
   ]).then(result => { $manageResults.val(JSON.stringify(result)) })
 })
 
@@ -411,7 +410,7 @@ $atomAddr.on('click', async (e) => {
 
     //coin 0 (mainnet cosmos)
     //path 0
-    let res = await wallet.btcGetAddress({
+    let res = await wallet.btcGetPubkey({
       addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0, 0, 0],
       coin: "Bitcoin",
       scriptType: BTCInputScriptType.SpendWitness,

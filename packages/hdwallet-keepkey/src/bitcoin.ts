@@ -256,6 +256,27 @@ export function KeepKeyBTCWallet<TBase extends Constructor>(Base: TBase) {
       return true
     }
 
+    // public async btcGetPubkey (msg: BTCGetAddress): Promise<string> {
+    //   await ensureCoinSupport(this, msg.coin)
+    //
+    //   const GPK = new Messages.GetPublicKey();
+    //   GPK.setCoinName(msg.coin)
+    //   GPK.setAddressNList(msg.addressNList);
+    //   GPK.setShowDisplay(msg.showDisplay || false)
+    //   GPK.setEcdsaCurveName("secp256k1")
+    //   GPK.setScriptType(BTCInputScriptType.SpendAddress))
+    //
+    //   const event = await this.transport.call(
+    //     Messages.MessageType.MESSAGETYPE_GETPUBLICKEY,
+    //     GPK,
+    //     msg.showDisplay ? LONG_TIMEOUT : DEFAULT_TIMEOUT
+    //   ) as Event
+    //   if (event.message_type === Events.FAILURE) throw event
+    //   const publicKey = event.proto as Messages.PublicKey
+    //   console.log("publicKey: ",publicKey)
+    //   //return publicKey.getNode()
+    // }
+
     public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
       await ensureCoinSupport(this, msg.coin)
 
