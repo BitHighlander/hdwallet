@@ -410,9 +410,9 @@ $atomAddr.on('click', async (e) => {
 
     //coin 0 (mainnet cosmos)
     //path 0
-    let res = await wallet.btcGetPubkey({
+    let res = await wallet.atomGetAddress({
       addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0, 0, 0],
-      coin: "Bitcoin",
+      coin: "Cosmos",
       scriptType: BTCInputScriptType.SpendWitness,
       showDisplay: true
     })

@@ -1,0 +1,103 @@
+import { ExchangeType, BIP32Path } from './wallet'
+
+export interface ATOMGetAccountPath {
+  coin: string,
+  accountIdx: number
+}
+
+/**
+ * Concat accountPath with relPath for the absolute path to the Cosmos address.
+ */
+export interface ATOMAccountPath {
+  hardenedPath: BIP32Path,
+  relPath: BIP32Path,
+  description: string,
+}
+
+export interface ATOMAccountSuffix {
+  addressNList: BIP32Path
+}
+
+export interface ATOMGetAddress {
+  addressNList: BIP32Path,
+  showDisplay?: boolean,
+  /** Optional. Required for showDisplay == true. */
+  address?: string,
+}
+
+export interface ATOMSignTx {
+  /** bip32 path to sign the transaction from */
+  addressNList: BIP32Path,
+  /** big-endian hex, prefixed with '0x' */
+  nonce: string,
+  /** big-endian hex, prefixed with '0x' */
+  gasPrice: string,
+  /** big-endian hex, prefixed with '0x' */
+  gasLimit: string,
+  /** address, with '0x' prefix */
+  to: string,
+  /** bip32 path for destination (device must `atomSupportsSecureTransfer()`) */
+  toAddressNList?: BIP32Path,
+  /** big-endian hex, prefixed with '0x' */
+  value: string,
+  /** prefixed with '0x' */
+  data: string,
+  /** mainnet: 1, ropsten: 3, kovan: 42 */
+  chainId: number,
+  /**
+   * Device must `atomSupportsNativeShapeShift()`
+   */
+  exchangeType?: ExchangeType
+}
+
+export interface ATOMSignedTx {
+
+  /** hex string representation of the raw, signed transaction */
+  serialized: string
+}
+
+export interface ATOMSignMessage {
+  addressNList: BIP32Path,
+  message: string
+}
+
+export interface ATOMSignedMessage {
+  address: string,
+  signature: string
+}
+
+export interface ATOMVerifyMessage {
+  address: string,
+  message: string,
+  signature: string
+}
+
+export abstract class ATOMWallet {
+  _supportsATOM: boolean = true
+
+  //public abstract async atomSupportsNetwork (chain_id: number): Promise<boolean>
+  public abstract async atomGetAddress (msg: ATOMGetAddress): Promise<string>
+  public abstract async atomSignTx (msg: ATOMSignTx): Promise<ATOMSignedTx>
+  //public abstract async atomSignMessage (msg: ATOMSignMessage): Promise<ATOMSignedMessage>
+  //public abstract async atomVerifyMessage (msg: ATOMVerifyMessage): Promise<boolean>
+
+  /**
+   * Does the device support internal transfers without the user needing to
+   * confirm the destination address?
+   */
+  public abstract async atomSupportsSecureTransfer (): Promise<boolean>
+
+  /**
+   * Does the device support `/sendamountProto2` style ShapeShift trades?
+   */
+  public abstract async atomSupportsNativeShapeShift (): Promise<boolean>
+
+  /**
+   * Returns a list of bip32 paths for a given account index in preferred order
+   * from most to least preferred.
+   *
+   * Note that this is the location of the ATOM address in the tree, not the
+   * location of its corresponding xpub.
+   */
+  public abstract atomGetAccountPaths (msg: ATOMGetAccountPath): Array<ATOMAccountPath>
+}

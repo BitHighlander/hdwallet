@@ -1,5 +1,6 @@
 export * from './bitcoin'
 export * from './ethereum'
+export * from './cosmos'
 export * from './keepkey'
 export * from './responseTypeRegistry'
 export * from './transport'

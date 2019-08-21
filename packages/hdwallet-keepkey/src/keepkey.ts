@@ -10,6 +10,7 @@ import {
   Pong,
   BTCWallet,
   ETHWallet,
+  ATOMWallet,
   Event,
   Events,
   fromHexString,
@@ -33,6 +34,7 @@ import {
 import { KeepKeyDebugLinkWallet } from "./debuglink";
 import { KeepKeyBTCWallet } from "./bitcoin";
 import { KeepKeyETHWallet } from "./ethereum";
+import { KeepKeyATOMWallet } from "./cosmos";
 import { KeepKeyTransport } from "./transport";
 
 export function isKeepKey(wallet: any): wallet is KeepKeyHDWallet {
@@ -467,6 +469,7 @@ export function create(transport: KeepKeyTransport): KeepKeyHDWallet {
   KK = KeepKeyDebugLinkWallet(KK);
   KK = KeepKeyBTCWallet(KK);
   KK = KeepKeyETHWallet(KK);
+  KK = KeepKeyATOMWallet(KK);
 
   return <KeepKeyHDWallet>new KK(transport);
 }

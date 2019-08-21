@@ -1,4 +1,11 @@
 import {
+  ATOMWallet,
+  ATOMGetAddress,
+  ATOMSignTx,
+  ATOMSignedTx,
+  ATOMGetAccountPath,
+  ATOMAccountPath,
+  BTCGetAddress,
   Constructor,
   toHexString,
   fromHexString,
@@ -13,9 +20,17 @@ import {
 
 import { KeepKeyTransport } from './transport'
 
+import * as Messages from '@keepkey/device-protocol/lib/messages_pb'
 import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
 import * as ProtoExchange from '@keepkey/device-protocol/lib/exchange_pb'
 import * as ProtoTypes from '@keepkey/device-protocol/lib/types_pb'
+
+import {
+  toUTF8Array,
+  translateInputScriptType,
+  translateOutputScriptType
+} from './utils'
+
 
 const { default: { ExchangeType } } = ProtoMessages as any
 
@@ -24,11 +39,11 @@ const { default: { ExchangeType } } = ProtoMessages as any
 
 
 /**
- * Mixin Constructor that adds ETH support to a KeepKeyHDWallet
+ * Mixin Constructor that adds ATOM support to a KeepKeyHDWallet
  */
-export function KeepKeyETHWallet<TBase extends Constructor>(Base: TBase) {
-  return class KeepKeyETHWallet extends Base implements ETHWallet {
-    _supportsETH: boolean = true
+export function KeepKeyATOMWallet<TBase extends Constructor>(Base: TBase) {
+  return class KeepKeyATOMWallet extends Base implements ATOMWallet {
+    _supportsATOM: boolean = true
     transport: KeepKeyTransport
 
     //TODO find cosmos chainId
@@ -36,15 +51,15 @@ export function KeepKeyETHWallet<TBase extends Constructor>(Base: TBase) {
     //   return true
     // }
 
-    public async cosmosSupportsSecureTransfer (): Promise<boolean> {
+    public async atomSupportsSecureTransfer (): Promise<boolean> {
       return true
     }
 
-    public async cosmosSupportsNativeShapeShift (): Promise<boolean> {
+    public async atomSupportsNativeShapeShift (): Promise<boolean> {
       return true
     }
 
-    public cosmosGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+    public atomGetAccountPaths (msg: ATOMGetAccountPath): Array<ATOMAccountPath> {
       return [{
         hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
         relPath: [ 0, 0 ],
@@ -52,54 +67,34 @@ export function KeepKeyETHWallet<TBase extends Constructor>(Base: TBase) {
       }]
     }
 
-    public async cosmosSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
+    public async atomGetAddress (msg: BTCGetAddress): Promise<string> {
+      //TODO await ensureCoinSupport(this, msg.coin)
+      console.log("checkpoint cosmos")
+      const addr = new Messages.GetAddress()
+      addr.setAddressNList(msg.addressNList)
+      addr.setCoinName(msg.coin)
+      addr.setShowDisplay(msg.showDisplay || false)
+      addr.setScriptType(translateInputScriptType(msg.scriptType || BTCInputScriptType.SpendAddress))
+
+      console.log("checkpoint cosmos2")
+      const response = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETADDRESS, addr, LONG_TIMEOUT) as Event
+
+      console.log("response: ",response)
+
+
+      if(response.message_type === Events.FAILURE) throw response
+      if(response.message_type === Events.CANCEL) throw response
+
+      const btcAddress = response.proto as Messages.Address
+      return btcAddress.getAddress()
+    }
+
+    public async atomSignTx (msg: ATOMSignTx): Promise<ATOMSignedTx> {
       return this.transport.lockDuring(async () => {
 
-        return "fake:txid"
+        return {serialized:"this:is:a:txid:bro"}
       })
     }
 
-    public async cosmosGetAddress (msg: ETHGetAddress): Promise<string> {
-      const getAddr = new ProtoMessages.EthereumGetAddress()
-      getAddr.setAddressNList(msg.addressNList)
-      getAddr.setShowDisplay(msg.showDisplay !== false)
-      const response = await this.transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, LONG_TIMEOUT)
-      const cosmosAddress = response.proto as ProtoMessages.EthereumAddress
-
-      if(response.message_type === Events.FAILURE) throw response
-
-      let address = null
-      if (cosmosAddress.hasAddressStr())
-        address = cosmosAddress.getAddressStr()
-      else if (cosmosAddress.hasAddress())
-        address = '0x' + toHexString(cosmosAddress.getAddress_asU8())
-      else
-        throw new Error('Unable to obtain ETH address from device.')
-
-      return address
-    }
-
-    //TODO
-    // public async cosmosSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
-    //   const m = new ProtoMessages.EthereumSignMessage()
-    //   m.setAddressNList(msg.addressNList)
-    //   m.setMessage(toUTF8Array(msg.message))
-    //   const response = await this.transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, LONG_TIMEOUT) as Event
-    //   const sig = response.proto as ProtoMessages.EthereumMessageSignature
-    //   return {
-    //     address: EIP55.encode('0x' + toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
-    //     signature: '0x' + toHexString(sig.getSignature_asU8())
-    //   }
-    // }
-    //
-    // public async cosmosVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    //   const m = new ProtoMessages.EthereumVerifyMessage()
-    //   m.setAddress(arrayify(msg.address))
-    //   m.setSignature(arrayify(msg.signature))
-    //   m.setMessage(toUTF8Array(msg.message))
-    //   const event = await this.transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, LONG_TIMEOUT) as Event
-    //   const success = event.proto as ProtoMessages.Success
-    //   return success.getMessage() === 'Message verified'
-    // }
   }
 }
