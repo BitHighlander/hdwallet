@@ -1,4 +1,14 @@
-import { ExchangeType, BIP32Path } from './wallet'
+import { ExchangeType, BIP32Path, Coin } from './wallet'
+
+
+export enum BTCInputScriptType {
+  CashAddr, // for Bitcoin Cash
+  SpendAddress,
+  SpendMultisig,
+  External,
+  SpendWitness,
+  SpendP2SHWitness,
+}
 
 export interface ATOMGetAccountPath {
   coin: string,
@@ -26,28 +36,10 @@ export interface ATOMGetAddress {
 }
 
 export interface ATOMSignTx {
-  /** bip32 path to sign the transaction from */
   addressNList: BIP32Path,
-  /** big-endian hex, prefixed with '0x' */
-  nonce: string,
-  /** big-endian hex, prefixed with '0x' */
-  gasPrice: string,
-  /** big-endian hex, prefixed with '0x' */
-  gasLimit: string,
-  /** address, with '0x' prefix */
-  to: string,
-  /** bip32 path for destination (device must `atomSupportsSecureTransfer()`) */
-  toAddressNList?: BIP32Path,
-  /** big-endian hex, prefixed with '0x' */
-  value: string,
-  /** prefixed with '0x' */
-  data: string,
-  /** mainnet: 1, ropsten: 3, kovan: 42 */
-  chainId: number,
-  /**
-   * Device must `atomSupportsNativeShapeShift()`
-   */
-  exchangeType?: ExchangeType
+  coin?: Coin,
+  scriptType?: BTCInputScriptType,
+  message: string
 }
 
 export interface ATOMSignedTx {

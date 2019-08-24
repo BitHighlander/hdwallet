@@ -427,9 +427,17 @@ $atomAddr.on('click', async (e) => {
 $atomTx.on('click', async (e) => {
   e.preventDefault()
   if (!wallet) { $atomResults.val("No wallet?"); return}
-  if (supportsETH(wallet)) {
-    let res = await wallet.atomSignTx(atomTxSend)
-    $atomResults.val(JSON.stringify(res))
+  if (true) {
+
+    let res = await wallet.btcSignMessage({
+      addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+      coin: 'Bitcoin',
+      scriptType: BTCInputScriptType.SpendAddress,
+      message: "Hello World"
+    })
+    $atomResults.val(res.address + ' ' + res.signature)
+
+
   } else {
     let label = await wallet.getLabel()
     $atomResults.val(label + " does not support ATOM")

@@ -5,6 +5,7 @@ import {
   ATOMSignedTx,
   ATOMGetAccountPath,
   ATOMAccountPath,
+  BTCSignMessage,
   BTCGetAddress,
   Constructor,
   toHexString,
@@ -67,6 +68,29 @@ export function KeepKeyATOMWallet<TBase extends Constructor>(Base: TBase) {
       }]
     }
 
+    // public async atomGetAddress (msg: BTCGetAddress): Promise<string> {
+    //   //TODO await ensureCoinSupport(this, msg.coin)
+    //   console.log("checkpoint cosmos")
+    //
+    //   const GPK = new Messages.GetPublicKey();
+    //   GPK.setCoinName(msg.coin)
+    //   GPK.setAddressNList(msg.addressNList);
+    //   GPK.setShowDisplay(msg.showDisplay || false)
+    //   GPK.setEcdsaCurveName("secp256k1")
+    //   GPK.setScriptType(BTCInputScriptType.SpendAddress))
+    //
+    //   const event = await this.transport.call(
+    //     Messages.MessageType.MESSAGETYPE_GETPUBLICKEY,
+    //     GPK,
+    //     msg.showDisplay ? LONG_TIMEOUT : DEFAULT_TIMEOUT
+    //   ) as Event
+    //   if (event.message_type === Events.FAILURE) throw event
+    //   const publicKey = event.proto as Messages.PublicKey
+    //   console.log("publicKey: ",publicKey)
+    //   return "publikkey"
+    // }
+
+
     public async atomGetAddress (msg: BTCGetAddress): Promise<string> {
       //TODO await ensureCoinSupport(this, msg.coin)
       console.log("checkpoint cosmos")
@@ -89,11 +113,26 @@ export function KeepKeyATOMWallet<TBase extends Constructor>(Base: TBase) {
       return btcAddress.getAddress()
     }
 
-    public async atomSignTx (msg: ATOMSignTx): Promise<ATOMSignedTx> {
-      return this.transport.lockDuring(async () => {
+    // public async atomSignTx (msg: ATOMSignTx): Promise<ATOMSignedTx> {
+    //   return this.transport.lockDuring(async () => {
+    //
+    //     return {serialized:"this:is:a:txid:bro"}
+    //   })
+    // }
 
-        return {serialized:"this:is:a:txid:bro"}
-      })
+    public async atomSignTx (msg: BTCSignMessage): Promise<BTCSignedMessage> {
+      //await ensureCoinSupport(this, msg.coin)
+      const sign = new Messages.SignMessage()
+      sign.setAddressNList(msg.addressNList)
+      sign.setMessage(toUTF8Array(msg.message))
+      sign.setCoinName(msg.coin || 'Bitcoin')
+      sign.setScriptType(translateInputScriptType(msg.scriptType || BTCInputScriptType.SpendAddress))
+      const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_SIGNMESSAGE, sign, LONG_TIMEOUT) as Event
+      const messageSignature = event.proto as Messages.MessageSignature
+      return {
+        address: messageSignature.getAddress(),
+        signature: toHexString(messageSignature.getSignature_asU8())
+      }
     }
 
   }
