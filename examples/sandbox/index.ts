@@ -429,13 +429,17 @@ $atomTx.on('click', async (e) => {
   if (!wallet) { $atomResults.val("No wallet?"); return}
   if (true) {
 
-    let res = await wallet.btcSignMessage({
-      addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
-      coin: 'Bitcoin',
-      scriptType: BTCInputScriptType.SpendAddress,
-      message: "Hello World"
+    let res = await wallet.atomSignTx({
+      addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+      nonce: "0x01",
+      gasPrice: "0x14",
+      gasLimit: "0x14",
+      value: '0x00',
+      to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
+      chainId: 1,
+      data: '0x' + 'a9059cbb000000000000000000000000' + '1d8ce9022f6284c3a5c317f8f34620107214e545' + '00000000000000000000000000000000000000000000000000000002540be400',
     })
-    $atomResults.val(res.address + ' ' + res.signature)
+    $atomResults.val(JSON.stringify(res))
 
 
   } else {
