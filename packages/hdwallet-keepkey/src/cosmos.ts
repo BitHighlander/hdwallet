@@ -21,10 +21,11 @@ import {
 
 import { KeepKeyTransport } from './transport'
 
-import * as Messages from '@keepkey/device-protocol/lib/messages_pb'
-import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
-import * as ProtoExchange from '@keepkey/device-protocol/lib/exchange_pb'
-import * as ProtoTypes from '@keepkey/device-protocol/lib/types_pb'
+import * as Messages from '@bithighlander/device-protocol/lib/messages_pb'
+//import * as ProtoMessages from './device-protocol/messages_pb'
+import * as ProtoMessages from '@bithighlander/device-protocol/lib/messages_pb'
+import * as ProtoExchange from '@bithighlander/device-protocol/lib/exchange_pb'
+import * as ProtoTypes from '@bithighlander/device-protocol/lib/types_pb'
 
 import {
   toUTF8Array,

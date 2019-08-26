@@ -694,6 +694,14 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
+"@bithighlander/device-protocol@6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@bithighlander/device-protocol/-/device-protocol-6.3.0.tgz#70b16ab335b4cdf3f2f6e775560f5e87bac3da5e"
+  integrity sha512-TbczjQC8koTNLtisea1/zXIv1rX/PcG3SM3QKvQX4gR2BSRDx9bLBOf9kvtLp+o8HjYhcqpxWCcsTOBoBCb99g==
+  dependencies:
+    google-protobuf "^3.7.0-rc.2"
+    pbjs "^0.0.5"
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.3.tgz#099139eaec7ebf07a27c1786a3ff64f39464d2ef"
@@ -3694,6 +3702,14 @@ detect-libc@^1.0.2, detect-libc@^1.0.3:
 detect-newline@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/detect-newline/-/detect-newline-2.1.0.tgz#f41f1c10be4b00e87b5f13da680759f2c5bfd3e2"
+
+device-protocol-kk@6.1.6:
+  version "6.1.6"
+  resolved "https://registry.yarnpkg.com/device-protocol-kk/-/device-protocol-kk-6.1.6.tgz#082d108e6223466b113cd533ea79a03c43681b0d"
+  integrity sha512-W1QEO//TzGBF/ZtvhsMbVmlO/nixBHOo+YdQOVeyOi/vADbeOdFuAlPqaLBuvCT4PULZ0xgoDSUtyFYY3bvUJg==
+  dependencies:
+    google-protobuf "^3.7.0-rc.2"
+    pbjs "^0.0.5"
 
 dezalgo@^1.0.0:
   version "1.0.3"
@@ -10340,6 +10356,7 @@ whatwg-encoding@^1.0.1, whatwg-encoding@^1.0.3, whatwg-encoding@^1.0.5:
 whatwg-fetch@^2.0.4, whatwg-fetch@^3.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.4.tgz#dde6a5df315f9d39991aa17621853d720b85566f"
+  integrity sha512-dcQ1GWpOD/eEQ97k66aiEVpNnapVj90/+R+SXTPYGHpYBBypfKJEQjLrvMZ7YXbKm21gXd4NcuxUTjiv1YtLng==
 
 whatwg-mimetype@^2.1.0, whatwg-mimetype@^2.2.0, whatwg-mimetype@^2.3.0:
   version "2.3.0"
