@@ -5,6 +5,9 @@ import {
   supportsBTC,
   supportsETH,
   Keyring,
+  HDWalletInfo,
+  BTCInputScriptType,
+  bip32ToAddressNList,
 } from '@shapeshiftoss/hdwallet-core'
 import {
   create as createLedger,
@@ -12,13 +15,16 @@ import {
   LedgerHDWallet,
   LedgerResponse,
   isLedger,
+  info,
 } from '@shapeshiftoss/hdwallet-ledger'
 
 export class MockTransport extends LedgerTransport {
   memoized = new Map()
+  currentApp: string
 
-  constructor (keyring: Keyring) {
-    super('test', undefined, keyring)
+  constructor (keyring: Keyring, type: string) {
+    super(undefined, keyring)
+    this.currentApp = type
     this.populate()
   }
 
@@ -26,16 +32,14 @@ export class MockTransport extends LedgerTransport {
     return "mock#1"
   }
 
-  public async listen (): Promise<any> {}
-
-  public async connect (): Promise<void> {}
-
   public call (coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let key = JSON.stringify({ coin: coin, method: method, args: args })
+
     if (!this.memoized.has(key)) {
       console.error(coin, method, `JSON.parse('${JSON.stringify(args)}')`)
       throw new Error("mock not yet recorded for arguments")
     }
+
     return Promise.resolve(this.memoized.get(key))
   }
 
@@ -46,6 +50,11 @@ export class MockTransport extends LedgerTransport {
 
   public populate () {
     try {
+      // Device
+      this.memoize(null, 'getAppAndVersion',
+        JSON.parse('[]'),
+        JSON.parse(`{"success":true,"coin":null,"method":"getAppAndVersion","payload":{"name":"${this.currentApp}"}}`))
+
       // Ethereum:
       this.memoize('Eth', 'getAddress',
         JSON.parse('["m/44\'/60\'/0\'/0/0",false]'),
@@ -70,15 +79,23 @@ export class MockTransport extends LedgerTransport {
         JSON.parse('{"success":true,"payload":{"v":"25","r":"1238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597f","s":"10efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a"},"coin":"Eth","method":"signTransaction"}'))
 
       // Bitcoin:
+      // first mock of getPublicKeys()
+      this.memoize('Btc', 'getWalletPublicKey',
+        JSON.parse('["44\'/0\'", {"verify": false }]'),
+        JSON.parse('{"success":true,"coin":"Btc","method":"getWalletPublicKey","payload":{"bitcoinAddress":"1Hvzdx2kSLHT93aTnEeDNDSo4DS1Wn3CML","chainCode":"98c92a09b8adb1ab9e5d665fd6ae1dd331d130172d75916189de33f1cf2ff482","publicKey":"045e61c65bb0af92d4af140ea98334df1a0975a331c89dab2549debc945ed72a8a0ff3e429dcfaa6b316c994e998f3e9dbe8b04bb0777aeaa6208da6020ccf4306"}}'))
+
+      // getAddress
       this.memoize('Btc', 'getWalletPublicKey',
         JSON.parse('["m/49\'/0\'/0\'/0/0", {"verify": false, "format": "p2sh"}]'),
         JSON.parse('{"success":true,"coin":"Btc","method":"getWalletPublicKey","payload":{"bitcoinAddress":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","chainCode":"167cbfcd34f24da5a3fa39092431b2f3717066d334775fb82053ae83901e1cec","publicKey":"0475abefec6c107632baad1a38f8dc3286ee09fbbbbf7221e642d885e514e0cd4232877f26fc9c5b8857aa6b48d42f6aecdbeabeb0f293b0b5ba7d5d1d24a274c8"}}'))
       this.memoize('Btc', 'getWalletPublicKey',
         JSON.parse('["m/49\'/0\'/0\'/0/0", {"verify": true, "format": "p2sh"}]'),
         JSON.parse('{"success":true,"coin":"Btc","method":"getWalletPublicKey","payload":{"bitcoinAddress":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","chainCode":"167cbfcd34f24da5a3fa39092431b2f3717066d334775fb82053ae83901e1cec","publicKey":"0475abefec6c107632baad1a38f8dc3286ee09fbbbbf7221e642d885e514e0cd4232877f26fc9c5b8857aa6b48d42f6aecdbeabeb0f293b0b5ba7d5d1d24a274c8"}}'))
+
       this.memoize('Btc', 'signMessageNew',
         JSON.parse('["m/44\'/0\'/0\'/0/0", "48656c6c6f20576f726c64"]'),
         JSON.parse('{"success":true,"coin":"Btc","method":"signMessageNew","payload":{"r":"a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c","s":"243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd","v":1}}'))
+
       // These are the three calls in btcSignTx:
       this.memoize('Btc', 'splitTransaction',
         ['Btc', 'splitTransaction', "020000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000001976a91424a56db43cf6f2b02e838ea493f95d8d6047423188acffffffff0160cc0500000000001976a914de9b2a8da088824e8fe51debea566617d851537888ac00000000"],
@@ -105,14 +122,17 @@ export function name (): string {
   return 'Ledger'
 }
 
-export async function createWallet (): Promise<HDWallet> {
+export function createInfo (): HDWalletInfo {
+  return info()
+}
+
+export async function createWallet (type: any = 'Bitcoin'): Promise<HDWallet> {
   let keyring = new Keyring()
-  let transport = new MockTransport(keyring)
-  return createLedger(transport as LedgerTransport)
+  let transport = new MockTransport(keyring, type)
+  return createLedger(transport as any)
 }
 
 export function selfTest (get: () => HDWallet): void {
-
   let wallet: LedgerHDWallet & ETHWallet & BTCWallet & HDWallet
 
   beforeAll(async () => {
@@ -130,8 +150,8 @@ export function selfTest (get: () => HDWallet): void {
 
   it('does not support Native ShapeShift', async () => {
     if (!wallet) return
-    expect(await wallet.ethSupportsNativeShapeShift()).toEqual(false)
-    expect(await wallet.btcSupportsNativeShapeShift()).toEqual(false)
+    expect(wallet.ethSupportsNativeShapeShift()).toEqual(false)
+    expect(wallet.btcSupportsNativeShapeShift()).toEqual(false)
   })
 
   it('does not support Secure Transfer', async () => {
@@ -140,19 +160,193 @@ export function selfTest (get: () => HDWallet): void {
     expect(await wallet.btcSupportsSecureTransfer()).toEqual(false)
   })
 
+  it('validates current app', async () => {
+    if (!wallet) return
+    expect(await wallet.validateCurrentApp('Bitcoin')).resolves
+    await expect(wallet.validateCurrentApp(null)).rejects.toThrow() // no coin
+    await expect(wallet.validateCurrentApp('FakeCoin')).rejects.toThrow() // invalid coin
+    await expect(wallet.validateCurrentApp('Ethereum')).rejects.toThrow() // wrong coin
+  })
+
   it('has a non-BIP 44 derivation path for Ethereum', () => {
     if (!wallet) return
     ([0, 1, 3, 27]).forEach(account => {
-      expect(wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account }))
+      let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account })
+      expect(paths)
         .toEqual([{
+          addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account, 0, 0],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account],
           relPath: [ 0, 0 ],
-          description: "Ledger (Ledger Live)"
+          description: "BIP 44: Ledger (Ledger Live)"
         }, {
+          addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0, account],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0],
           relPath: [ account ],
-          description: "Ledger (legacy, Ledger Chrome App)"
+          description: "Non BIP 44: Ledger (legacy, Ledger Chrome App)"
         }])
+      paths.forEach(path => {
+        expect(wallet.describePath({
+          coin: 'Ethereum',
+          path: path.addressNList
+        }).isKnown).toBeTruthy()
+      })
+    })
+  })
+
+  it('uses correct bip44 paths', () => {
+    if (!wallet) return
+
+    let paths = wallet.btcGetAccountPaths({
+      coin: 'Litecoin',
+      accountIdx: 3,
+    })
+
+    expect(paths).toEqual([{
+      "addressNList": [
+        2147483697,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendP2SHWitness,
+      'coin': 'Litecoin',
+    }, {
+      "addressNList": [
+        2147483692,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendAddress,
+      'coin': 'Litecoin',
+    }, {
+      "addressNList": [
+        2147483732,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendWitness,
+      'coin': 'Litecoin',
+    }])
+  })
+
+  it('supports btcNextAccountPath', () => {
+    if (!wallet) return
+
+    let paths = wallet.btcGetAccountPaths({
+      coin: 'Litecoin',
+      accountIdx: 3,
+    })
+
+    expect(paths
+      .map(path => wallet.btcNextAccountPath(path))
+      .map(path => wallet.describePath({
+        ...path,
+        path: path.addressNList
+      }))
+    ).toEqual([{
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2sh-p2wpkh",
+      "verbose": "Litecoin Account #4",
+      "wholeAccount": true,
+      "isPrefork": false,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2pkh",
+      "verbose": "Litecoin Account #4 (Legacy)",
+      "wholeAccount": true,
+      "isPrefork": false,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2wpkh",
+      "verbose": "Litecoin Account #4 (Segwit Native)",
+      "wholeAccount": true,
+      "isPrefork": false,
+    }])
+  })
+
+  it('can describe paths', () => {
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+      coin: 'Bitcoin',
+      scriptType: BTCInputScriptType.SpendAddress
+    })).toEqual({
+      verbose: "Bitcoin Account #0, Address #0 (Legacy)",
+      coin: 'Bitcoin',
+      scriptType: BTCInputScriptType.SpendAddress,
+      isKnown: true,
+      accountIdx: 0,
+      addressIdx: 0,
+      wholeAccount: false,
+      isChange: false,
+      isPrefork: false,
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+      coin: 'Bitcoin',
+      scriptType: BTCInputScriptType.SpendAddress
+    })).toEqual({
+      verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
+      coin: 'Bitcoin',
+      scriptType: BTCInputScriptType.SpendAddress,
+      isKnown: true,
+      accountIdx: 7,
+      addressIdx: 5,
+      wholeAccount: false,
+      isChange: true,
+      isPrefork: false,
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+      coin: 'BitcoinCash',
+      scriptType: BTCInputScriptType.SpendAddress
+    })).toEqual({
+      verbose: "m/44'/0'/7'/1/5",
+      coin: 'BitcoinCash',
+      scriptType: BTCInputScriptType.SpendAddress,
+      isKnown: false
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+      coin: 'Ethereum'
+    })).toEqual({
+      verbose: "Ethereum Account #0",
+      coin: 'Ethereum',
+      isKnown: true,
+      accountIdx: 0,
+      wholeAccount: true,
+      isPrefork: false,
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/60'/3'/0/0"),
+      coin: 'Ethereum'
+    })).toEqual({
+      verbose: "Ethereum Account #3",
+      coin: 'Ethereum',
+      isKnown: true,
+      accountIdx: 3,
+      wholeAccount: true,
+      isPrefork: false,
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/60'/0'/42"),
+      coin: 'Ethereum'
+    })).toEqual({
+      verbose: "Ethereum Account #42",
+      coin: 'Ethereum',
+      isKnown: true,
+      wholeAccount: true,
+      accountIdx: 42,
+      isPrefork: false,
     })
   })
 }

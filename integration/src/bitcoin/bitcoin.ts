@@ -6,9 +6,14 @@ import {
   BTCInputScriptType,
   BTCOutputAddressType,
   BTCOutputScriptType,
-  Coin
+  Coin,
+  BTCWalletInfo,
+  infoBTC,
+  HDWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from "@shapeshiftoss/hdwallet-trezor"
+import { isPortis } from "@shapeshiftoss/hdwallet-portis"
 
 import { each } from '../utils'
 
@@ -19,16 +24,24 @@ const TIMEOUT = 60 * 1000
 /**
  *  Main integration suite for testing BTCWallet implementations' Bitcoin support.
  */
-export function bitcoinTests (get: () => HDWallet): void {
+export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo }): void {
 
   let wallet: BTCWallet & HDWallet
+  let info: BTCWalletInfo
 
   describe('Bitcoin', () => {
 
     beforeAll(() => {
-      let w = get()
-      if (supportsBTC(w))
+
+      const { wallet: w, info: i } = get()
+
+      if (supportsBTC(w)) {
         wallet = w
+        if (!infoBTC(i)) {
+          throw new Error("wallet info does not _supportsBTCInfo?")
+        }
+        info = i
+      }
     })
 
     beforeEach(async () => {
@@ -37,14 +50,79 @@ export function bitcoinTests (get: () => HDWallet): void {
       await wallet.loadDevice({ mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE, label: 'test', skipChecksum: true })
     }, TIMEOUT)
 
-    test('btcSupportsCoin()', async () => {
+    test('isInitialized()', async () => {
       if (!wallet) return
+      expect(await wallet.isInitialized()).toBeTruthy()
+    })
+
+    test('btcSupportsCoin()', async () => {
+      if (!wallet || isPortis(wallet) ) return
       expect(wallet.btcSupportsCoin('Bitcoin')).toBeTruthy()
+      expect(await info.btcSupportsCoin('Bitcoin')).toBeTruthy()
       expect(wallet.btcSupportsCoin('Testnet')).toBeTruthy()
+      expect(await info.btcSupportsCoin('Testnet')).toBeTruthy()
     }, TIMEOUT)
 
+    test('getPublicKeys', async () => {
+      if (!wallet || isLedger(wallet) || isTrezor(wallet) || isPortis(wallet)) return
+
+      /* FIXME: Expected failure (trezor does not use scriptType in deriving public keys
+          and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
+          in between mock transport calls.
+       */
+      expect(await wallet.getPublicKeys([{
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/44'/0'/0'`),
+        curve: 'secp256k1'
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendAddress
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendP2SHWitness
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendAddress
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendWitness
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendAddress
+      }, {
+        coin: 'Litecoin',
+        addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendAddress
+      }])).toEqual([{
+        "xpub": "xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH"
+      }, {
+        "xpub": "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G"
+      }, {
+        "xpub": "ypub6Y5EDdQK9nQzpNeMtgXxhBB3SoLk2SyR2MFLQYsBkAusAHpaQNxTTwefgnL9G3oFGrRS9VkVvyY1SaApFAzQPZ99wto5etdReeE3XFkkMZt"
+      }, {
+        "xpub": "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G"
+      }, {
+        "xpub": "zpub6qSSRL9wLd6LNee7qjDEuULWccP5Vbm5nuX4geBu8zMCQBWsF5Jo5UswLVxFzcbCMr2yQPG27ZhDs1cUGKVH1RmqkG1PFHkEXyHG7EV3ogY"
+      }, {
+        "xpub": "xpub6Bge9YGd4gjuSaNXdQi4vgvK8iErStBKbESBzAs6tVHBBpsqeCHEVBVgQE7P3W53XKR454adsrg3mccVCzGzcTyVEq9a3QhHsLcs65Tck9U"
+      }, {
+        "xpub": "Ltub2Y7kcBUex83ugweUDti4nZ2YDWZRCfhTiWeApFcDFz7svCWeJCmyJpz7m6dQhuUJ7XpdfByBitKRshyc7tNSTPkuXy32i6TLMqPCzbm7r8s"
+      }])
+    })
+
     test('btcGetAddress()', async () => {
-      if (!wallet) return
+      if (!wallet || isPortis(wallet)) return
       await each([
         ['Show', 'Bitcoin',  "m/44'/0'/0'/0/0", BTCInputScriptType.SpendAddress,     '1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM'],
         ['Show', 'Bitcoin',  "m/49'/0'/0'/0/0", BTCInputScriptType.SpendP2SHWitness, '3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX'],
@@ -59,7 +137,9 @@ export function bitcoinTests (get: () => HDWallet): void {
         let expected = args[4] as string
 
         if (!await wallet.btcSupportsCoin(coin)) return
+        expect(await info.btcSupportsCoin(coin)).toBeTruthy()
         if (!await wallet.btcSupportsScriptType(coin, scriptType)) return
+        expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy()
         let res = await wallet.btcGetAddress({
           addressNList: bip32ToAddressNList(path),
           coin: coin,
@@ -72,12 +152,12 @@ export function bitcoinTests (get: () => HDWallet): void {
     }, TIMEOUT)
 
     test('btcSignTx() - p2pkh', async () => {
-      if (!wallet) return
+      if (!wallet || isPortis(wallet)) return
       if (isLedger(wallet)) return // FIXME: Expected failure
       let inputs = [{
         addressNList: bip32ToAddressNList("m/0"),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: 390000,
+        amount: String(390000),
         vout: 0,
         txid: 'd5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882',
         tx: {
@@ -113,7 +193,7 @@ export function bitcoinTests (get: () => HDWallet): void {
         address: '1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1',
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: 390000 - 10000,
+        amount: String(390000 - 10000),
         isChange: false
       }]
       let res = await wallet.btcSignTx({
@@ -137,13 +217,20 @@ export function bitcoinTests (get: () => HDWallet): void {
         scriptType: BTCInputScriptType.SpendAddress,
         message: "Hello World"
       })
+
+      // not implemented on portis
+      if(isPortis(wallet)) {
+        expect(res).toEqual(undefined)
+        return
+      }
+
       expect(res).toEqual({
         address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
         signature: "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
       })
     }, TIMEOUT)
 
-    test('btcVerifyMessage()', async () => {
+    test('btcVerifyMessage() - good', async () => {
       if (!wallet) return
       let res = await wallet.btcVerifyMessage({
         address: '1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM',
@@ -154,15 +241,32 @@ export function bitcoinTests (get: () => HDWallet): void {
       expect(res).toBeTruthy()
     }, TIMEOUT)
 
+    test('btcVerifyMessage() - bad', async () => {
+      if (!wallet) return
+      let res = await wallet.btcVerifyMessage({
+        address: '1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM',
+        coin: 'Bitcoin',
+        signature: '20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd',
+        message: 'Fake World',
+      })
+      expect(res).toBeFalsy()
+    }, TIMEOUT)
+
     test('btcSupportsSecureTransfer()', async () => {
       if (!wallet) return
-      expect(typeof wallet.btcSupportsSecureTransfer() === typeof true).toBeTruthy()
+      expect(typeof (await wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy()
+      if (await wallet.btcSupportsSecureTransfer()) {
+        expect(await info.btcSupportsSecureTransfer()).toBeTruthy()
+      }
       // TODO: write a testcase that exercise secure transfer, if the wallet claims to support it.
     }, TIMEOUT)
 
     test('btcSupportsNativeShapeShift()', async () => {
       if (!wallet) return
-      expect(typeof wallet.btcSupportsNativeShapeShift() === typeof true)
+      expect(typeof (wallet.btcSupportsNativeShapeShift()) === typeof true)
+      if (wallet.btcSupportsNativeShapeShift()) {
+        expect(info.btcSupportsNativeShapeShift()).toBeTruthy()
+      }
       // TODO: write a testcase that exercises native shapeshift, if the wallet claims to support it.
     }, TIMEOUT)
 
@@ -185,8 +289,10 @@ export function bitcoinTests (get: () => HDWallet): void {
         if (!wallet) return
         if (!await wallet.btcSupportsCoin(coin))
           return
+        expect(await info.btcSupportsCoin(coin)).toBeTruthy()
         if (!await wallet.btcSupportsScriptType(coin, scriptType))
           return
+        expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy()
         let paths = wallet.btcGetAccountPaths({ coin: coin, accountIdx: accountIdx, scriptType: scriptType })
         expect(paths.length > 0).toBeTruthy()
         if (scriptType !== undefined)
@@ -199,6 +305,12 @@ export function bitcoinTests (get: () => HDWallet): void {
       [0, 1, 9].forEach(idx => {
         let paths = wallet.btcGetAccountPaths({ coin: 'Bitcoin', accountIdx: idx })
         expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy()
+        paths.forEach(path => {
+          if(wallet.getVendor() === 'Portis')
+            expect(wallet.btcNextAccountPath(path)).toBeUndefined()
+          else
+            expect(wallet.btcNextAccountPath(path)).not.toBeUndefined()
+        })
       })
     }, TIMEOUT)
 

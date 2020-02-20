@@ -81,6 +81,8 @@
     <button id='kkemu'>Pair Emulator</button>
     <button id='trezor'>Pair Trezor</button>
     <button id='ledger'>Pair Ledger</button>
+    <button id='portis'>Pair Portis</button>
+
     <select id='keyring' style="height: 100px" size="4"></select>
   </div>
   <div class="container" style="padding-top:8em;">
@@ -93,12 +95,29 @@
     <h4>Manage</h4>
     <button class="button button-outline" id='getVendor'>Vendor</button>
     <button class="button button-outline" id='getModel'>Model</button>
+    <button class="button button-outline" id='getDeviceID'>DeviceID</button>
+    <button class="button button-outline" id='getFirmware'>Firmware</button>
     <button class="button button-outline" id='getLabel'>Label</button>
     <button class="button button-outline" id='getXpubs'>Xpubs</button>
     <button class="button button-outline" id='doPing'>Ping</button>
     <button class="button button-outline" id='doWipe'>Wipe</button>
     <button class="button button-outline" id='doLoadDevice'>Load</button>
     <input type="text" id="manageResults" />
+  </div>
+  <div class="container" style="padding-top:8em;">
+      <h4>Ledger Device</h4>
+      <button class="button button-outline" id='openApp'>Open App</button>
+      <input type="text" id="ledgerApp" />
+      <button class="button button-outline" id='validateApp'>Validate Open App</button>
+      <input type="text" id="appSymbol" />
+      <button class="button button-outline" id='getAppInfo'>App Info</button>
+      <input type="text" id="appInfo" />
+  </div>
+  <div class="container" style="padding-top:8em;">
+    <h4>Cosmos</h4>
+    <button class="button button-outline" id='cosmosAddr'>Address</button>
+    <button class="button button-outline" id='cosmosTx'>Tx</button>
+    <input type="text" id="cosmosResults" />
   </div>
   <div class="container" style="padding-top:8em;">
     <h4>Ethereum</h4>
@@ -150,6 +169,12 @@
     <button class="button button-outline" id='dashAddr'>Address</button>
     <button class="button button-outline" id='dashTx'>Tx</button>
     <input type="text" id="dashResults" />
+  </div>
+  <div class="container" style="padding-top:8em;">
+    <h4>DigiByte</h4>
+    <button class="button button-outline" id='dgbAddr'>Address</button>
+    <button class="button button-outline" id='dgbTx'>Tx</button>
+    <input type="text" id="dgbResults" />
   </div>
 
   <div id="#pinModal" class="modale" aria-hidden="true">

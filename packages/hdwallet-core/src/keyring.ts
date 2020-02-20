@@ -10,10 +10,6 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     super(({ wildcard: true }))
   }
 
-  public get initializedCount (): number {
-    return Object.keys(this.wallets).length
-  }
-
   public add (wallet: HDWallet, deviceID?: string): boolean {
     const id = deviceID || new Date().toString()
     if (!(this.wallets[id])) {
@@ -50,16 +46,16 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     if (this.aliases[deviceID] && this.wallets[this.aliases[deviceID]])
       return this.wallets[this.aliases[deviceID]]
     if (this.wallets[deviceID]) return this.wallets[deviceID]
-    if (this.initializedCount && !deviceID) return Object.values(this.wallets)[0]
+    if (!!Object.keys(this.wallets).length && !deviceID) return Object.values(this.wallets)[0]
     return null
   }
 
   public async remove (deviceID: string): Promise<void> {
-    if (!this.get(deviceID)) return
+    const wallet = this.get(deviceID)
+    if (!wallet) return
 
     try {
-      const keepkey = this.get(deviceID)
-      await keepkey.transport.disconnect()
+      await wallet.disconnect()
     } catch (e) {
       console.error(e)
     } finally {
@@ -81,7 +77,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
   public async disconnectAll (): Promise<void> {
     const wallets = Object.values(this.wallets)
     for(let i = 0; i < wallets.length; i++) {
-      await wallets[i].transport.disconnect()
+      await wallets[i].disconnect()
     }
   }
 

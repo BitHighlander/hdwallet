@@ -1,13 +1,17 @@
 export enum HDWalletErrorType {
     ActionCancelled = 'ActionCancelled',
     DeviceDisconnected = 'DeviceDisconnected',
+    DisconnectedDeviceDuringOperation = 'DisconnectedDeviceDuringOperation',
+    DeviceLocked = 'DeviceLocked',
     PopupClosedError = 'PopupClosedError',
     ConflictingApp = 'ConflictingApp',
     SelectApp = 'SelectApp',
     WrongApp = 'WrongApp',
     FirmwareUpdateRequired = 'FirmwareUpdateRequired',
     WebUSBNotAvailable = 'WebUSBNotAvailable',
-    WebUSBCouldNotPair = 'WebUSBCouldNotPair'
+    WebUSBCouldNotInitialize = 'WebUSBCouldNotInitialize',
+    WebUSBCouldNotPair = 'WebUSBCouldNotPair',
+    NavigateToDashboard = 'NavigateToDashboard'
 }
 
 export class HDWalletError extends Error {
@@ -15,9 +19,14 @@ export class HDWalletError extends Error {
 
     constructor (message: string, type: HDWalletErrorType) {
         super(message)
-        Error.captureStackTrace(this, this.constructor)
         this.name = type
         this.type = type
+        this.message = message
+        if (typeof Error.captureStackTrace === 'function') {
+            Error.captureStackTrace(this, this.constructor);
+        } else {
+            this.stack = (new Error(message)).stack;
+        }
     }
 }
 
@@ -30,6 +39,18 @@ export class ActionCancelled extends HDWalletError {
 export class DeviceDisconnected extends HDWalletError {
     constructor () {
         super('Device disconnected', HDWalletErrorType.DeviceDisconnected)
+    }
+}
+
+export class DisconnectedDeviceDuringOperation extends HDWalletError {
+    constructor () {
+        super('Ledger device disconnected during operation', HDWalletErrorType.DisconnectedDeviceDuringOperation)
+    }
+}
+
+export class DeviceLocked extends HDWalletError {
+    constructor () {
+        super('Device locked', HDWalletErrorType.DeviceLocked)
     }
 }
 
@@ -58,7 +79,7 @@ export class SelectApp extends HDWalletError {
 
 export class WrongApp extends HDWalletError {
     constructor (model: string, app: string) {
-        super(`Wrong app selected. Please open the ${app} app on your ${model}.`,
+        super(`Wrong app open. Please open the ${app} app on your ${model} and try again.`,
               HDWalletErrorType.WrongApp)
     }
 }
@@ -77,8 +98,21 @@ export class WebUSBNotAvailable extends HDWalletError {
     }
 }
 
+export class WebUSBCouldNotInitialize extends HDWalletError {
+    constructor (model: string, message: string) {
+        super(`Could not initialize ${model}: ${message}`, HDWalletErrorType.WebUSBCouldNotInitialize)
+    }
+}
+
 export class WebUSBCouldNotPair extends HDWalletError {
     constructor (model: string, message: string) {
         super(`Could not pair ${model}: ${message}`, HDWalletErrorType.WebUSBCouldNotPair)
+    }
+}
+
+export class NavigateToDashboard extends HDWalletError {
+    constructor (model: string) {
+      super(`Please navigate to the dashboard of your ${model}.`,
+        HDWalletErrorType.NavigateToDashboard)
     }
 }

@@ -2,6 +2,7 @@ import * as eventemitter2 from 'eventemitter2'
 import { Observable, fromEvent, merge } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Coin } from './wallet'
+import { BIP32Path } from './wallet'
 
 export type Constructor<T = {}> = new (...args: any[]) => T
 
@@ -130,6 +131,7 @@ export function slip44ByCoin (coin: Coin): number {
     'Dogecoin': 3,
     'BitcoinSV': 236,
     'Ethereum': 60,
+    'Atom': 118,
   }[coin]
 }
 
@@ -137,4 +139,12 @@ export function satsFromStr (coins: string): number {
   let index = coins.indexOf('.')
   let exponent = index > 0 ? 8 - (coins.length - index - 1) : 8
   return Number(coins.replace(/\./g, '')) * 10 ** exponent
+}
+
+export function hardenedPath (path: BIP32Path): BIP32Path {
+  return path.filter(segment => segment >= 0x80000000)
+}
+
+export function relativePath (path: BIP32Path): BIP32Path {
+  return path.filter(segment => segment < 0x80000000)
 }

@@ -1,24 +1,21 @@
-import { Coin, makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
-import { LedgerTransport } from '@shapeshiftoss/hdwallet-ledger'
+import {
+  makeEvent,
+  Keyring,
+  WebUSBNotAvailable,
+  WebUSBCouldNotInitialize,
+  WebUSBCouldNotPair,
+  ConflictingApp
+} from '@shapeshiftoss/hdwallet-core'
+import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 import Transport from '@ledgerhq/hw-transport'
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
-
-const TIMEOUT = 50 // timeout on user response
+import getAppAndVersion from '@ledgerhq/live-common/lib/hw/getAppAndVersion'
+import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
+import openApp from '@ledgerhq/live-common/lib/hw/openApp'
 
 const RECORD_CONFORMANCE_MOCKS = false
-
-export type LedgerDevice = {
-  path: string,
-  deviceID: string
-}
-
-export interface LedgerResponse {
-  success: boolean,
-  payload: any | { error: string },
-  coin: Coin,
-  method: string
-}
 
 function translateCoin(coin: string): (any) => void {
   return {
@@ -27,11 +24,63 @@ function translateCoin(coin: string): (any) => void {
   }[coin]
 }
 
-export class LedgerWebUsbTransport extends LedgerTransport {
-  readonly hasPopup = false
+function translateMethod(method: string): (any) => void {
+  return {
+    'getAppAndVersion': getAppAndVersion,
+    'getDeviceInfo': getDeviceInfo,
+    'openApp': openApp
+  }[method]
+}
 
-  constructor(deviceID: string, transport: Transport<USBDevice>, keyring: Keyring) {
-    super(deviceID, transport, keyring)
+export async function getFirstLedgerDevice(): Promise<USBDevice> {
+  if (!(window && window.navigator.usb))
+    throw new WebUSBNotAvailable()
+
+  const existingDevices = await TransportWebUSB.list()
+
+  return existingDevices.length > 0 ? existingDevices[0] : null
+}
+
+export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
+  if (!(window && window.navigator.usb))
+    throw new WebUSBNotAvailable()
+
+  try {
+    return await TransportWebUSB.open(device)
+  } catch (err) {
+    if (err.name === 'TransportInterfaceNotAvailable') {
+      throw new ConflictingApp('Ledger')
+    }
+
+    throw new WebUSBCouldNotInitialize('Ledger', err.message)
+  }
+}
+
+export async function getTransport(): Promise<TransportWebUSB> {
+  if (!(window && window.navigator.usb))
+    throw new WebUSBNotAvailable()
+
+  try {
+    return await TransportWebUSB.request()
+  } catch (err) {
+    if (err.name === 'TransportInterfaceNotAvailable') {
+      throw new ConflictingApp('Ledger')
+    }
+
+    throw new WebUSBCouldNotPair('Ledger', err.message)
+  }
+}
+
+export class LedgerWebUsbTransport extends LedgerTransport {
+  device: USBDevice
+
+  constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: Keyring) {
+    super(transport, keyring)
+    this.device = device
+  }
+
+  public getDeviceID(): string {
+    return (this.device as any).deviceID
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
@@ -44,7 +93,12 @@ export class LedgerWebUsbTransport extends LedgerTransport {
         message: {}
       }))
 
-      response = await new (translateCoin(coin))(this.transport)[method](...args)
+      if (coin) {
+        response = await new (translateCoin(coin))(this.transport)[method](...args)
+      } else {
+        // @ts-ignore
+        response = await (translateMethod(method))(this.transport, ...args)
+      }
     } catch (e) {
       console.error(e)
       return {

@@ -55,7 +55,7 @@ export interface BTCSignTxInput {
   addressNList: BIP32Path,
   scriptType?: BTCInputScriptType,
   sequence?: number,
-  amount: number,
+  amount: string,
   vout: number,
   txid: string,
   tx?: BitcoinTx, // Required for p2sh, not required for segwit
@@ -74,7 +74,7 @@ export interface BTCSignTxOutput {
   scriptType?: BTCOutputScriptType,
   address?: string,
   addressType: BTCOutputAddressType,
-  amount: number,
+  amount: string,
   isChange: boolean,
   /**
    * Device must `btcSupportsNativeShapeShift()`
@@ -98,26 +98,26 @@ export interface BTCSignedTx {
 }
 
 export enum BTCInputScriptType {
-  CashAddr, // for Bitcoin Cash
-  SpendAddress,
-  SpendMultisig,
-  External,
-  SpendWitness,
-  SpendP2SHWitness,
+  CashAddr = 'cashaddr', // for Bitcoin Cash
+  SpendAddress = 'p2pkh',
+  SpendMultisig = 'p2sh',
+  External = 'external',
+  SpendWitness = 'p2wpkh',
+  SpendP2SHWitness = 'p2sh-p2wpkh',
 }
 
 export enum BTCOutputScriptType {
-  PayToAddress,
-  PayToMultisig,
-  PayToWitness,
-  PayToP2SHWitness
+  PayToAddress = 'p2pkh',
+  PayToMultisig = 'p2sh',
+  PayToWitness = 'p2wpkh',
+  PayToP2SHWitness = 'p2sh-p2wpkh'
 }
 
 export enum BTCOutputAddressType {
-  Spend,
-  Transfer,
-  Change,
-  Exchange
+  Spend = 'spend',
+  Transfer = 'transfer',
+  Change = 'change',
+  Exchange = 'exchange'
 }
 
 export interface BTCSignMessage {
@@ -146,30 +146,35 @@ export interface BTCGetAccountPaths {
 }
 
 export interface BTCAccountPath {
+  coin: Coin,
   scriptType: BTCInputScriptType,
   addressNList: BIP32Path
 }
 
-export abstract class BTCWallet {
-  _supportsBTC: boolean = true
+export interface BTCWalletInfo {
+  _supportsBTCInfo: boolean
 
-  public abstract async btcSupportsCoin (coin: Coin): Promise<boolean>
-  public abstract async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean>
-  public abstract async btcGetAddress (msg: BTCGetAddress): Promise<string>
-  public abstract async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx>
-  public abstract async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage>
-  public abstract async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean>
+  /**
+   * Does the device support the given UTXO coin?
+   */
+  btcSupportsCoin (coin: Coin): Promise<boolean>
+
+  /**
+   * Does the device support the given script type for the given coin?
+   * Assumes that `btcSupportsCoin(coin)` for the given coin.
+   */
+  btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean>
 
   /**
    * Does the device support internal transfers without the user needing to
    * confirm the destination address?
    */
-  public abstract async btcSupportsSecureTransfer (): Promise<boolean>
+  btcSupportsSecureTransfer (): Promise<boolean>
 
   /**
    * Does the device support `/sendamountProto2` style ShapeShift trades?
    */
-  public abstract async btcSupportsNativeShapeShift (): Promise<boolean>
+  btcSupportsNativeShapeShift (): boolean
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -189,12 +194,25 @@ export abstract class BTCWallet {
       p2sh-p2wsh m/44'/0'/a'
    ```
    */
-  public abstract btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath>
+  btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath>
 
   /**
    * Does the device support spending from the combined accounts?
    * The list is assumed to contain unique entries.
    */
-  public abstract btcIsSameAccount (msg: Array<BTCAccountPath>): boolean
+  btcIsSameAccount (msg: Array<BTCAccountPath>): boolean
+
+  /**
+   * Returns the "next" account path, if any.
+   */
+  btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined
 }
 
+export interface BTCWallet extends BTCWalletInfo {
+  _supportsBTC: boolean
+
+  btcGetAddress (msg: BTCGetAddress): Promise<string>
+  btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx>
+  btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage>
+  btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean>
+}

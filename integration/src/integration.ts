@@ -1,7 +1,12 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { HDWallet, HDWalletInfo } from '@shapeshiftoss/hdwallet-core'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isPortis } from '@shapeshiftoss/hdwallet-portis'
 
 import { btcTests } from './bitcoin'
 import { ethTests } from './ethereum'
+import { cosmosTests } from './cosmos'
 
 import { WalletSuite } from './wallets/suite'
 
@@ -15,24 +20,61 @@ import { WalletSuite } from './wallets/suite'
  */
 
 export function integration (suite: WalletSuite): void {
+  const name: string = suite.name()
+
   let wallet: HDWallet
+  let info: HDWalletInfo
 
-  describe(`${suite.name()}`, () => {
+  describe(`${name}`, () => {
+    beforeAll(() => {
+      info = suite.createInfo()
+    })
 
-    beforeAll(async () => {
-      wallet = await suite.createWallet()
+    describe('Type Guards', () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet()
+      })
+
+      it('has only one vendor', () => {
+        expect(
+          (isKeepKey(wallet) ? 1 : 0) +
+          (isTrezor(wallet) ? 1 : 0) +
+          (isLedger(wallet) ? 1 : 0) +
+          (isPortis(wallet) ? 1 : 0)
+        ).toEqual(1)
+      })
     })
 
     describe('ETHWallet', () => {
-      ethTests(() => wallet)
+      beforeAll(async () => {
+        wallet = await suite.createWallet('Ethereum')
+      })
+
+      ethTests(() => ({wallet, info}))
     })
 
     describe('BTCWallet', () => {
-      btcTests(() => wallet)
+      beforeAll(async () => {
+        wallet = await suite.createWallet('Bitcoin')
+      })
+
+      btcTests(() => ({wallet, info}))
+    })
+
+    describe('CosmosWallet', () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet('Cosmos')
+      })
+
+      cosmosTests(() => ({wallet, info}))
     })
 
     describe('SelfTest', () => {
-      suite.selfTest(() => wallet)
+      beforeAll(async () => {
+        wallet = await suite.createWallet()
+      })
+
+      suite.selfTest(() => (wallet))
     })
   })
 }

@@ -5,6 +5,7 @@ import {
   supportsETH
 } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { HDWalletInfo } from '@shapeshiftoss/hdwallet-core/src/wallet'
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 
@@ -13,14 +14,14 @@ const TIMEOUT = 60 * 1000
 /**
  *  Main integration suite for testing ETHWallet implementations' Ethereum support.
  */
-export function ethereumTests (get: () => HDWallet): void {
+export function ethereumTests (get: () => {wallet: HDWallet, info: HDWalletInfo}): void {
 
   let wallet: ETHWallet & HDWallet
 
   describe('Ethereum', () => {
 
     beforeAll(async () => {
-      let w = get()
+      const { wallet: w } = get()
       if (supportsETH(w))
         wallet = w
     })
@@ -39,7 +40,7 @@ export function ethereumTests (get: () => HDWallet): void {
     test('ethSupportsNativeShapeShift()', async () => {
       if (!wallet) return
       // TODO: add a test that pays a ShapeShift conduit
-      expect(typeof await wallet.ethSupportsNativeShapeShift() === typeof true).toBeTruthy()
+      expect(typeof wallet.ethSupportsNativeShapeShift() === typeof true).toBeTruthy()
     }, TIMEOUT)
 
     test('ethSupportsSecureTransfer()', async () => {
@@ -73,6 +74,12 @@ export function ethereumTests (get: () => HDWallet): void {
       let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: 0 })
       expect(paths.length > 0).toBe(true)
       expect(paths[0].hardenedPath[0] > 0x80000000).toBe(true)
+      paths.forEach(path => {
+        expect(
+          wallet.ethNextAccountPath(path) === undefined
+          || wallet.ethNextAccountPath(path).addressNList.join() !== path.addressNList.join()
+        ).toBeTruthy()
+      })
     }, TIMEOUT)
 
     test('ethGetAddress()', async () => {

@@ -4,10 +4,11 @@
 
 A library for interacting with hardware wallets from JS/TS. Supports KeepKey,
 Trezor, and Ledger. Intended for use in web apps, chrome apps/extensions, and
-electon/node apps.
+electron/node apps.
 
+Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 
-## [Documentation](https://shapeshift.github.io/HDWallet/index.html)
+## Documentation
 
 - [hdwallet](#hdwallet)
     - [Documentation](#documentation)
@@ -22,7 +23,10 @@ electon/node apps.
 
 ## Installation
 ```bash
-yarn add @shapeshiftoss/hdwallet
+yarn add @shapeshiftoss/hdwallet-core
+yarn add @shapeshiftoss/hdwallet-keepkey-webusb
+yarn add @shapeshiftoss/hdwallet-trezor-connect
+yarn add @shapeshiftoss/hdwallet-ledger-webusb
 ```
 
 
@@ -31,9 +35,14 @@ yarn add @shapeshiftoss/hdwallet
 You can import the generated bundle to use each of the component libraries:
 
 ```javascript
-import { HDWallet, isKeepKey, isTrezor, ... } from '@shapeshiftoss/hdwallet-core'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { isLedger, LedgerHDWallet } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor, TrezorHDWallet } from '@shapeshiftoss/hdwallet-trezor'
+
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
+import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
+import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 ```
 
 
@@ -100,6 +109,12 @@ yarn dev:sandbox
 This will launch an ssl webserver that runs at `https://localhost:1234`, with
 a small demo app that shows how to use various HDWallet functionality.
 
+We use [Zeit Now](https://zeit.co/home) for continuous deployment of this
+sandbox app. On pull requests, the builder will publish a new version of that
+app with the changes includeed (for example
+[#68](https://github.com/shapeshift/hdwallet/pull/68#issuecomment-542779289)).
+Try out the latest build here: https://hdwallet.shapeshift.now.sh/
+
 
 ## Tests
 
@@ -109,7 +124,7 @@ yarn build
 yarn test
 ```
 
-The integration tests have been set up to run either against a pyhsical KeepKey
+The integration tests have been set up to run either against a physical KeepKey
 with debug firmware on it, or in CI pointed at a dockerized version of the
 emulator.  Trezor and Ledger tests run against mocks of their respective
 transport layers.
