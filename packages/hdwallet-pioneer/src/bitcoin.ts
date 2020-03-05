@@ -127,7 +127,7 @@ export function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCIn
 }
 
 
-export async function btcGetAddress (msg: BTCGetAddress, portis: any): Promise<string> {
+export async function btcGetAddress (msg: BTCGetAddress, xpub: any): Promise<string> {
 
   if(!msg.addressNList.length)
     throw new Error('Empty addressNList')
@@ -137,8 +137,6 @@ export async function btcGetAddress (msg: BTCGetAddress, portis: any): Promise<s
 
   const hardPath = hardenedPath(msg.addressNList)
   const hardPathString = addressNListToBIP32(hardPath)
-
-  const { result: xpub } = await portis.getExtendedPublicKey(hardPathString, "Bitcoin")
 
   const relPath = relativePath(msg.addressNList)
   const relPathString = addressNListToBIP32(relPath).substr(2)
@@ -160,14 +158,6 @@ export async function btcGetAddress (msg: BTCGetAddress, portis: any): Promise<s
       break
     default:
       throw new Error(`Unsupported scriptType ${scriptType}`)
-  }
-
-  if(msg.showDisplay === true) {
-    if (!verifyScriptTypePurpose(scriptType, purpose)) {
-      throw new Error(`Invalid scriptType ${scriptType} for purpose ${purpose}`)
-    }
-
-    portis.showBitcoinWallet(addressNListToBIP32(msg.addressNList))
   }
 
   return result.address
@@ -248,8 +238,8 @@ export async function btcSupportsCoin (coin: Coin): Promise<boolean> {
     return false
 }
 
-export async function btcSignTx (msg: BTCSignTx, portis: any): Promise<BTCSignedTx> {
-  const { result } = await portis.signBitcoinTransaction(msg)
+export async function btcSignTx (msg: BTCSignTx, seed: string): Promise<BTCSignedTx> {
+  const result = {serializedTx:"foo"}
   return {
     signatures: ['signature1', 'signature2', 'signature3'],
     serializedTx: result.serializedTx
