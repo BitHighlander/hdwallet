@@ -3,6 +3,7 @@ import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isPortis } from '@shapeshiftoss/hdwallet-portis'
+//import { isPioneer } from '@shapeshiftoss/hdwallet-pioneer'
 
 import { btcTests } from './bitcoin'
 import { ethTests } from './ethereum'
