@@ -24,3 +24,10 @@ quasar build
 
 ### Customize the configuration
 See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
+
+
+## Dev Guide
+
+### Typescript support from
+
+https://dev.to/xkonti/creating-quasar-framework-project-with-typescript-support-51ge
