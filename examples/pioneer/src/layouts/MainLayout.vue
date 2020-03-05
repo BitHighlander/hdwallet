@@ -46,10 +46,12 @@
   </q-layout>
 </template>
 
-<script>
-import EssentialLink from 'components/EssentialLink'
+<script lang="ts">
+import EssentialLink from '../components/EssentialLink'
 
-export default {
+import Vue from 'vue'
+
+export default Vue.extend({
   name: 'MainLayout',
 
   components: {
@@ -69,5 +71,5 @@ export default {
       ]
     }
   }
-}
+})
 </script>

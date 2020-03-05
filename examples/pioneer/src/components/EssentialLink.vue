@@ -19,8 +19,10 @@
   </q-item>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   name: 'EssentialLink',
   props: {
     title: {
@@ -43,5 +45,5 @@ export default {
       default: ''
     }
   }
-}
+})
 </script>

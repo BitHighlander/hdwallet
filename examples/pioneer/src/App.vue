@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 // import {
 //   Keyring,
@@ -43,7 +43,9 @@
 //   debug.default(deviceId)(`${direction} ${message_type}`, event)
 // })
 
-export default {
+import Vue from 'vue'
+
+export default Vue.extend({
   name: 'App'
-}
+})
 </script>
