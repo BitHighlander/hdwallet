@@ -370,12 +370,12 @@ $getXpubs.on('click', async (e) => {
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
       coin: "Litecoin"
     },
-    {
-      addressNList: hardenedPath,
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: isPortis(wallet) ? "Bitcoin" : "Ethereum"
-    }
+    // {
+    //   addressNList: hardenedPath,
+    //   curve: "secp256k1",
+    //   showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+    //   coin: isPortis(wallet) ? "Bitcoin" : "Ethereum"
+    // }
   ])
 
   $manageResults.val(JSON.stringify(result))

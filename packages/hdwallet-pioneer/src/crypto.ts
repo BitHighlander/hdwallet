@@ -1,7 +1,11 @@
 /*
-    Multisig Crypto gen
+    Pioneer
+        * A multi-coin multi-purpose concurrency lib
 
  */
+
+const TAG = " | Pioneer | "
+
 const bip39 = require(`bip39`)
 const bip32 = require(`bip32`)
 const bech32 = require(`bech32`)
@@ -40,6 +44,37 @@ const COIN_SUPPORT = [
     'LTC',
     'RDD',
 ]
+
+
+const supportedCoins = [
+    'Bitcoin',
+    'Testnet',
+    'BitcoinCash',
+    'BitcoinGold',
+    'Litecoin',
+    'Dash',
+    'DigiByte',
+    'Dogecoin',
+]
+
+const segwitCoins = [
+    'Bitcoin',
+    'Testnet',
+    'BitcoinGold',
+    'Litecoin',
+]
+
+const COIN_MAP = {
+    BTC:"Bitcoin",
+    BTCT:"Testnet",
+    ETH:"Ethereum",
+    BCH:"BitcoinCash",
+    LTC:"Litecoin",
+    DASH:"Dash",
+    DGB:"DigiByte",
+    DOGE:"Dogecoin",
+
+}
 
 const SLIP_44:any = {
     BTC: 0,
@@ -138,11 +173,11 @@ const NETWORKS:any = {
 
 
 // TYPES
-
 interface CoinInfo {
     coin: string
     master:string
     publicKey:string,
+    long:string,
     xpub:string,
     zpub?:string
 }
@@ -153,7 +188,7 @@ interface Wallet {
     }
 }
 
-// All known xpub formats
+// All known xyx... pub formats
 const prefixes:any = new Map(
     [
         ['xpub', '0488b21e'],
@@ -175,9 +210,11 @@ enum AddressTypes {
 }
 
 
-
-module.exports = {
-    xpubConvert: async function (xpub:string,target:string) {
+//innit
+export async function xpubConvert(xpub:string,target:string){
+    let tag = TAG + " | importConfig | "
+    try{
+        //
         if (!prefixes.has(target)) {
             return "Invalid target version";
         }
@@ -189,73 +226,17 @@ module.exports = {
         data = data.slice(4);
         data = Buffer.concat([Buffer.from(prefixes.get(target),'hex'), data]);
         return b58.encode(data);
-    },
-    generateAddressZpub: async function (zpub:string,index:number,isChange:boolean,type:string) {
-        var account1 = new BIP84.fromZPub(zpub)
-        let address = account1.getAddress(index,isChange)
-        return address
-    },
-    generatePubkey: async function (xpub:string,index:number,isChange:boolean,type:string) {
-        let account = 1
-        //if(isChange) account = 0
-        let publicKey = bitcoin.bip32.fromBase58(xpub).derive(account).derive(index).publicKey
-        //console.log("publicKey: ",publicKey)
-        return publicKey.toString(`hex`)
-    },
-    generateAddress: async function (coin:string,pubkey:any,type:any) {
+
+    }catch (e) {
+        console.error(tag,"e: ",e)
+        throw e
+    }
+}
+
+export async function generateWalletFromSeed(mnemonic:string){
+    let tag = TAG + " | importConfig | "
+    try{
         //
-        let output:any
-
-        switch(coin) {
-            case 'BTC':
-                //if no type default to bech32
-                if(!type) type = 'bech32'
-
-                if(type === 'bech32'){
-                    const { address } = bitcoin.payments.p2wpkh({ pubkey: Buffer.from(pubkey,'hex') });
-                    output = address
-                } else if(type === 'legacy'){
-                    const { address } = bitcoin.payments.p2pkh({ pubkey: Buffer.from(pubkey,'hex') });
-                    output = address
-                }
-
-                break;
-            default:
-
-                if(!NETWORKS[coin.toLowerCase()]) throw Error("103: unknown coin, no network found! coin: "+coin)
-                const { address } = bitcoin.payments.p2pkh({
-                    pubkey: Buffer.from(pubkey,'hex'),
-                    network: NETWORKS[coin.toLowerCase()]
-                })
-
-                output = address
-                break;
-        }
-
-
-        return output
-    },
-    generateMultiSigAddress: async function (pubkeys:any,m:number) {
-        const { address } = bitcoin.payments.p2wsh({
-            redeem: bitcoin.payments.p2ms({ m, pubkeys }),
-        });
-        return address
-    },
-    generateAddressPrivkey: async function (mnemonic:string,path:string) {
-        const seed = await bip39.mnemonicToSeed(mnemonic)
-        let mk = new HDKey.fromMasterSeed(Buffer.from(seed, 'hex'))
-
-        //parse path
-        // "m/44'/714'/0'/0/093"
-        mk = mk.derive(path)
-        let privateKey = mk.privateKey
-        let publicKey = mk.publicKey
-
-        //let address = createBNBAddress(mk.publicKey)
-
-        return {privateKey,publicKey}
-    },
-    generateWalletFromSeed: async function (mnemonic:string) {
         let output:Wallet = {
             coins:{}
         }
@@ -280,11 +261,10 @@ module.exports = {
                 addressMaster = address
             }
 
-
-
             console.log(addressMaster)
             let coinInfo: CoinInfo = {
                 coin,
+                long:COIN_MAP[coin],
                 master:addressMaster,
                 publicKey:publicKey.toString(`hex`),
                 xpub
@@ -299,24 +279,158 @@ module.exports = {
             }
 
             console.log({coinInfo})
-
             output.coins[coin] = coinInfo
-
         }
+
         return output
-    },
-    generateSeed: function () {
-        let randomBytesFunc = standardRandomBytesFunc
-        const randomBytes = Buffer.from(randomBytesFunc(32), `hex`)
-        if (randomBytes.length !== 32) throw Error(`Entropy has incorrect length`)
-        const mnemonic = bip39.entropyToMnemonic(randomBytes.toString(`hex`))
-        return mnemonic
-    },
+    }catch (e) {
+        console.error(tag,"e: ",e)
+        throw e
+    }
 }
+
+//
+// module.exports = {
+//     xpubConvert: async function (xpub:string,target:string) {
+//         if (!prefixes.has(target)) {
+//             return "Invalid target version";
+//         }
+//
+//         // trim whitespace
+//         xpub = xpub.trim();
+//
+//         var data = b58.decode(xpub);
+//         data = data.slice(4);
+//         data = Buffer.concat([Buffer.from(prefixes.get(target),'hex'), data]);
+//         return b58.encode(data);
+//     },
+//     generateAddressZpub: async function (zpub:string,index:number,isChange:boolean,type:string) {
+//         var account1 = new BIP84.fromZPub(zpub)
+//         let address = account1.getAddress(index,isChange)
+//         return address
+//     },
+//     generatePubkey: async function (xpub:string,index:number,isChange:boolean,type:string) {
+//         let account = 1
+//         //if(isChange) account = 0
+//         let publicKey = bitcoin.bip32.fromBase58(xpub).derive(account).derive(index).publicKey
+//         //console.log("publicKey: ",publicKey)
+//         return publicKey.toString(`hex`)
+//     },
+//     generateAddress: async function (coin:string,pubkey:any,type:any) {
+//         //
+//         let output:any
+//
+//         switch(coin) {
+//             case 'BTC':
+//                 //if no type default to bech32
+//                 if(!type) type = 'bech32'
+//
+//                 if(type === 'bech32'){
+//                     const { address } = bitcoin.payments.p2wpkh({ pubkey: Buffer.from(pubkey,'hex') });
+//                     output = address
+//                 } else if(type === 'legacy'){
+//                     const { address } = bitcoin.payments.p2pkh({ pubkey: Buffer.from(pubkey,'hex') });
+//                     output = address
+//                 }
+//
+//                 break;
+//             default:
+//
+//                 if(!NETWORKS[coin.toLowerCase()]) throw Error("103: unknown coin, no network found! coin: "+coin)
+//                 const { address } = bitcoin.payments.p2pkh({
+//                     pubkey: Buffer.from(pubkey,'hex'),
+//                     network: NETWORKS[coin.toLowerCase()]
+//                 })
+//
+//                 output = address
+//                 break;
+//         }
+//
+//
+//         return output
+//     },
+//     generateMultiSigAddress: async function (pubkeys:any,m:number) {
+//         const { address } = bitcoin.payments.p2wsh({
+//             redeem: bitcoin.payments.p2ms({ m, pubkeys }),
+//         });
+//         return address
+//     },
+//     generateAddressPrivkey: async function (mnemonic:string,path:string) {
+//         const seed = await bip39.mnemonicToSeed(mnemonic)
+//         let mk = new HDKey.fromMasterSeed(Buffer.from(seed, 'hex'))
+//
+//         //parse path
+//         // "m/44'/714'/0'/0/093"
+//         mk = mk.derive(path)
+//         let privateKey = mk.privateKey
+//         let publicKey = mk.publicKey
+//
+//         //let address = createBNBAddress(mk.publicKey)
+//
+//         return {privateKey,publicKey}
+//     },
+//     generateWalletFromSeed: async function (mnemonic:string) {
+//         let output:Wallet = {
+//             coins:{}
+//         }
+//         //for each coin
+//         for(let i = 0; i < COIN_SUPPORT.length; i++){
+//             let coin = COIN_SUPPORT[i]
+//
+//             let path = "m/44'/"+SLIP_44[coin]+"'/0'"
+//
+//             const {masterKey,xpub} = await deriveMasterKey(mnemonic,path)
+//             //
+//             const { privateKey, publicKey } = deriveKeypair(masterKey,path)
+//             //const bnbAddress = createBNBAddress(publicKey)
+//
+//             // let master = bitcoin.bip32.fromBase58(xpub).derive(0).derive(0)
+//             let addressMaster:string = ""
+//             if(coin === "BTC"){
+//                 const { address } = bitcoin.payments.p2wpkh({ pubkey: publicKey, network:NETWORKS[coin.toLowerCase()] });
+//                 addressMaster = address
+//             } else {
+//                 const { address } = bitcoin.payments.p2pkh({ pubkey: publicKey, network:NETWORKS[coin.toLowerCase()] });
+//                 addressMaster = address
+//             }
+//
+//
+//
+//             console.log(addressMaster)
+//             let coinInfo: CoinInfo = {
+//                 coin,
+//                 master:addressMaster,
+//                 publicKey:publicKey.toString(`hex`),
+//                 xpub
+//             }
+//
+//             if(coin === "BTC"){
+//                 let root = new BIP84.fromSeed(mnemonic)
+//                 let child0 = root.deriveAccount(0)
+//                 let account0 = new BIP84.fromZPrv(child0)
+//                 let zpub = account0.getAccountPublicKey()
+//                 coinInfo.zpub = zpub
+//             }
+//
+//             console.log({coinInfo})
+//
+//             output.coins[coin] = coinInfo
+//
+//         }
+//         return output
+//     },
+//     generateSeed: function () {
+//         let randomBytesFunc = standardRandomBytesFunc
+//         const randomBytes = Buffer.from(randomBytesFunc(32), `hex`)
+//         if (randomBytes.length !== 32) throw Error(`Entropy has incorrect length`)
+//         const mnemonic = bip39.entropyToMnemonic(randomBytes.toString(`hex`))
+//         return mnemonic
+//     },
+// }
 
 //get Xpub
 
-
+//Build Seed
 function standardRandomBytesFunc(size:any) {
     /* istanbul ignore if: not testable on node */
 

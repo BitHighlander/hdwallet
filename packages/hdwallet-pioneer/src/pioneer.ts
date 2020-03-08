@@ -42,6 +42,65 @@ import * as eth from './ethereum'
 import * as btc from './bitcoin'
 import { isObject } from 'lodash';
 
+import {
+  generateWalletFromSeed
+} from './crypto'
+
+/**
+ * @globals
+ */
+
+const supportedCoins = [
+  'Bitcoin',
+  'Testnet',
+  'BitcoinCash',
+  'BitcoinGold',
+  'Litecoin',
+  'Dash',
+  'DigiByte',
+  'Dogecoin',
+]
+
+const segwitCoins = [
+  'Bitcoin',
+  'Testnet',
+  'BitcoinGold',
+  'Litecoin',
+]
+
+const COIN_MAP = {
+  Bitcoin:"BTC",
+  Testnet:"BTCT",
+  BitcoinCash:"BCH",
+  Litecoin:"LTC",
+  Dash:"DASH",
+  DigiByte:"DigiByte",
+  Dogecoin:"DOGE",
+}
+
+/**
+  @Types
+
+  TODO? move these somewhere else?
+
+ */
+
+interface CoinInfo {
+  coin: string
+  master:string
+  publicKey:string,
+  xpub:string,
+  zpub?:string
+}
+
+interface Wallet {
+  coins: {
+    [index: string]: CoinInfo
+  }
+}
+
+
+
 // We might not need this. Leaving it for now to debug further
 class PioneerTransport extends Transport {
   public getDeviceID() {
@@ -66,6 +125,12 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsCosmos: boolean = false
   _supportsDebugLink: boolean = false
   _isPioneer: boolean = true
+
+  //CORE pioneer info
+  _WALLET_SEED:string = ""
+  _WALLET_PUBLIC:Wallet
+  _WALLET_PRIVATE=""
+
 
   transport = new PioneerTransport(new Keyring())
 
@@ -175,8 +240,10 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return Promise.resolve()
   }
 
-  public loadDevice (msg: LoadDevice): Promise<void> {
-    return this.pioneer.importWallet(msg.mnemonic)
+  public async loadDevice(msg: LoadDevice): Promise<void> {
+    this._WALLET_SEED = msg.mnemonic
+    this._WALLET_PUBLIC = await generateWalletFromSeed(msg.mnemonic)
+    return Promise.resolve()
   }
 
   public describePath (msg: DescribePath): PathDescription {
@@ -184,26 +251,16 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
+    console.log("msg: ",msg)
     const publicKeys = []
-    this.pioneerCallInProgress = new Promise( async (resolve, reject) => {
-      try {
-          await this.pioneerCallInProgress
-      } catch (e) {
-          console.error(e)
-      }
+      console.log({pubWallet:this._WALLET_PUBLIC})
       for (let i = 0; i < msg.length; i++) {
-        const { addressNList, coin } = msg[i];
-        const bitcoinSlip44 = 0x80000000 + slip44ByCoin('Bitcoin')
-        // TODO we really shouldnt be every using the "bitcoin" string parameter but is here for now to make it work with their btc address on their pioneer wallet.
-        const pioneerResult = await this.pioneer.getExtendedPublicKey(addressNListToBIP32(addressNList), addressNList[1] === bitcoinSlip44 ? 'Bitcoin' : '')
-        const { result, error } = pioneerResult
-        if(error)
-          reject(error)
-        publicKeys.push({ xpub: result })
+        const { coin } = msg[i];
+        console.log("coin: ",coin)
+        publicKeys.push({ xpub: this._WALLET_PUBLIC.coins[COIN_MAP[coin]].xpub })
       }
-      resolve(publicKeys)
-    })
-    return this.pioneerCallInProgress
+
+    return publicKeys
   }
 
   public async isInitialized (): Promise<boolean> {
@@ -322,7 +379,7 @@ export class PioneerHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWall
   _supportsCosmosInfo: boolean = false
 
   public getVendor (): string {
-    return "Pioneer"
+    return " "
   }
 
   public hasOnDevicePinEntry (): boolean {
