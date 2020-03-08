@@ -40,9 +40,13 @@
       </q-list>
     </q-drawer>
 
+
+
     <q-page-container>
       <router-view />
     </q-page-container>
+
+
   </q-layout>
 </template>
 
@@ -60,6 +64,8 @@ export default Vue.extend({
 
   data () {
     return {
+      step: 1,
+      openSetup:false,
       leftDrawerOpen: false,
       essentialLinks: [
         {
@@ -70,6 +76,8 @@ export default Vue.extend({
         }
       ]
     }
+  },
+  created() {
   }
 })
 </script>

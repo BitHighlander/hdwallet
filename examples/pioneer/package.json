@@ -8,10 +8,22 @@
   "author": "highlander <bithighlander@gmail.com>",
   "private": true,
   "scripts": {
+    "run-dev-web": "quasar dev",
+    "run-dev-electron": "quasar dev --mode electron",
+    "build": "quasar build",
+    "build:pwa": "quasar build -m pwa",
     "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore ./",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@shapeshiftoss/hdwallet-core": "^0.18.4",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "^0.18.4",
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "^0.18.4",
+    "@shapeshiftoss/hdwallet-ledger": "^0.18.4",
+    "@shapeshiftoss/hdwallet-ledger-webusb": "^0.18.4",
+    "@shapeshiftoss/hdwallet-portis": "^0.18.4",
+    "@shapeshiftoss/hdwallet-trezor": "^0.18.4",
+    "@shapeshiftoss/hdwallet-trezor-connect": "^0.18.4",
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.1",
     "quasar": "^1.0.0",

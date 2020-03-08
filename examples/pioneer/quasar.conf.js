@@ -49,6 +49,10 @@ module.exports = function (ctx) {
       //            (not treeshaking Quasar; biggest bundle size; convenient)
       all: 'auto',
 
+      config: {
+        dark: 'auto' // or Boolean true/false
+      },
+
       components: [],
       directives: [],
 
@@ -77,8 +81,9 @@ module.exports = function (ctx) {
           enforce: 'pre',
           test: /\.(js|vue)$/,
           loader: 'eslint-loader',
-          exclude: /node_modules/,
+          exclude: /(node_modules|quasar)/,
           options: {
+            fix:true,
             formatter: require('eslint').CLIEngine.getFormatter('stylish')
           }
         })

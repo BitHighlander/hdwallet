@@ -18,6 +18,7 @@ import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
 import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
+import { PioneerAdapter } from '@shapeshiftoss/hdwallet-pioneer'
 
 import {
   BTCInputScriptType,
@@ -39,6 +40,7 @@ const portisAppId = 'ff763d3d-9e34-45a1-81d1-caa39b9c64f9'
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
 const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId })
+const pioneerAdapter = PioneerAdapter.useKeyring(keyring)
 
 const log = debug.default('hdwallet')
 
@@ -72,6 +74,7 @@ const $kkemu = $('#kkemu')
 const $trezor = $('#trezor')
 const $ledger = $('#ledger')
 const $portis = $('#portis')
+const $pioneer = $('#pioneer')
 const $keyring = $('#keyring')
 
 $keepkey.on('click', async (e) => {
@@ -119,6 +122,20 @@ $portis.on('click',  async (e) => {
   $('#keyring select').val(deviceId)
 })
 
+$pioneer.on('click',  async (e) => {
+  e.preventDefault()
+  wallet = await pioneerAdapter.pairDevice()
+  window['wallet'] = wallet
+
+  let deviceId = 'nothing'
+  try {
+    deviceId  = await wallet.getDeviceID()
+  } catch( e ) {
+    console.error(e)
+  }
+  $('#keyring select').val(deviceId)
+})
+
 async function deviceConnected (deviceId) {
   let wallet = keyring.get(deviceId)
   if (!$keyring.find(`option[value="${deviceId}"]`).length) {
@@ -153,6 +170,12 @@ async function deviceConnected (deviceId) {
     await portisAdapter.initialize()
   } catch (e) {
     console.error('Could not initialize PortisAdapter', e)
+  }
+
+  try {
+    await pioneerAdapter.initialize()
+  } catch (e) {
+    console.error('Could not initialize PioneerAdapter', e)
   }
 
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {

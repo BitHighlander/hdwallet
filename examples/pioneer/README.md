@@ -31,3 +31,19 @@ See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
 ### Typescript support from
 
 https://dev.to/xkonti/creating-quasar-framework-project-with-typescript-support-51ge
+
+
+## crpyto icons
+
+https://github.com/man15h/vue-cryptoicon
+
+
+## general snippets
+
+Numbers
+
+https://vuejsexamples.com/a-simple-vue-animated-number-for-vue2/
+
+https://vuejsexamples.com/a-smoothly-transitions-animation-numbers-with-ease/
+
+https://vuejsexamples.com/enable-a-child-components-to-animate-when-it-changes-the-parent/
