@@ -17,6 +17,7 @@ const HDKey = require('hdkey')
 let bitcoin = require("bitcoinjs-lib");
 var b58 = require('bs58check');
 const BIP84 = require('bip84')
+const ethUtils = require('ethereumjs-util');
 
 /**********************************
  // Module
@@ -25,6 +26,7 @@ const BIP84 = require('bip84')
 
 
 enum COIN_SUPPORT_ENUM {
+    ETH,
     BTC,
     BCH,
     DASH,
@@ -32,17 +34,19 @@ enum COIN_SUPPORT_ENUM {
     DOGE,
     LTC,
     RDD,
+    ATOM,
 }
 
 
 const COIN_SUPPORT = [
+    'ETH',
     'BTC',
     'BCH',
     'DASH',
     'DGB',
     'DOGE',
     'LTC',
-    'RDD',
+    'RDD'
 ]
 
 
@@ -73,10 +77,12 @@ const COIN_MAP = {
     DASH:"Dash",
     DGB:"DigiByte",
     DOGE:"Dogecoin",
+    ATOM:"Cosmos"
 
 }
 
 const SLIP_44:any = {
+    ETH: 118,
     BTC: 0,
     BCH:145,
     LTC: 2,
@@ -253,11 +259,22 @@ export async function generateWalletFromSeed(mnemonic:string){
 
             // let master = bitcoin.bip32.fromBase58(xpub).derive(0).derive(0)
             let addressMaster:string = ""
-            if(coin === "BTC"){
-                const { address } = bitcoin.payments.p2wpkh({ pubkey: publicKey, network:NETWORKS[coin.toLowerCase()] });
+
+            if (coin === "BTC") {
+                let {address: address} = bitcoin.payments.p2wpkh({
+                    pubkey: publicKey,
+                    network: NETWORKS[coin.toLowerCase()]
+                });
+                addressMaster = address
+            } else if (coin === "ETH") {
+                var address;
+                address = ethUtils.bufferToHex(ethUtils.pubToAddress(publicKey, true));
                 addressMaster = address
             } else {
-                const { address } = bitcoin.payments.p2pkh({ pubkey: publicKey, network:NETWORKS[coin.toLowerCase()] });
+                let {address: address} = bitcoin.payments.p2pkh({
+                    pubkey: publicKey,
+                    network: NETWORKS[coin.toLowerCase()]
+                });
                 addressMaster = address
             }
 
@@ -288,6 +305,84 @@ export async function generateWalletFromSeed(mnemonic:string){
         throw e
     }
 }
+
+export async function generatePubkey(coin:string, xpub:string,path:string){
+    let tag = TAG + " | importConfig | "
+    try{
+        let publicKey
+        if(coin === "BTC"){
+            //TODO we need flexable paths!
+            //publicKey = bitcoin.bip32.fromBase58(xpub).derivePath(path).publicKey
+
+            //notice assumes index wtf
+            publicKey = bitcoin.bip32.fromBase58(xpub).derive(0).publicKey
+        } else if(coin === "ETH"){
+            publicKey = bitcoin.bip32.fromBase58(xpub).derive(0).publicKey
+        } else {
+            //assume bitcoinish?
+            //TODO fixme
+            //publicKey = bitcoin.bip32.fromBase58(xpub).derivePath(path).publicKey
+
+            publicKey = bitcoin.bip32.fromBase58(xpub).derive(0).publicKey
+        }
+
+        //console.log("publicKey: ",publicKey)
+        return publicKey.toString(`hex`)
+    }catch (e) {
+        console.error(tag,"e: ",e)
+        throw e
+    }
+}
+
+export async function generateAddress(coin:string,pubkey:any,type:any){
+    let tag = TAG + " | importConfig | "
+    try{
+        let output:any
+        switch(coin) {
+            case 'BTC':
+                //if no type default to bech32
+                if(!type) type = 'bech32'
+
+                if(type === 'bech32'){
+                    const { address } = bitcoin.payments.p2wpkh({ pubkey: Buffer.from(pubkey,'hex') });
+                    output = address
+                } else if(type === 'legacy'){
+                    const { address } = bitcoin.payments.p2pkh({ pubkey: Buffer.from(pubkey,'hex') });
+                    output = address
+                }
+
+                break;
+            case 'ETH':
+                //
+                let addressETH = ethUtils.bufferToHex(ethUtils.pubToAddress(Buffer.from(pubkey,'hex'), true));
+                output = addressETH
+                break
+            case 'ATOM':
+                //
+                const message = CryptoJS.enc.Hex.parse(pubkey.toString(`hex`))
+                const hash = ripemd160(sha256(message)).toString()
+                const addressCosmos = Buffer.from(hash, `hex`)
+                const cosmosAddress = bech32ify(addressCosmos, `cosmos`)
+                output = cosmosAddress
+                break
+            default:
+
+                if(!NETWORKS[coin.toLowerCase()]) throw Error("103: unknown coin, no network found! coin: "+coin)
+                const { address } = bitcoin.payments.p2pkh({
+                    pubkey: Buffer.from(pubkey,'hex'),
+                    network: NETWORKS[coin.toLowerCase()]
+                })
+
+                output = address
+                break;
+        }
+        return output
+    }catch (e) {
+        console.error(tag,"e: ",e)
+        throw e
+    }
+}
+
 
 //
 // module.exports = {
@@ -429,6 +524,11 @@ export async function generateWalletFromSeed(mnemonic:string){
 // }
 
 //get Xpub
+
+function bech32ify(address, prefix) {
+    const words = bech32.toWords(address)
+    return bech32.encode(prefix, words)
+}
 
 //Build Seed
 function standardRandomBytesFunc(size:any) {

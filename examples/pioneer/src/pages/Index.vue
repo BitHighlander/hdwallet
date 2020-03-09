@@ -7,9 +7,9 @@
           <q-tooltip content-class="bg-accent">Start a fresh wallet</q-tooltip>
         </q-btn>
 
-        <q-btn color="primary" label="Configure Hardware Wallet" class="q-mt-md">
+        <!-- <q-btn color="primary" label="Configure Hardware Wallet" class="q-mt-md">
           <q-tooltip content-class="bg-accent">Keepkey, Ledger and Trezor wallets supported</q-tooltip>
-        </q-btn>
+        </q-btn> -->
 
         <q-btn color="primary" label="Import Seed Phrase" class="q-mt-md">
           <q-tooltip content-class="bg-accent">Restore Software wallet</q-tooltip>

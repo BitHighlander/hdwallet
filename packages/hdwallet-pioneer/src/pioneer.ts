@@ -43,7 +43,9 @@ import * as btc from './bitcoin'
 import { isObject } from 'lodash';
 
 import {
-  generateWalletFromSeed
+  generateWalletFromSeed,
+  generatePubkey,
+  generateAddress
 } from './crypto'
 
 /**
@@ -70,12 +72,14 @@ const segwitCoins = [
 
 const COIN_MAP = {
   Bitcoin:"BTC",
+  Cosmos:"ATOM",
   Testnet:"BTCT",
   BitcoinCash:"BCH",
   Litecoin:"LTC",
   Dash:"DASH",
-  DigiByte:"DigiByte",
+  DigiByte:"DGB",
   Dogecoin:"DOGE",
+  Ethereum:"ETH"
 }
 
 /**
@@ -122,7 +126,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsBTCInfo: boolean = true
   _supportsBTC: boolean = true
   _supportsCosmosInfo: boolean = false
-  _supportsCosmos: boolean = false
+  _supportsCosmos: boolean = true
   _supportsDebugLink: boolean = false
   _isPioneer: boolean = true
 
@@ -257,7 +261,9 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
       for (let i = 0; i < msg.length; i++) {
         const { coin } = msg[i];
         console.log("coin: ",coin)
-        publicKeys.push({ xpub: this._WALLET_PUBLIC.coins[COIN_MAP[coin]].xpub })
+        publicKeys.push({
+          coin,
+          xpub: this._WALLET_PUBLIC.coins[COIN_MAP[coin]].xpub })
       }
 
     return publicKeys
@@ -272,7 +278,31 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
-    return btc.btcGetAddress(msg, this.pioneer)
+
+    console.log("*** msg",msg)
+    let coinSymbol = COIN_MAP[msg.coin]
+    let pathStr = addressNListToBIP32(msg.addressNList)
+    console.log("*** pathStr",pathStr)
+    let pubKey = await generatePubkey(coinSymbol,this._WALLET_PUBLIC.coins[coinSymbol].xpub,pathStr)
+    console.log("*** pubKey: ",pubKey)
+    //address
+    let address = await generateAddress(coinSymbol,pubKey,null)
+
+    return address
+  }
+
+  public async cosmosGetAddress (msg: BTCGetAddress): Promise<string> {
+
+    console.log("*** msg",msg)
+    let coinSymbol = COIN_MAP[msg.coin]
+    let pathStr = addressNListToBIP32(msg.addressNList)
+    console.log("*** pathStr",pathStr)
+    let pubKey = await generatePubkey(coinSymbol,this._WALLET_PUBLIC.coins[coinSymbol].xpub,pathStr)
+    console.log("*** pubKey: ",pubKey)
+    //address
+    let address = await generateAddress(coinSymbol,pubKey,null)
+
+    return address
   }
 
   public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
@@ -350,10 +380,14 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-    if(msg.showDisplay === true) {
-      this.pioneer.showPioneer()
-    }
-    return this._ethGetAddress()
+    console.log("*** msg",msg)
+    let pathStr = addressNListToBIP32(msg.addressNList)
+    console.log("*** pathStr",pathStr)
+    let pubKey = await generatePubkey("ETH",this._WALLET_PUBLIC.coins['ETH'].xpub,pathStr)
+    console.log("*** pubKey: ",pubKey)
+    //address
+    let address = await generateAddress("ETH",pubKey,null)
+    return address
   }
 
   public async getDeviceID(): Promise<string> {

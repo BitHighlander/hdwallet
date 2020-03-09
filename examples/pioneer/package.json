@@ -28,6 +28,7 @@
     "@shapeshiftoss/hdwallet-trezor-connect": "^0.18.4",
     "app-root-dir": "^1.0.2",
     "axios": "^0.18.1",
+    "ethereumjs-util": "^6.2.0",
     "quasar": "^1.0.0",
     "vue-i18n": "^8.0.0"
   },
