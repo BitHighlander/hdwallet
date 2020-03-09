@@ -1,21 +1,7 @@
 <template>
   <div class="q-pa-md">
-    <q-stepper
-      v-model="step"
-      ref="stepper"
-      color="primary"
-      animated
-    >
-      <q-step
-        :name="1"
-        title="Wallet settings"
-        icon="settings"
-        :done="step > 1"
-      >
-        
 
-      <div class="row">
-      <div>Do you have a wallet you would like to import?</div>
+		<div v-if="openWelcome">
       <div>
         <q-btn color="primary" label="Create New Wallet" class="q-mt-md">
           <q-tooltip content-class="bg-accent">Start a fresh wallet</q-tooltip>
@@ -29,50 +15,113 @@
           <q-tooltip content-class="bg-accent">Restore Software wallet</q-tooltip>
         </q-btn>
       </div>
-      </div>
+    </div>
 
+    <div v-if="openPassword">
+        <form>
+        <div class="field">
+        <label class="label">{{ $t("msg.password") }}</label>
+        <div class="control">
+        <input class="input" type="password" placeholder="********" required
+        :class="{'is-warning': error}" v-model="password">
+        </div>
+        <p class="help is-warning" v-if="error">{{ $t("msg.wrongPassword") }}</p>
+        </div>
 
-      </q-step>
+        <div class="field">
+        <button class="button is-link" @click.prevent="tryLogin">
+        {{ $t("msg.login_") }}
+        </button>
+        </div>
+        </form>
+    </div>
 
-      <q-step
-        :name="2"
-        title="Configure Node Settings"
-        caption="Optional"
-        icon="create_new_folder"
-        :done="step > 2"
-      >
-        Select Pioneer URL:
-      </q-step>
-
-      <q-step
-        :name="3"
-        title="Configure Privacy Settings"
-        icon="assignment"
-        disable
-      >
-        This step won't show up because it is disabled.
-      </q-step>
-
-      <template v-slot:navigation>
-        <q-stepper-navigation>
-          <q-btn @click="$refs.stepper.next()" disable color="primary" :label="step === 4 ? 'Finish' : 'Continue'" />
-          <q-btn v-if="step > 1" flat color="primary" @click="$refs.stepper.previous()" label="Back" class="q-ml-sm" />
-        </q-stepper-navigation>
-      </template>
-    </q-stepper>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 
+import {
+  downloadUrl,
+  locale,
+  getConfig,
+  setConfig,
+  updateConfig,
+  checkConfigs
+} from './config'
+
 export default Vue.extend({
   name: 'PageIndex',
   data () {
     return {
       step: 1,
-      stepOneComplete:false
+      openWelcome:false,
+      openPassword:false
     }
-  }
+  },
+  mounted() {
+
+    /*
+				Setup stages
+
+				isRightVersion?
+
+				do I have a wallet already?
+				  if not, setup(welcome)
+
+				verifyPassword
+				  else offer new wallet
+
+				do I have a config file?
+				  Should always
+
+				does config file have a username?
+				  else register
+
+			 */
+
+
+    console.log('checkpoint 1 mounted')
+
+    //this.checkNewVersion()
+    //console.log("checkpoint 2 passed version check")
+
+    //detect configs
+    this.loadConfig()
+
+
+  },
+  methods: {
+    loadConfig: function () {
+      let configStatus = checkConfigs()
+      let config = getConfig()
+      console.log('config: ', config)
+      if (!configStatus.isConfigured) {
+        console.log('checkpoint 3 No config found!')
+        //open settings modal
+        this.openWelcome = true
+      } else {
+        console.log('checkpoint 3a config found!')
+        this.openPassword = true
+        
+      }
+    },
+    async tryLogin() {
+      console.log('tryLogin: ')
+      let password = this.password
+      console.log('password: ',password)
+
+      let isValid = true
+
+      if(isValid){
+        console.log('login!')
+      }else{
+        this.error = true
+        this.errors['Invalid Password!']
+      }
+    },
+  } 
+
 })
 </script>

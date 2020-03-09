@@ -6,8 +6,8 @@
   "cordovaId": "com.shapeshift.pioneer.app",
   "capacitorId": "",
   "author": "highlander <bithighlander@gmail.com>",
-  "private": true,
   "scripts": {
+    "yarn": "yarn",
     "run-dev-web": "quasar dev",
     "run-dev-electron": "quasar dev --mode electron",
     "build": "quasar build",
@@ -16,15 +16,17 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@quasar/extras": "^1.0.0",
     "@shapeshiftoss/hdwallet-core": "^0.18.4",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "^0.18.4",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^0.18.4",
     "@shapeshiftoss/hdwallet-ledger": "^0.18.4",
     "@shapeshiftoss/hdwallet-ledger-webusb": "^0.18.4",
+    "@shapeshiftoss/hdwallet-pioneer": "^0.18.4",
     "@shapeshiftoss/hdwallet-portis": "^0.18.4",
     "@shapeshiftoss/hdwallet-trezor": "^0.18.4",
     "@shapeshiftoss/hdwallet-trezor-connect": "^0.18.4",
-    "@quasar/extras": "^1.0.0",
+    "app-root-dir": "^1.0.2",
     "axios": "^0.18.1",
     "quasar": "^1.0.0",
     "vue-i18n": "^8.0.0"

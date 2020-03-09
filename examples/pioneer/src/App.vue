@@ -26,6 +26,7 @@ import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
 import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
+import { PioneerAdapter } from '@shapeshiftoss/hdwallet-pioneer'
 
 import {
   BTCInputScriptType,
@@ -39,6 +40,7 @@ const portisAppId = 'ff763d3d-9e34-45a1-81d1-caa39b9c64f9'
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
 const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId })
+const pioneerAdapter = PioneerAdapter.useKeyring(keyring,{})
 
 const log = debug.default('hdwallet')
 
@@ -63,6 +65,30 @@ const log = debug.default('hdwallet')
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'App'
+  name: 'App',
+  data() {
+    return {
+      wallet:{},
+      isLoading:false,
+      runtime:'',
+      isAdvancedMode:false,
+      blockAnimated:false,
+      syncStatus:'syncing',
+      coins:['btc','dash','ltc','doge'],
+      isRunning: true,
+      xpubs:[],
+      addresses:[],
+      balance:0,
+    }
+  },
+  async created() {
+    let wallet = await pioneerAdapter.pairDevice()
+    console.log('wallet: ',wallet)
+    // let deviceId  = await wallet.getDeviceID()
+    // console.log('deviceId: ',deviceId)
+
+    wallet.loadDevice({ mnemonic: /*trezor test seed:*/'alcohol woman abuse must during monitor noble actual mixed trade anger aisle' })
+
+  },
 })
 </script>
