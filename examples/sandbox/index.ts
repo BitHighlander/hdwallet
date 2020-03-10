@@ -31,7 +31,7 @@ import * as btcTxJson from './json/btcTx.json'
 import * as btcSegWitTxJson from './json/btcSegWitTx.json'
 import * as dashTxJson from './json/dashTx.json'
 import * as dogeTxJson from './json/dogeTx.json'
-import * as ltcTxJson from './json/ltcTx.json'
+import * as ltcTxJson from "./json/ltcTx.json"
 
 const keyring = new Keyring()
 

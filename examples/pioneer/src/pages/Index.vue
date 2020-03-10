@@ -36,18 +36,26 @@
         </form>
     </div>
 
+    <div v-if="openViewSeed">
+      <div>
+        Seed: {{mnemonic}}
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script lang="ts">
+
+
+import bcrypt from 'bcryptjs';
+import Cryptr from 'cryptr';
+
 import Vue from 'vue'
 
 import {
-  downloadUrl,
-  locale,
   getConfig,
-  setConfig,
-  updateConfig,
+  getWallet,
   checkConfigs
 } from './config'
 
@@ -55,9 +63,11 @@ export default Vue.extend({
   name: 'PageIndex',
   data () {
     return {
+      mnemonic:'',
       step: 1,
       openWelcome:false,
-      openPassword:false
+      openPassword:false,
+      openViewSeed:false
     }
   },
   mounted() {
@@ -104,24 +114,50 @@ export default Vue.extend({
       } else {
         console.log('checkpoint 3a config found!')
         this.openPassword = true
-        
+
       }
     },
     async tryLogin() {
       console.log('tryLogin: ')
       let password = this.password
       console.log('password: ',password)
+      const cryptr = new Cryptr(password);
 
-      let isValid = true
+      //read seed from config
+      let wallet = getWallet()
+      wallet = JSON.parse(wallet)
+      console.log('wallet: ',wallet)
+
+      //validate pw
+      let isValid = await bcrypt.compare(password, wallet.hash); // true
+      console.log('isValid: ',isValid)
 
       if(isValid){
         console.log('login!')
+        //this.openPassword = false
+
+        //decrypt!
+        const cryptr = new Cryptr(password);
+
+        console.log('vault: ',wallet.vault)
+
+        let mnemonic = cryptr.decrypt(wallet.vault);
+        console.log('mnemonic: ',mnemonic)
+        // mnemonic = mnemonic.replace(/,/g, ' ');
+        // mnemonic = mnemonic.trim()
+        //
+        // this.mnemonic = mnemonic
+
+        //promt backup
+        //this.openViewSeed = true
+
+
       }else{
         this.error = true
         this.errors['Invalid Password!']
       }
     },
-  } 
+  }
 
 })
 </script>

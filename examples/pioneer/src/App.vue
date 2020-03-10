@@ -44,7 +44,7 @@ const pioneerAdapter = PioneerAdapter.useKeyring(keyring,{})
 
 const log = debug.default('hdwallet')
 
-// TODO this blows up ts rules
+// @TODO this blows up ts rules
 // keyring.onAny((name: string[], ...values: any[]) => {
 //   const [[ deviceId, event ]] = values
 //   const { from_wallet = false, message_type } = event
