@@ -83,19 +83,22 @@ export const  languages = [
   }
 ]
 
+export const foxPath = path.join(APP.getPath('home'), '.fox')
 export const foxConfig = path.join(APP.getPath('home'), '.fox','fox.json')
 export const configPath = path.join(APP.getPath('home'), '.fox','fox.json')
-
-export const seedPath = path.join(APP.getPath('home'), '.fox', 'wallet_data/wallet.seed')
-export const seedPathMonero = path.join(APP.getPath('home'), '.fox', 'wallet_data/monero/moneroWallet')
 export const seedDir = path.join(APP.getPath('home'), '.fox', 'wallet_data')
-export const seedDirMonero = path.join(APP.getPath('home'), '.fox', 'wallet_data/monero')
-export const foxPath = path.join(APP.getPath('home'), '.fox')
+export const seedPath = path.join(APP.getPath('home'), '.fox', 'wallet_data/wallet.seed')
+
+//XMR not implemented
+// export const seedPath = path.join(APP.getPath('home'), '.fox', 'wallet_data/wallet.seed')
+// export const seedPathMonero = path.join(APP.getPath('home'), '.fox', 'wallet_data/monero/moneroWallet')
+// export const seedDirMonero = path.join(APP.getPath('home'), '.fox', 'wallet_data/monero')
+
 export const logDir = path.join(foxPath, 'log')
 
 
 //innit
-export function innitConfig(languageSelected){
+export function initConfig(languageSelected){
   let tag = TAG + ' | importConfig | '
   try{
     let output = {}

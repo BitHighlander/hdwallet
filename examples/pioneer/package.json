@@ -29,9 +29,11 @@
     "app-root-dir": "^1.0.2",
     "axios": "^0.18.1",
     "bcryptjs": "^2.4.3",
+    "bip39": "^3.0.2",
     "cryptr": "^6.0.1",
     "ethereumjs-util": "^6.2.0",
     "quasar": "^1.0.0",
+    "simple-crypto-js": "^2.2.0",
     "vue-i18n": "^8.0.0"
   },
   "devDependencies": {
