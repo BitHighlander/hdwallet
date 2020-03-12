@@ -30,7 +30,6 @@
           header
           class="text-grey-8"
         >
-          Essential Links
         </q-item-label>
         <EssentialLink
           v-for="link in essentialLinks"
@@ -69,10 +68,16 @@ export default Vue.extend({
       leftDrawerOpen: false,
       essentialLinks: [
         {
-          title: 'Settings',
+          title: 'Wallet Settings',
           caption: 'quasar.dev',
           icon: 'settings',
-          link: ''
+          link: 'settings'
+        },
+        {
+          title: 'Restore',
+          caption: 'quasar.dev',
+          icon: 'settings',
+          link: 'settings'
         }
       ]
     }

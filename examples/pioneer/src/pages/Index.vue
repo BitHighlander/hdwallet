@@ -31,7 +31,7 @@
           <q-tooltip content-class="bg-accent">Keepkey, Ledger and Trezor wallets supported</q-tooltip>
         </q-btn> -->
 
-        <q-btn color="primary" label="Import Seed Phrase" class="q-mt-md">
+        <q-btn color="primary" @click="openRestore" label="Import Seed Phrase" class="q-mt-md">
           <q-tooltip content-class="bg-accent">Restore Software wallet</q-tooltip>
         </q-btn>
 
@@ -228,6 +228,9 @@ export default Vue.extend({
 
   },
   methods: {
+    openRestore: function () {
+      this.$router.push({ path: 'restore' })
+    },
     loadConfig: function () {
       let configStatus = checkConfigs()
       let config = getConfig()

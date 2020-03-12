@@ -32,12 +32,12 @@ export default Vue.extend({
 
     caption: {
       type: String,
-      default: ''
+      default: 'test bro'
     },
 
     link: {
       type: String,
-      default: '#'
+      default: 'settings'
     },
 
     icon: {
