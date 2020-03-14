@@ -8,29 +8,30 @@ import {
   supportsDebugLink,
   bip32ToAddressNList,
   Events
-} from '@shapeshiftoss/hdwallet-core'
+} from '@bithighlander/hdwallet-core'
 
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
-import { isPortis } from '@shapeshiftoss/hdwallet-portis'
+import { isKeepKey } from '@bithighlander/hdwallet-keepkey'
+import { isPortis } from '@bithighlander/hdwallet-portis'
 
-import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
-import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
-import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
-import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
-import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
+import { WebUSBKeepKeyAdapter } from '@bithighlander/hdwallet-keepkey-webusb'
+import { TCPKeepKeyAdapter } from '@bithighlander/hdwallet-keepkey-tcp'
+import { TrezorAdapter } from '@bithighlander/hdwallet-trezor-connect'
+import { WebUSBLedgerAdapter } from '@bithighlander/hdwallet-ledger-webusb'
+import { PortisAdapter } from '@bithighlander/hdwallet-portis'
+import { PioneerAdapter } from '@bithighlander/hdwallet-pioneer'
 
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
   BTCOutputAddressType,
-} from '@shapeshiftoss/hdwallet-core/src/bitcoin'
+} from '@bithighlander/hdwallet-core/src/bitcoin'
 
 import * as btcBech32TxJson from './json/btcBech32Tx.json'
 import * as btcTxJson from './json/btcTx.json'
 import * as btcSegWitTxJson from './json/btcSegWitTx.json'
 import * as dashTxJson from './json/dashTx.json'
 import * as dogeTxJson from './json/dogeTx.json'
-import * as ltcTxJson from './json/ltcTx.json'
+import * as ltcTxJson from "./json/ltcTx.json"
 
 const keyring = new Keyring()
 
@@ -39,6 +40,7 @@ const portisAppId = 'ff763d3d-9e34-45a1-81d1-caa39b9c64f9'
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
 const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId })
+const pioneerAdapter = PioneerAdapter.useKeyring(keyring)
 
 const log = debug.default('hdwallet')
 
@@ -52,7 +54,7 @@ keyring.onAny((name: string[], ...values: any[]) => {
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
-    email: 'oss@shapeshiftoss.io',
+    email: 'oss@bithighlander.io',
     appUrl: 'https://shapeshift.com'
   }
 })
@@ -72,6 +74,7 @@ const $kkemu = $('#kkemu')
 const $trezor = $('#trezor')
 const $ledger = $('#ledger')
 const $portis = $('#portis')
+const $pioneer = $('#pioneer')
 const $keyring = $('#keyring')
 
 $keepkey.on('click', async (e) => {
@@ -119,6 +122,20 @@ $portis.on('click',  async (e) => {
   $('#keyring select').val(deviceId)
 })
 
+$pioneer.on('click',  async (e) => {
+  e.preventDefault()
+  wallet = await pioneerAdapter.pairDevice()
+  window['wallet'] = wallet
+
+  let deviceId = 'nothing'
+  try {
+    deviceId  = await wallet.getDeviceID()
+  } catch( e ) {
+    console.error(e)
+  }
+  $('#keyring select').val(deviceId)
+})
+
 async function deviceConnected (deviceId) {
   let wallet = keyring.get(deviceId)
   if (!$keyring.find(`option[value="${deviceId}"]`).length) {
@@ -153,6 +170,12 @@ async function deviceConnected (deviceId) {
     await portisAdapter.initialize()
   } catch (e) {
     console.error('Could not initialize PortisAdapter', e)
+  }
+
+  try {
+    await pioneerAdapter.initialize()
+  } catch (e) {
+    console.error('Could not initialize PioneerAdapter', e)
   }
 
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
@@ -351,7 +374,7 @@ $getXpubs.on('click', async (e) => {
       addressNList: hardenedPath,
       curve: "secp256k1",
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: isPortis(wallet) ? "Bitcoin" : "Ethereum"
+      coin: "Ethereum"
     }
   ])
 
@@ -451,6 +474,7 @@ $cosmosAddr.on('click', async (e) => {
     })
     result = await wallet.cosmosGetAddress({
       addressNList,
+      coin: "Cosmos",
       showDisplay: true,
       address: result
     })

@@ -1,0 +1,72 @@
+{
+  "name": "pioneer",
+  "version": "0.0.1",
+  "description": "An example wallet app built on HDwallet",
+  "productName": "pioneer",
+  "cordovaId": "com.shapeshift.pioneer.app",
+  "capacitorId": "",
+  "author": "highlander <bithighlander@gmail.com>",
+  "scripts": {
+    "yarn": "yarn",
+    "run-dev-web": "quasar dev",
+    "run-dev-electron": "quasar dev --mode electron",
+    "build": "quasar build",
+    "build:pwa": "quasar build -m pwa",
+    "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore ./",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.0.0",
+    "@bithighlander/hdwallet-core": "^0.18.4",
+    "@bithighlander/hdwallet-keepkey-tcp": "^0.18.4",
+    "@bithighlander/hdwallet-keepkey-webusb": "^0.18.4",
+    "@bithighlander/hdwallet-ledger": "^0.18.4",
+    "@bithighlander/hdwallet-ledger-webusb": "^0.18.4",
+    "@bithighlander/hdwallet-pioneer": "^0.18.4",
+    "@bithighlander/hdwallet-portis": "^0.18.4",
+    "@bithighlander/hdwallet-trezor": "^0.18.4",
+    "@bithighlander/hdwallet-trezor-connect": "^0.18.4",
+    "app-root-dir": "^1.0.2",
+    "axios": "^0.18.1",
+    "bcryptjs": "^2.4.3",
+    "bip39": "^3.0.2",
+    "cryptr": "^6.0.1",
+    "ethereumjs-util": "^6.2.0",
+    "quasar": "^1.0.0",
+    "simple-crypto-js": "^2.2.0",
+    "vue-i18n": "^8.0.0"
+  },
+  "devDependencies": {
+    "@quasar/app": "^1.0.0",
+    "@quasar/quasar-app-extension-typescript": "^1.0.0-beta.2",
+    "@types/node": "11.9.5",
+    "@typescript-eslint/eslint-plugin": "^1.12.0",
+    "@typescript-eslint/parser": "^1.12.0",
+    "babel-eslint": "^10.0.1",
+    "devtron": "^1.4.0",
+    "electron": "^8.0.1",
+    "electron-debug": "^3.0.1",
+    "electron-devtools-installer": "^2.2.4",
+    "electron-packager": "^14.1.1",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "eslint-plugin-vue": "^6.1.2",
+    "typescript": "^3.3.3"
+  },
+  "engines": {
+    "node": ">= 10.18.1",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  },
+  "browserslist": [
+    "last 1 version, not dead, ie >= 11"
+  ],
+  "resolutions": {
+    "@babel/parser": "7.7.5"
+  }
+}

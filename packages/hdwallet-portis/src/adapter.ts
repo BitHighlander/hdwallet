@@ -3,7 +3,7 @@ import {
   HDWallet,
   Events,
   ActionCancelled
-} from '@shapeshiftoss/hdwallet-core'
+} from '@bithighlander/hdwallet-core'
 
 import { PortisHDWallet } from './portis'
 import Portis from "@portis/web3";
@@ -77,7 +77,7 @@ export class PortisAdapter {
           time = setTimeout(() => {
             window.onload = null
             document.onmousemove = null
-            document.onkeypress = null  
+            document.onkeypress = null
             clearTimeout(time)
             this.portis.logout()
           }, INACTIVITY_LOGOUT_TIME)

@@ -1,0 +1,88 @@
+<template>
+  <q-layout view="lHh Lpr lFf">
+    <q-header elevated>
+      <q-toolbar>
+        <q-btn
+          flat
+          dense
+          round
+          icon="menu"
+          aria-label="Menu"
+          @click="leftDrawerOpen = !leftDrawerOpen"
+        />
+
+        <q-toolbar-title>
+          <h2>Pioneer</h2>
+        </q-toolbar-title>
+
+        <div>HDwallet v{{ $q.version }}</div>
+      </q-toolbar>
+    </q-header>
+
+    <q-drawer
+      v-model="leftDrawerOpen"
+      show-if-above
+      bordered
+      content-class="bg-grey-1"
+    >
+      <q-list>
+        <q-item-label
+          header
+          class="text-grey-8"
+        >
+        </q-item-label>
+        <EssentialLink
+          v-for="link in essentialLinks"
+          :key="link.title"
+          v-bind="link"
+        />
+      </q-list>
+    </q-drawer>
+
+
+
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+
+
+  </q-layout>
+</template>
+
+<script lang="ts">
+import EssentialLink from '../components/EssentialLink.vue'
+
+import Vue from 'vue'
+
+export default Vue.extend({
+  name: 'MainLayout',
+
+  components: {
+    EssentialLink
+  },
+
+  data () {
+    return {
+      step: 1,
+      openSetup:false,
+      leftDrawerOpen: false,
+      essentialLinks: [
+        {
+          title: 'Wallet Settings',
+          caption: 'quasar.dev',
+          icon: 'settings',
+          link: 'settings'
+        },
+        {
+          title: 'Restore',
+          caption: 'quasar.dev',
+          icon: 'settings',
+          link: 'settings'
+        }
+      ]
+    }
+  },
+  created() {
+  }
+})
+</script>
