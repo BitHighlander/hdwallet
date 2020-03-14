@@ -125,23 +125,23 @@ import {
   supportsDebugLink,
   bip32ToAddressNList,
   Events
-} from '@shapeshiftoss/hdwallet-core'
+} from '@bithighlander/hdwallet-core'
 
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
-import { isPortis } from '@shapeshiftoss/hdwallet-portis'
+import { isKeepKey } from '@bithighlander/hdwallet-keepkey'
+import { isPortis } from '@bithighlander/hdwallet-portis'
 
-import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
-import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
-import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
-import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
-import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
-import { PioneerAdapter } from '@shapeshiftoss/hdwallet-pioneer'
+import { WebUSBKeepKeyAdapter } from '@bithighlander/hdwallet-keepkey-webusb'
+import { TCPKeepKeyAdapter } from '@bithighlander/hdwallet-keepkey-tcp'
+import { TrezorAdapter } from '@bithighlander/hdwallet-trezor-connect'
+import { WebUSBLedgerAdapter } from '@bithighlander/hdwallet-ledger-webusb'
+import { PortisAdapter } from '@bithighlander/hdwallet-portis'
+import { PioneerAdapter } from '@bithighlander/hdwallet-pioneer'
 
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
   BTCOutputAddressType,
-} from '@shapeshiftoss/hdwallet-core/src/bitcoin'
+} from '@bithighlander/hdwallet-core/src/bitcoin'
 
 const keyring = new Keyring()
 const portisAppId = 'ff763d3d-9e34-45a1-81d1-caa39b9c64f9'

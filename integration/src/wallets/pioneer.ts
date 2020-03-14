@@ -3,8 +3,8 @@ import {
     ETHWallet,
     supportsETH,
     HDWalletInfo,
-} from '@shapeshiftoss/hdwallet-core'
-import { PioneerAdapter, PioneerHDWallet, isPioneer, info, create } from '@shapeshiftoss/hdwallet-Pioneer'
+} from '@bithighlander/hdwallet-core'
+import { PioneerAdapter, PioneerHDWallet, isPioneer, info, create } from '@bithighlander/hdwallet-Pioneer'
 
 export function name (): string {
     return 'Pioneer'

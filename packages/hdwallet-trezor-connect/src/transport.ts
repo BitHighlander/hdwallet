@@ -4,8 +4,8 @@ import {
   Keyring,
   HDWalletErrorType,
   ActionCancelled,
-} from '@shapeshiftoss/hdwallet-core'
-import { TrezorHDWallet, TrezorTransport, TrezorConnectResponse } from '@shapeshiftoss/hdwallet-trezor'
+} from '@bithighlander/hdwallet-core'
+import { TrezorHDWallet, TrezorTransport, TrezorConnectResponse } from '@bithighlander/hdwallet-trezor'
 import TrezorConnect, {
   DEVICE_EVENT,
   UI_EVENT,
