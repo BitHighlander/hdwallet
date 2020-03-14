@@ -33,9 +33,9 @@ orbs:
               key: cache-v4-{{ checksum "yarn.lock" }}
               paths:
                 - .yarn-cache
-          - run:
-              name: Ensure repo is clean from uncommitted changes, likely yarn.lock is out of date
-              command: git diff --quiet || exit 1
+#          - run:
+#              name: Ensure repo is clean from uncommitted changes, likely yarn.lock is out of date
+#              command: git diff --quiet || exit 1
       build:
         description: Build all modules
         executor: node
