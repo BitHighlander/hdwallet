@@ -127,6 +127,8 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsBTC: boolean = true
   _supportsCosmosInfo: boolean = false
   _supportsCosmos: boolean = true
+  _supportsBinanceInfo: boolean = false
+  _supportsBinance: boolean = false
   _supportsDebugLink: boolean = false
   _isPioneer: boolean = true
 
@@ -411,6 +413,7 @@ export class PioneerHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWall
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
   _supportsCosmosInfo: boolean = false
+  _supportsBinanceInfo: boolean = false
 
   public getVendor (): string {
     return " "
