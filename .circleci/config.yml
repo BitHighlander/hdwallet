@@ -38,6 +38,7 @@ orbs:
 #              command: git diff --quiet || exit 1
       build:
         description: Build all modules
+        resource_class: large
         executor: node
         steps:
           - checkout
