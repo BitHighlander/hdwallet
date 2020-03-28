@@ -181,6 +181,8 @@ export interface HDWalletInfo {
   _supportsBTCInfo: boolean
   _supportsCosmosInfo: boolean
   _supportsBinanceInfo: boolean
+  _supportsEOSInfo: boolean
+  _supportsRippleInfo: boolean
 
   /**
    * Retrieve the wallet's vendor string.
@@ -229,6 +231,8 @@ export interface HDWallet extends HDWalletInfo {
   _supportsETH: boolean
   _supportsCosmos: boolean
   _supportsBinance: boolean
+  _supportsEOS: boolean
+  _supportsRipple: boolean
   _supportsDebugLink: boolean
 
   transport: Transport
