@@ -22,6 +22,7 @@ import {
 import { DebugLinkWallet } from './debuglink'
 import { Transport } from './transport';
 import { isObject } from 'lodash';
+import { RippleWallet, RippleWalletInfo } from "./ripple";
 
 export type BIP32Path = Array<number>
 
@@ -115,6 +116,7 @@ type CoinWallets =
   ETHWallet |
   CosmosWallet |
   BinanceWallet |
+  RippleWallet |
   DebugLinkWallet
 
 export type Coin = string
@@ -164,14 +166,6 @@ export function infoCosmos(info: any): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo
 }
 
-export function supportsBinance(wallet: any): wallet is BinanceWallet {
-  return isObject(wallet) && (wallet as any)._supportsBinance
-}
-
-export function infoBinance(info: any): info is BinanceWalletInfo {
-  return isObject(info) && (info as any)._supportsBinanceInfo
-}
-
 export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
   return isObject(wallet) && (wallet as any)._supportsDebugLink
 }
@@ -180,9 +174,6 @@ export interface HDWalletInfo {
   _supportsETHInfo: boolean
   _supportsBTCInfo: boolean
   _supportsCosmosInfo: boolean
-  _supportsBinanceInfo: boolean
-  _supportsEOSInfo: boolean
-  _supportsRippleInfo: boolean
 
   /**
    * Retrieve the wallet's vendor string.
@@ -232,7 +223,8 @@ export interface HDWallet extends HDWalletInfo {
   _supportsCosmos: boolean
   _supportsBinance: boolean
   _supportsEOS: boolean
-  _supportsRipple: boolean
+  _supportsRipple: boolean;
+  _supportsRippleInfo: boolean;
   _supportsDebugLink: boolean
 
   transport: Transport
