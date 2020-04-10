@@ -22,24 +22,30 @@
   },
   "scripts": {
     "yarn": "yarn",
+    "lint": "prettier --write '**/**/*.ts'",
     "clean": "rm -rf coverage test-report && lerna run clean && lerna clean && rm -rf node_modules && yarn cache clean",
     "build": "lerna run build --scope @bithighlander/hdwallet-core && yarn build:wallets && yarn build:transports",
     "build:chromeusb": "lerna run build --scope @bithighlander/keepkey-chromeusb --include-filtered-dependencies",
     "build:hid": "lerna run build --scope @bithighlander/hdwallet-keepkey-nodehid --include-filtered-dependencies",
     "build:ledger": "lerna run build --scope @bithighlander/hdwallet-ledger --scope @bithighlander/hdwallet-ledger-webusb --scope @bithighlander/hdwallet-ledger-u2f --scope @bithighlander/hdwallet-core --include-filtered-dependencies",
     "build:transports": "lerna run build --scope @bithighlander/hdwallet-keepkey-webusb --scope @bithighlander/hdwallet-keepkey-tcp --scope @bithighlander/hdwallet-keepkey-nodewebusb --scope @bithighlander/hdwallet-ledger-webusb --scope @bithighlander/hdwallet-ledger-u2f --scope @bithighlander/hdwallet-portis",
-    "build:wallets": "lerna run build --scope @bithighlander/hdwallet-keepkey --scope @bithighlander/hdwallet-trezor --scope @bithighlander/hdwallet-ledger --scope @bithighlander/hdwallet-portis --scope @bithighlander/hdwallet-pioneer",
+    "build:wallets": "lerna run build --scope @bithighlander/hdwallet-keepkey --scope @bithighlander/hdwallet-trezor --scope @bithighlander/hdwallet-ledger --scope @bithighlander/hdwallet-portis",
     "build:webusb": "lerna run build --scope @bithighlander/hdwallet-keepkey-webusb --scope @bithighlander/hdwallet-ledger-webusb --include-filtered-dependencies",
     "build:portis": "lerna run build --scope @bithighlander/hdwallet-portis --scope @bithighlander/hdwallet-core --include-filtered-dependencies",
-    "build:pioneer": "lerna run build --scope @bithighlander/hdwallet-pioneer --scope @bithighlander/hdwallet-core --include-filtered-dependencies",
     "now-build": "lerna run build --scope @bithighlander/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @bithighlander/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
     "dev:all": "lerna run dev --scope @bithighlander/hdwallet-keepkey-webusb --scope @bithighlander/hdwallet-keepkey-nodewebusb --scope @bithighlander/hdwallet-ledger-webusb --scope @bithighlander/hdwallet-ledger-u2f  --scope @bithighlander/hdwallet-portis --scope @bithighlander/hdwallet-trezor-connect --include-filtered-dependencies --parallel",
     "dev:chromeusb": "lerna run dev --scope chromeusb-app --parallel --include-filtered-dependencies",
     "dev:sandbox": "lerna run dev --scope hdwallet-sandbox --parallel --include-filtered-dependencies",
     "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies",
+    "docker:run:emulator": "docker run -p 5000:5000 kktech/kkemu:latest",
+    "docker:stop:run:emulator": "docker stop $(docker ps -a -q --filter ancestor=kktech/kkemu:latest --format=\"{{.ID}}\") && docker run -p 5000:5000 kktech/kkemu:latest",
     "test": "yarn run jest --verbose --config jest.config.js",
     "test:ci": "yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js",
-    "lerna:version": "lerna version --force-publish"
+    "lerna:version": "lerna version --force-publish",
+    "lerna-bump-version-alpha": "lerna publish --no-push --skip-npm --force-publish '*' prepatch --yes",
+    "lerna-bump-version-patch": "lerna publish --no-push --skip-npm --force-publish '*' patch --yes",
+    "lerna-bump-version-minor": "lerna publish --no-push --skip-npm --force-publish '*' minor --yes",
+    "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes"
   },
   "devDependencies": {
     "jest-junit": "^6.4.0",
@@ -60,5 +66,8 @@
   },
   "engines": {
     "node": "^10 || ^12"
+  },
+  "dependencies": {
+    "prettier": "^2.0.2"
   }
 }

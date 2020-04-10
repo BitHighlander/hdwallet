@@ -5,8 +5,8 @@ orbs:
     executors:
       node:
         docker:
-          - image: circleci/node:10.18.1
-          - image: kktech/kkemu:v6.2.0-hotfix.0
+          - image: circleci/node:10.16.3
+          - image: kktech/kkemu:latest
     jobs:
       dependencies:
         description: Get deps and persist to workspace
@@ -33,9 +33,9 @@ orbs:
               key: cache-v4-{{ checksum "yarn.lock" }}
               paths:
                 - .yarn-cache
-#          - run:
-#              name: Ensure repo is clean from uncommitted changes, likely yarn.lock is out of date
-#              command: git diff --quiet || exit 1
+          - run:
+              name: Ensure repo is clean from uncommitted changes, likely yarn.lock is out of date
+              command: git diff --quiet || exit 1
       build:
         description: Build all modules
         executor: node
@@ -103,6 +103,7 @@ orbs:
               at: .
           - run: yarn --cache-folder .yarn-cache
           - run: git status
+          - run: ./node_modules/.bin/lerna publish from-package --yes
 workflows:
   version: 2
   Build and Release:

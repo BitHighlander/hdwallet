@@ -1,7 +1,9 @@
 import { HDWallet, HDWalletInfo } from '@bithighlander/hdwallet-core'
 
-import { cosmosTests as tests } from './cosmos'
+import { cosmosTests as tests } from "./cosmos";
 
-export function cosmosTests (get: () => {wallet: HDWallet, info: HDWalletInfo}): void {
-  tests(get)
+export function cosmosTests(
+  get: () => { wallet: HDWallet; info: HDWalletInfo }
+): void {
+  tests(get);
 }

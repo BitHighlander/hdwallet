@@ -11,24 +11,23 @@ Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 ## Documentation
 
 - [hdwallet](#hdwallet)
-    - [Documentation](#documentation)
-    - [Installation](#installation)
-    - [Importing Library](#importing-library)
-    - [Usage](#usage)
-    - [Building](#building)
-    - [Developing](#developing)
-    - [Tests](#tests)
-    - [Contributing](#contributing)
-
+  - [Documentation](#documentation)
+  - [Installation](#installation)
+  - [Importing Library](#importing-library)
+  - [Usage](#usage)
+  - [Building](#building)
+  - [Developing](#developing)
+  - [Tests](#tests)
+  - [Contributing](#contributing)
 
 ## Installation
+
 ```bash
 yarn add @bithighlander/hdwallet-core
 yarn add @bithighlander/hdwallet-keepkey-webusb
 yarn add @bithighlander/hdwallet-trezor-connect
 yarn add @bithighlander/hdwallet-ledger-webusb
 ```
-
 
 ## Importing Library
 
@@ -44,7 +43,6 @@ import { WebUSBKeepKeyAdapter } from '@bithighlander/hdwallet-keepkey-webusb'
 import { WebUSBLedgerAdapter } from '@bithighlander/hdwallet-ledger-webusb'
 import { TrezorAdapter } from '@bithighlander/hdwallet-trezor-connect'
 ```
-
 
 ## Usage
 
@@ -63,28 +61,29 @@ adapter by calling `useKeyring()` on it:
 import { WebUSBKeepKeyAdapter } from '@bithighlander/hdwallet-keepkey-webusb'
 import { TrezorAdapter } from '@bithighlander/hdwallet-trezor-connect'
 
-const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
+const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
 
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
-    email: 'you@example.com',     // TrezorConnect info
-    appUrl: 'https://example.com' // URL of hosted domain
-  }
-})
+    email: "you@example.com", // TrezorConnect info
+    appUrl: "https://example.com", // URL of hosted domain
+  },
+});
 
-const ledgerAdapter = LedgerAdapter.useKeyring(keyring)
+const ledgerAdapter = LedgerAdapter.useKeyring(keyring);
 ```
 
 After setting up a `Keyring`, and plugging various transport adapters into
 it, the next step is to pair a device:
 
 ```javascript
-let wallet = await keepkeyAdapter.pairDevice()
+let wallet = await keepkeyAdapter.pairDevice();
 
-wallet.getLabel().then(result => { console.log(result) })
+wallet.getLabel().then((result) => {
+  console.log(result);
+});
 ```
-
 
 ## Building
 
@@ -96,7 +95,6 @@ yarn clean
 yarn
 yarn build
 ```
-
 
 ## Developing
 
@@ -115,7 +113,6 @@ app with the changes includeed (for example
 [#68](https://github.com/shapeshift/hdwallet/pull/68#issuecomment-542779289)).
 Try out the latest build here: https://hdwallet.shapeshift.now.sh/
 
-
 ## Tests
 
 ```bash
@@ -126,11 +123,9 @@ yarn test
 
 The integration tests have been set up to run either against a physical KeepKey
 with debug firmware on it, or in CI pointed at a dockerized version of the
-emulator.  Trezor and Ledger tests run against mocks of their respective
+emulator. Trezor and Ledger tests run against mocks of their respective
 transport layers.
-
 
 ## Contributing
 
 See our developer guidelines [here](CONTRIBUTING.md).
-
