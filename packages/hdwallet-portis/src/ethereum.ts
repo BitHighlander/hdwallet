@@ -9,8 +9,8 @@ import {
   ETHSignTx,
   ETHSignedTx,
   ETHSignMessage,
-  ETHSignedMessage
-} from "@bithighlander/hdwallet-core"
+  ETHSignedMessage,
+} from "@bithighlander/hdwallet-core";
 
 export function describeETHPath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);

@@ -1,9 +1,9 @@
-import { isObject, get } from 'lodash'
-import * as core from '@bithighlander/hdwallet-core'
-import * as btc from './bitcoin'
-import * as eth from './ethereum'
-import { LedgerTransport } from './transport'
-import { networksUtil, handleError } from './utils'
+import { isObject, get } from "lodash";
+import * as core from "@bithighlander/hdwallet-core";
+import * as btc from "./bitcoin";
+import * as eth from "./ethereum";
+import { LedgerTransport } from "./transport";
+import { networksUtil, handleError } from "./utils";
 
 export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
   return isObject(wallet) && (wallet as any)._isLedger;

@@ -13,8 +13,8 @@ import {
   BTCVerifyMessage,
   fromHexString,
   hardenedPath,
-  relativePath
-} from "@bithighlander/hdwallet-core"
+  relativePath,
+} from "@bithighlander/hdwallet-core";
 
 import { verify } from "bitcoinjs-message";
 import Base64 from "base64-js";

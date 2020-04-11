@@ -8,40 +8,40 @@ import {
   supportsBinance,
   supportsDebugLink,
   bip32ToAddressNList,
-  Events
-} from '@bithighlander/hdwallet-core'
+  Events,
+} from "@bithighlander/hdwallet-core";
 
-import { isKeepKey } from '@bithighlander/hdwallet-keepkey'
-import { isPortis } from '@bithighlander/hdwallet-portis'
+import { isKeepKey } from "@bithighlander/hdwallet-keepkey";
+import { isPortis } from "@bithighlander/hdwallet-portis";
 
-import { WebUSBKeepKeyAdapter } from '@bithighlander/hdwallet-keepkey-webusb'
-import { TCPKeepKeyAdapter } from '@bithighlander/hdwallet-keepkey-tcp'
-import { TrezorAdapter } from '@bithighlander/hdwallet-trezor-connect'
-import { WebUSBLedgerAdapter } from '@bithighlander/hdwallet-ledger-webusb'
-import { PortisAdapter } from '@bithighlander/hdwallet-portis'
-import { PioneerAdapter } from '@bithighlander/hdwallet-pioneer'
+import { WebUSBKeepKeyAdapter } from "@bithighlander/hdwallet-keepkey-webusb";
+import { TCPKeepKeyAdapter } from "@bithighlander/hdwallet-keepkey-tcp";
+import { TrezorAdapter } from "@bithighlander/hdwallet-trezor-connect";
+import { WebUSBLedgerAdapter } from "@bithighlander/hdwallet-ledger-webusb";
+import { PortisAdapter } from "@bithighlander/hdwallet-portis";
+import { PioneerAdapter } from "@bithighlander/hdwallet-pioneer";
 
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
   BTCOutputAddressType,
-} from '@bithighlander/hdwallet-core/src/bitcoin'
+} from "@bithighlander/hdwallet-core/src/bitcoin";
 
-import * as btcBech32TxJson from './json/btcBech32Tx.json'
-import * as btcTxJson from './json/btcTx.json'
-import * as btcSegWitTxJson from './json/btcSegWitTx.json'
-import * as dashTxJson from './json/dashTx.json'
-import * as dogeTxJson from './json/dogeTx.json'
-import * as ltcTxJson from "./json/ltcTx.json"
+import * as btcBech32TxJson from "./json/btcBech32Tx.json";
+import * as btcTxJson from "./json/btcTx.json";
+import * as btcSegWitTxJson from "./json/btcSegWitTx.json";
+import * as dashTxJson from "./json/dashTx.json";
+import * as dogeTxJson from "./json/dogeTx.json";
+import * as ltcTxJson from "./json/ltcTx.json";
 
 const keyring = new Keyring();
 
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 
-const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
-const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
-const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId })
-const pioneerAdapter = PioneerAdapter.useKeyring(keyring)
+const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
+const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
+const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId });
+const pioneerAdapter = PioneerAdapter.useKeyring(keyring);
 
 const log = debug.default("hdwallet");
 
@@ -55,10 +55,10 @@ keyring.onAny((name: string[], ...values: any[]) => {
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
-    email: 'oss@bithighlander.io',
-    appUrl: 'https://shapeshift.com'
-  }
-})
+    email: "oss@bithighlander.io",
+    appUrl: "https://shapeshift.com",
+  },
+});
 
 const ledgerAdapter = WebUSBLedgerAdapter.useKeyring(keyring);
 
@@ -70,12 +70,12 @@ const loggers: { [deviceID: string]: debug.Debugger } = {};
 let wallet;
 window["wallet"] = wallet;
 
-const $keepkey = $('#keepkey')
-const $kkemu = $('#kkemu')
-const $trezor = $('#trezor')
-const $ledger = $('#ledger')
-const $portis = $('#portis')
-const $keyring = $('#keyring')
+const $keepkey = $("#keepkey");
+const $kkemu = $("#kkemu");
+const $trezor = $("#trezor");
+const $ledger = $("#ledger");
+const $portis = $("#portis");
+const $keyring = $("#keyring");
 
 $keepkey.on("click", async (e) => {
   e.preventDefault();
@@ -108,24 +108,24 @@ $ledger.on("click", async (e) => {
   $("#keyring select").val(await wallet.getDeviceID());
 });
 
-$portis.on('click',  async (e) => {
-  e.preventDefault()
-  wallet = await portisAdapter.pairDevice()
-  window['wallet'] = wallet
+$portis.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await portisAdapter.pairDevice();
+  window["wallet"] = wallet;
 
-  let deviceId = 'nothing'
+  let deviceId = "nothing";
   try {
-    deviceId  = await wallet.getDeviceID()
-  } catch( e ) {
-    console.error(e)
+    deviceId = await wallet.getDeviceID();
+  } catch (e) {
+    console.error(e);
   }
-  $('#keyring select').val(deviceId)
-})
+  $("#keyring select").val(deviceId);
+});
 
-$pioneer.on('click',  async (e) => {
-  e.preventDefault()
-  wallet = await pioneerAdapter.pairDevice()
-  window['wallet'] = wallet
+$pioneer.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await pioneerAdapter.pairDevice();
+  window["wallet"] = wallet;
 
   let deviceId = "nothing";
   try {
@@ -191,9 +191,9 @@ async function deviceConnected(deviceId) {
   }
 
   try {
-    await pioneerAdapter.initialize()
+    await pioneerAdapter.initialize();
   } catch (e) {
-    console.error('Could not initialize PioneerAdapter', e)
+    console.error("Could not initialize PioneerAdapter", e);
   }
 
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
@@ -407,9 +407,9 @@ $getXpubs.on("click", async (e) => {
       addressNList: hardenedPath,
       curve: "secp256k1",
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: isPortis(wallet) ? "Bitcoin" : "Ethereum"
-    }
-  ])
+      coin: isPortis(wallet) ? "Bitcoin" : "Ethereum",
+    },
+  ]);
 
   $manageResults.val(JSON.stringify(result));
 });

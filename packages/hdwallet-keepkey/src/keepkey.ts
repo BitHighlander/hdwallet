@@ -758,13 +758,13 @@ export class KeepKeyHDWallet
     matrixAck.setPin(pin);
     console.assert(
       undefined ===
-      (await this.transport.call(
-        Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
-        matrixAck,
-        DEFAULT_TIMEOUT,
-        true,
-        true
-      ))
+        (await this.transport.call(
+          Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
+          matrixAck,
+          DEFAULT_TIMEOUT,
+          true,
+          true
+        ))
     );
   }
 
@@ -773,13 +773,13 @@ export class KeepKeyHDWallet
     passphraseAck.setPassphrase(passphrase);
     console.assert(
       undefined ===
-      (await this.transport.call(
-        Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
-        passphraseAck,
-        DEFAULT_TIMEOUT,
-        true,
-        true
-      ))
+        (await this.transport.call(
+          Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
+          passphraseAck,
+          DEFAULT_TIMEOUT,
+          true,
+          true
+        ))
     );
   }
 
@@ -814,13 +814,13 @@ export class KeepKeyHDWallet
     }
     console.assert(
       undefined ===
-      (await this.transport.call(
-        Messages.MessageType.MESSAGETYPE_CHARACTERACK,
-        characterAck,
-        DEFAULT_TIMEOUT,
-        true,
-        true
-      ))
+        (await this.transport.call(
+          Messages.MessageType.MESSAGETYPE_CHARACTERACK,
+          characterAck,
+          DEFAULT_TIMEOUT,
+          true,
+          true
+        ))
     );
   }
 

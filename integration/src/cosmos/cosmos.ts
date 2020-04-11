@@ -3,12 +3,12 @@ import {
   HDWallet,
   CosmosWallet,
   supportsCosmos,
-  CosmosTx
-} from '@bithighlander/hdwallet-core'
-import { HDWalletInfo } from '@bithighlander/hdwallet-core/src/wallet'
+  CosmosTx,
+} from "@bithighlander/hdwallet-core";
+import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
-import * as tx01_unsigned from './tx01.unsigned.json'
-import * as tx01_signed from './tx01.signed.json'
+import * as tx01_unsigned from "./tx01.unsigned.json";
+import * as tx01_signed from "./tx01.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE =
   "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";

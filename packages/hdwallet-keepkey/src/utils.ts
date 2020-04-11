@@ -1,7 +1,7 @@
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
-} from '@bithighlander/hdwallet-core'
+} from "@bithighlander/hdwallet-core";
 
 import {
   InputScriptType,

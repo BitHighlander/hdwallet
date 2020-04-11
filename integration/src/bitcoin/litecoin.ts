@@ -5,8 +5,8 @@ import {
   supportsBTC,
   BTCInputScriptType,
   Coin,
-  HDWalletInfo
-} from '@bithighlander/hdwallet-core'
+  HDWalletInfo,
+} from "@bithighlander/hdwallet-core";
 
 import { each } from "../utils";
 
