@@ -1,8 +1,4 @@
-import {
-  HDWallet,
-  ETHWallet,
-  supportsETH,
-} from "@shapeshiftoss/hdwallet-core";
+import { HDWallet, ETHWallet, supportsETH } from "@shapeshiftoss/hdwallet-core";
 
 // @ts-ignore
 // import {
@@ -23,7 +19,6 @@ const mockPioneer = {
   provider: {},
 };
 
-
 // export async function createWallet(): Promise<HDWallet> {
 //   //const wallet = create(mockPioneer);
 //
@@ -40,22 +35,16 @@ const mockPioneer = {
 
 export function selfTest(get: () => HDWallet): void {
   //let wallet: PioneerHDWallet & ETHWallet & HDWallet;
-
   // beforeAll(() => {
   //   let w = get();
   //   if (isPioneer(w) && supportsETH(w)) wallet = w;
   //   else fail("Wallet is not Pioneer");
   // });
-
   // it("supports Ethereum mainnet", async () => {
   //   if (!wallet) return;
   //   expect(await wallet.ethSupportsNetwork(1)).toEqual(true);
   // });
-
   //ATOM
-
   //BNB
-
   //XRP
-
 }

@@ -64,12 +64,11 @@ const supportedCoins = [
   "Dogecoin",
 ];
 
-const segwitCoins = ["Bitcoin", "Testnet", "BitcoinGold","Litecoin"];
+const segwitCoins = ["Bitcoin", "Testnet", "BitcoinGold", "Litecoin"];
 
 const COIN_MAP = {
   Bitcoin: "BTC",
   Cosmos: "ATOM",
-  EOS: "EOS",
   Testnet: "BTCT",
   BitcoinCash: "BCH",
   Litecoin: "LTC",
@@ -77,7 +76,29 @@ const COIN_MAP = {
   DigiByte: "DGB",
   Dogecoin: "DOGE",
   Ethereum: "ETH",
+  Cardano: "ADA",
+  Binance: "BNB",
+  Eos: "EOS",
+  EOS: "EOS",
 };
+
+
+// const COIN_MAP = {
+//   BTC: "Bitcoin",
+//   BTCT: "Testnet",
+//   ETH: "Ethereum",
+//   BCH: "BitcoinCash",
+//   LTC: "Litecoin",
+//   DASH: "Dash",
+//   DGB: "DigiByte",
+//   DOGE: "Dogecoin",
+//   ATOM: "Cosmos",
+//   BNB: "Binance",
+//   EOS: "Eos",
+//   XRP: "Ripple",
+//   ADA: "Cardano",
+// };
+
 
 /**
   @Types
@@ -194,8 +215,8 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
   }
 
-  public clearSession(): Promise<void> {
-    return this.pioneer.logout();
+  public clearSession(): boolean {
+    return true;
   }
 
   public ping(msg: Ping): Promise<Pong> {
@@ -252,17 +273,30 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async getPublicKeys(
-    msg: Array<GetPublicKey>
-  ): Promise<Array<PublicKey | null>> {
-    console.log("msg: ", msg);
+    msg: Array<any>
+  ): Promise<Array<any | null>> {
+    //console.log("msg: ", msg);
     const publicKeys = [];
-    console.log({ pubWallet: this._WALLET_PUBLIC });
+    //console.log({ pubWallet: this._WALLET_PUBLIC });
     for (let i = 0; i < msg.length; i++) {
-      const { coin } = msg[i];
-      console.log("coin: ", coin);
+      const { coin, symbol } = msg[i];
+      //console.log("coin: ", coin);
+      //console.log("coin: ", COIN_MAP[coin]);
+      let pubkey
+      // @ts-ignore
+      if(msg[i].type === "address"){
+        //console.log("Wallet: info",this._WALLET_PUBLIC.coins[COIN_MAP[coin]])
+        pubkey = this._WALLET_PUBLIC.coins[COIN_MAP[coin]].master
+      } else {
+        pubkey = this._WALLET_PUBLIC.coins[COIN_MAP[coin]].xpub
+      }
+
       publicKeys.push({
         coin,
-        xpub: this._WALLET_PUBLIC.coins[COIN_MAP[coin]].xpub,
+        symbol,
+        pubkey,
+        // @ts-ignore
+        type:msg[i].type
       });
     }
 
@@ -278,16 +312,16 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async btcGetAddress(msg: BTCGetAddress): Promise<string> {
-    console.log("*** msg", msg);
+    //console.log("*** msg", msg);
     let coinSymbol = COIN_MAP[msg.coin];
     let pathStr = addressNListToBIP32(msg.addressNList);
-    console.log("*** pathStr", pathStr);
+    //console.log("*** pathStr", pathStr);
     let pubKey = await generatePubkey(
       coinSymbol,
       this._WALLET_PUBLIC.coins[coinSymbol].xpub,
       pathStr
     );
-    console.log("*** pubKey: ", pubKey);
+    //console.log("*** pubKey: ", pubKey);
     //address
     let address = await generateAddress(coinSymbol, pubKey, null);
 
@@ -387,15 +421,15 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async ethGetAddress(msg: ETHGetAddress): Promise<string> {
-    console.log("*** msg", msg);
+    //console.log("*** msg", msg);
     let pathStr = addressNListToBIP32(msg.addressNList);
-    console.log("*** pathStr", pathStr);
+    //console.log("*** pathStr", pathStr);
     let pubKey = await generatePubkey(
       "ETH",
       this._WALLET_PUBLIC.coins["ETH"].xpub,
       pathStr
     );
-    console.log("*** pubKey: ", pubKey);
+    //console.log("*** pubKey: ", pubKey);
     //address
     let address = await generateAddress("ETH", pubKey, null);
     return address;

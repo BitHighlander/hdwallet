@@ -1,6 +1,6 @@
 {
-  "name": "@shapeshiftoss/hdwallet-pioneer",
-  "version": "0.18.4",
+  "name": "@bithighlander/hdwallet-pioneer",
+  "version": "0.19.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -11,29 +11,31 @@
   "module": "dist/index.m.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "ts-node __tests__/test-module.js",
+    "test": "npm run build && node __tests__/test-module.js",
     "build": "microbundle --target=web --name=pioneer",
     "clean": "rm -rf dist .rts2_*",
-    "dev": "microbundle watch --target=web --name=portis --compress=false",
+    "dev": "microbundle watch --target=web --name=pioneer --compress=false",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
     "base64-js": "^1.3.1",
-    "bip32": "^2.0.4",
-    "bitcoinjs-message": "^2.1.0",
-    "eventemitter2": "^5.0.1",
-    "lodash": "^4.17.15",
-    "web3": "^1.2.1",
     "bech32": "^1.1.3",
+    "bip32": "^2.0.4",
     "bip39": "^3.0.2",
     "bip84": "^0.2.2",
     "bitcoinjs-lib": "^5.1.7",
+    "bitcoinjs-message": "^2.1.0",
     "bs58check": "^2.1.2",
+    "cardano-wallet": "^1.1.0",
     "coininfo": "^5.1.0",
     "crypto-js": "^3.1.9-1",
     "dotenv": "^8.2.0",
+    "eosjs-ecc": "^4.0.7",
+    "eventemitter2": "^5.0.1",
     "hdkey": "^1.1.1",
-    "secp256k1": "^3.8.0"
+    "lodash": "^4.17.15",
+    "secp256k1": "^3.8.0",
+    "web3": "^1.2.1"
   },
   "devDependencies": {
     "@types/node": "^13.7.0",

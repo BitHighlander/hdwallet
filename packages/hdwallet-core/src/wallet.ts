@@ -21,6 +21,7 @@ export interface GetPublicKey {
   showDisplay?: boolean;
   scriptType?: BTCInputScriptType;
   curve: string;
+  type: string;
   coin?: Coin;
 }
 

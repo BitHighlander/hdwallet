@@ -14,10 +14,13 @@ const sha256 = require("crypto-js/sha256");
 const ripemd160 = require("crypto-js/ripemd160");
 const CryptoJS = require("crypto-js");
 const HDKey = require("hdkey");
-let bitcoin = require("bitcoinjs-lib");
-var b58 = require("bs58check");
+const bitcoin = require("bitcoinjs-lib");
+const b58 = require("bs58check");
 const BIP84 = require("bip84");
 const ethUtils = require("ethereumjs-util");
+let {PrivateKey:eosPrivateKey} = require('eosjs-ecc')
+//imports
+import * as Cardano from "cardano-wallet";
 
 /**********************************
  // Module
@@ -35,7 +38,7 @@ enum COIN_SUPPORT_ENUM {
   ATOM,
 }
 
-const COIN_SUPPORT = ["ETH", "BTC", "BCH", "DASH", "DGB", "DOGE", "LTC", "RDD"];
+const COIN_SUPPORT = ["ETH", "BTC", "BCH", "DASH", "DGB", "DOGE", "LTC", "RDD", "ATOM", "BNB", "EOS", "ADA"];
 
 const supportedCoins = [
   "Bitcoin",
@@ -60,10 +63,19 @@ const COIN_MAP = {
   DGB: "DigiByte",
   DOGE: "Dogecoin",
   ATOM: "Cosmos",
+  BNB: "Binance",
+  EOS: "Eos",
+  XRP: "Ripple",
+  ADA: "Cardano",
 };
 
 const SLIP_44: any = {
-  ETH: 118,
+  ETH: 60,
+  ATOM: 118,
+  BNB: 714,
+  EOS: 194,
+  ADA: 194,
+  TRX: 195,
   BTC: 0,
   BCH: 145,
   LTC: 2,
@@ -246,7 +258,36 @@ export async function generateWalletFromSeed(mnemonic: string) {
         var address;
         address = ethUtils.bufferToHex(ethUtils.pubToAddress(publicKey, true));
         addressMaster = address;
-      } else {
+      } else if (coin === "ATOM") {
+        var address;
+        address = createCosmosAddress(publicKey)
+        addressMaster = address;
+      } else if (coin === "BNB") {
+        var address;
+        address = createBNBAddress(publicKey)
+        addressMaster = address;
+      }else if (coin === "XRP") {
+
+      }else if (coin === "EOS") {
+        var address;
+        address = createEOSAddress(privateKey)
+        addressMaster = address;
+      }else if (coin === "ADA") {
+        let settings = Cardano.BlockchainSettings.mainnet();
+        let entropy = Cardano.Entropy.from_english_mnemonics(mnemonic);
+        // recover the wallet
+        let wallet = Cardano.Bip44RootPrivateKey.recover(entropy, "");
+
+        // create a wallet account
+        let account = wallet.bip44_account(Cardano.AccountIndex.new(0 | 0x80000000));
+        let account_public = account.public();
+
+        // create an address
+        let chain_pub = account_public.bip44_chain(false);
+        let key_pub = chain_pub.address_key(Cardano.AddressKeyIndex.new(0));
+        let address = key_pub.bootstrap_era_address(settings);
+        addressMaster = address.to_base58();
+      }else {
         let { address: address } = bitcoin.payments.p2pkh({
           pubkey: publicKey,
           network: NETWORKS[coin.toLowerCase()],
@@ -254,7 +295,7 @@ export async function generateWalletFromSeed(mnemonic: string) {
         addressMaster = address;
       }
 
-      console.log(addressMaster);
+      //console.log("MASTER: ",addressMaster);
       let coinInfo: CoinInfo = {
         coin,
         long: COIN_MAP[coin],
@@ -271,7 +312,7 @@ export async function generateWalletFromSeed(mnemonic: string) {
         coinInfo.zpub = zpub;
       }
 
-      console.log({ coinInfo });
+      //console.log({ coinInfo });
       output.coins[coin] = coinInfo;
     }
 
@@ -281,6 +322,39 @@ export async function generateWalletFromSeed(mnemonic: string) {
     throw e;
   }
 }
+
+// NOTE: this only works with a compressed public key (33 bytes)
+function createCosmosAddress(publicKey) {
+  const message = CryptoJS.enc.Hex.parse(publicKey.toString(`hex`))
+  const hash = ripemd160(sha256(message)).toString()
+  const address = Buffer.from(hash, `hex`)
+  const cosmosAddress = bech32ify(address, `cosmos`)
+  return cosmosAddress
+}
+
+
+// NOTE: this only works with a compressed public key (33 bytes)
+function createEOSAddress(privateKey) {
+  try{
+    privateKey = eosPrivateKey.fromBuffer(privateKey)
+    privateKey = privateKey.toWif()
+    let pubkey = eosPrivateKey.fromString(privateKey).toPublic().toString()
+    return pubkey
+  }catch(e){
+    throw Error(e)
+  }
+}
+
+// NOTE: this only works with a compressed public key (33 bytes)
+function createBNBAddress(publicKey) {
+  const message = CryptoJS.enc.Hex.parse(publicKey.toString(`hex`))
+  const hash = ripemd160(sha256(message)).toString()
+  const address = Buffer.from(hash, `hex`)
+  const bnbAddress = bech32ify(address, `bnb`)
+  return bnbAddress
+}
+
+
 
 export async function generatePubkey(coin: string, xpub: string, path: string) {
   let tag = TAG + " | importConfig | ";
@@ -364,146 +438,6 @@ export async function generateAddress(coin: string, pubkey: any, type: any) {
     throw e;
   }
 }
-
-//
-// module.exports = {
-//     xpubConvert: async function (xpub:string,target:string) {
-//         if (!prefixes.has(target)) {
-//             return "Invalid target version";
-//         }
-//
-//         // trim whitespace
-//         xpub = xpub.trim();
-//
-//         var data = b58.decode(xpub);
-//         data = data.slice(4);
-//         data = Buffer.concat([Buffer.from(prefixes.get(target),'hex'), data]);
-//         return b58.encode(data);
-//     },
-//     generateAddressZpub: async function (zpub:string,index:number,isChange:boolean,type:string) {
-//         var account1 = new BIP84.fromZPub(zpub)
-//         let address = account1.getAddress(index,isChange)
-//         return address
-//     },
-//     generatePubkey: async function (xpub:string,index:number,isChange:boolean,type:string) {
-//         let account = 1
-//         //if(isChange) account = 0
-//         let publicKey = bitcoin.bip32.fromBase58(xpub).derive(account).derive(index).publicKey
-//         //console.log("publicKey: ",publicKey)
-//         return publicKey.toString(`hex`)
-//     },
-//     generateAddress: async function (coin:string,pubkey:any,type:any) {
-//         //
-//         let output:any
-//
-//         switch(coin) {
-//             case 'BTC':
-//                 //if no type default to bech32
-//                 if(!type) type = 'bech32'
-//
-//                 if(type === 'bech32'){
-//                     const { address } = bitcoin.payments.p2wpkh({ pubkey: Buffer.from(pubkey,'hex') });
-//                     output = address
-//                 } else if(type === 'legacy'){
-//                     const { address } = bitcoin.payments.p2pkh({ pubkey: Buffer.from(pubkey,'hex') });
-//                     output = address
-//                 }
-//
-//                 break;
-//             default:
-//
-//                 if(!NETWORKS[coin.toLowerCase()]) throw Error("103: unknown coin, no network found! coin: "+coin)
-//                 const { address } = bitcoin.payments.p2pkh({
-//                     pubkey: Buffer.from(pubkey,'hex'),
-//                     network: NETWORKS[coin.toLowerCase()]
-//                 })
-//
-//                 output = address
-//                 break;
-//         }
-//
-//
-//         return output
-//     },
-//     generateMultiSigAddress: async function (pubkeys:any,m:number) {
-//         const { address } = bitcoin.payments.p2wsh({
-//             redeem: bitcoin.payments.p2ms({ m, pubkeys }),
-//         });
-//         return address
-//     },
-//     generateAddressPrivkey: async function (mnemonic:string,path:string) {
-//         const seed = await bip39.mnemonicToSeed(mnemonic)
-//         let mk = new HDKey.fromMasterSeed(Buffer.from(seed, 'hex'))
-//
-//         //parse path
-//         // "m/44'/714'/0'/0/093"
-//         mk = mk.derive(path)
-//         let privateKey = mk.privateKey
-//         let publicKey = mk.publicKey
-//
-//         //let address = createBNBAddress(mk.publicKey)
-//
-//         return {privateKey,publicKey}
-//     },
-//     generateWalletFromSeed: async function (mnemonic:string) {
-//         let output:Wallet = {
-//             coins:{}
-//         }
-//         //for each coin
-//         for(let i = 0; i < COIN_SUPPORT.length; i++){
-//             let coin = COIN_SUPPORT[i]
-//
-//             let path = "m/44'/"+SLIP_44[coin]+"'/0'"
-//
-//             const {masterKey,xpub} = await deriveMasterKey(mnemonic,path)
-//             //
-//             const { privateKey, publicKey } = deriveKeypair(masterKey,path)
-//             //const bnbAddress = createBNBAddress(publicKey)
-//
-//             // let master = bitcoin.bip32.fromBase58(xpub).derive(0).derive(0)
-//             let addressMaster:string = ""
-//             if(coin === "BTC"){
-//                 const { address } = bitcoin.payments.p2wpkh({ pubkey: publicKey, network:NETWORKS[coin.toLowerCase()] });
-//                 addressMaster = address
-//             } else {
-//                 const { address } = bitcoin.payments.p2pkh({ pubkey: publicKey, network:NETWORKS[coin.toLowerCase()] });
-//                 addressMaster = address
-//             }
-//
-//
-//
-//             console.log(addressMaster)
-//             let coinInfo: CoinInfo = {
-//                 coin,
-//                 master:addressMaster,
-//                 publicKey:publicKey.toString(`hex`),
-//                 xpub
-//             }
-//
-//             if(coin === "BTC"){
-//                 let root = new BIP84.fromSeed(mnemonic)
-//                 let child0 = root.deriveAccount(0)
-//                 let account0 = new BIP84.fromZPrv(child0)
-//                 let zpub = account0.getAccountPublicKey()
-//                 coinInfo.zpub = zpub
-//             }
-//
-//             console.log({coinInfo})
-//
-//             output.coins[coin] = coinInfo
-//
-//         }
-//         return output
-//     },
-//     generateSeed: function () {
-//         let randomBytesFunc = standardRandomBytesFunc
-//         const randomBytes = Buffer.from(randomBytesFunc(32), `hex`)
-//         if (randomBytes.length !== 32) throw Error(`Entropy has incorrect length`)
-//         const mnemonic = bip39.entropyToMnemonic(randomBytes.toString(`hex`))
-//         return mnemonic
-//     },
-// }
-
 //get Xpub
 
 function bech32ify(address, prefix) {
