@@ -14,7 +14,7 @@ import {
   fromHexString,
   hardenedPath,
   relativePath,
-} from "@bithighlander/hdwallet-core";
+} from "@shapeshiftoss/hdwallet-core";
 
 import { verify } from "bitcoinjs-message";
 import Base64 from "base64-js";

@@ -10,7 +10,7 @@ import {
   ETHSignedTx,
   ETHSignMessage,
   ETHSignedMessage,
-} from "@bithighlander/hdwallet-core";
+} from "@shapeshiftoss/hdwallet-core";
 
 export function describeETHPath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
