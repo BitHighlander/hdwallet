@@ -10,6 +10,7 @@ import { ethTests } from "./ethereum";
 import { cosmosTests } from "./cosmos";
 import { binanceTests } from "./binance";
 import { rippleTests } from "./ripple";
+import { eosTests } from "./eos";
 import { WalletSuite } from "./wallets/suite";
 
 /**
@@ -61,6 +62,14 @@ export function integration(suite: WalletSuite): void {
       });
 
       btcTests(() => ({ wallet, info }));
+    });
+    
+    describe("EosWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Eos");
+      });
+
+      eosTests(() => ({ wallet, info }));
     });
 
     describe("CosmosWallet", () => {
