@@ -1,4 +1,4 @@
-import { HDWallet, ETHWallet, supportsETH } from "@shapeshiftoss/hdwallet-core";
+import { HDWallet, ETHWallet, supportsETH } from "@bithighlander/hdwallet-core";
 
 // @ts-ignore
 // import {
@@ -7,7 +7,7 @@ import { HDWallet, ETHWallet, supportsETH } from "@shapeshiftoss/hdwallet-core";
 //   isPioneer,
 //   info,
 //   create,
-// } from "@shapeshiftoss/hdwallet-Pioneer";
+// } from "@bithighlander/hdwallet-Pioneer";
 
 export function name(): string {
   return "Pioneer";

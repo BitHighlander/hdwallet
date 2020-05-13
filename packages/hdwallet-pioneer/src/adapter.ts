@@ -3,7 +3,7 @@ import {
   HDWallet,
   Events,
   ActionCancelled,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-core";
 
 import { PioneerHDWallet } from "./pioneer";
 
