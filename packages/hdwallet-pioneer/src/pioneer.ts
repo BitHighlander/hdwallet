@@ -215,10 +215,6 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
   }
 
-  public clearSession(): boolean {
-    return true;
-  }
-
   public ping(msg: Ping): Promise<Pong> {
     // no ping function for Pioneer, so just returning Pong
     return Promise.resolve({ msg: msg.msg });
@@ -448,6 +444,10 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
       //this.ethAddress =
     }
     return this.ethAddress;
+  }
+
+  clearSession(): Promise<void> {
+    return undefined;
   }
 }
 
