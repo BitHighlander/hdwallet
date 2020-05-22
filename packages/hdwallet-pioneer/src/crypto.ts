@@ -20,7 +20,7 @@ const BIP84 = require("bip84");
 const ethUtils = require("ethereumjs-util");
 let {PrivateKey:eosPrivateKey} = require('eosjs-ecc')
 //imports
-import * as Cardano from "cardano-wallet";
+// import * as Cardano from "cardano-wallet";
 
 /**********************************
  // Module
@@ -66,7 +66,6 @@ const COIN_MAP = {
   BNB: "Binance",
   EOS: "Eos",
   XRP: "Ripple",
-  ADA: "Cardano",
 };
 
 const SLIP_44: any = {
@@ -273,20 +272,20 @@ export async function generateWalletFromSeed(mnemonic: string) {
         address = createEOSAddress(privateKey)
         addressMaster = address;
       }else if (coin === "ADA") {
-        let settings = Cardano.BlockchainSettings.mainnet();
-        let entropy = Cardano.Entropy.from_english_mnemonics(mnemonic);
-        // recover the wallet
-        let wallet = Cardano.Bip44RootPrivateKey.recover(entropy, "");
-
-        // create a wallet account
-        let account = wallet.bip44_account(Cardano.AccountIndex.new(0 | 0x80000000));
-        let account_public = account.public();
-
-        // create an address
-        let chain_pub = account_public.bip44_chain(false);
-        let key_pub = chain_pub.address_key(Cardano.AddressKeyIndex.new(0));
-        let address = key_pub.bootstrap_era_address(settings);
-        addressMaster = address.to_base58();
+        // let settings = Cardano.BlockchainSettings.mainnet();
+        // let entropy = Cardano.Entropy.from_english_mnemonics(mnemonic);
+        // // recover the wallet
+        // let wallet = Cardano.Bip44RootPrivateKey.recover(entropy, "");
+        //
+        // // create a wallet account
+        // let account = wallet.bip44_account(Cardano.AccountIndex.new(0 | 0x80000000));
+        // let account_public = account.public();
+        //
+        // // create an address
+        // let chain_pub = account_public.bip44_chain(false);
+        // let key_pub = chain_pub.address_key(Cardano.AddressKeyIndex.new(0));
+        // let address = key_pub.bootstrap_era_address(settings);
+        // addressMaster = address.to_base58();
       }else {
         let { address: address } = bitcoin.payments.p2pkh({
           pubkey: publicKey,

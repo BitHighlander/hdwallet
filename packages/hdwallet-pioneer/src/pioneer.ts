@@ -132,7 +132,7 @@ class PioneerTransport extends Transport {
   }
 }
 
-export function isPioneer(wallet: HDWallet): wallet is PioneerHDWallet {
+export function isPioneer(wallet: HDWallet) {
   return isObject(wallet) && (wallet as any)._isPioneer;
 }
 

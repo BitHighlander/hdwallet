@@ -7,7 +7,9 @@ import {
 } from "@bithighlander/hdwallet-core";
 import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
+// @ts-ignore
 import * as tx01_unsigned from "./tx01.unsigned.json";
+// @ts-ignore
 import * as tx01_signed from "./tx01.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE =
