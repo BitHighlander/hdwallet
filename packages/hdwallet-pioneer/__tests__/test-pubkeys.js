@@ -8,6 +8,7 @@ let TEST_SEED  = "alcohol woman abuse must during monitor noble actual mixed tra
 let hdwallet = require("../../hdwallet-core/dist")
 let pioneer = require("../dist/index")
 
+const assert = require('assert');
 let paths = require("./data/common_paths")
 //console.log("paths",paths)
 
