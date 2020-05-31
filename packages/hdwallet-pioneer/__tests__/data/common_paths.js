@@ -6,11 +6,13 @@ let paths = [
         curve: 'secp256k1',
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: 'Bitcoin',
-        symbol: 'BTC'
+        symbol: 'BTC',
+        network: 'BTC',
     },
     {
         coin: 'Bitcoin',
         symbol: 'BTC',
+        network: 'BTC',
         note:"",
         type:"xpub",
         addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
@@ -20,6 +22,7 @@ let paths = [
     {
         coin: 'Bitcoin',
         symbol: 'BTC',
+        network: 'BTC',
         note:"",
         type:"xpub",
         addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
@@ -30,6 +33,7 @@ let paths = [
     {
         coin: 'Litecoin',
         symbol: 'LTC',
+        network: 'LTC',
         note:"",
         type:"xpub",
         addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
@@ -38,6 +42,8 @@ let paths = [
     },
     {
         note:"",
+        symbol: 'ETH',
+        network: 'ETH',
         type:"address",
         addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0, 0x80000000 + 0],
         curve: 'secp256k1',
@@ -51,7 +57,8 @@ let paths = [
         curve: 'secp256k1',
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: 'Eos',
-        symbol: 'EOS'
+        symbol: 'EOS',
+        network: 'EOS',
     },
     {
         note:"",
@@ -61,6 +68,7 @@ let paths = [
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: 'Binance',
         symbol: 'BNB',
+        network: 'BNB',
     },
     {
         note:"",
@@ -69,17 +77,18 @@ let paths = [
         curve: 'secp256k1',
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: 'Cosmos',
-        symbol: 'ATOM'
+        symbol: 'ATOM',
+        network: 'ATOM',
     },
-    {
-        note:"",
-        type:"address",
-        addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0, 0x80000000 + 0],
-        curve: 'secp256k1',
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-        coin: 'Cardano',
-        symbol: 'ADA'
-    }
+    // {
+    //     note:"",
+    //     type:"address",
+    //     addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0, 0x80000000 + 0],
+    //     curve: 'secp256k1',
+    //     showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+    //     coin: 'Cardano',
+    //     symbol: 'ADA'
+    // }
 
 ]
 

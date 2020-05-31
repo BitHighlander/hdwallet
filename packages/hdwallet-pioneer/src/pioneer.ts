@@ -110,15 +110,30 @@ const COIN_MAP = {
 interface CoinInfo {
   coin: string;
   master: string;
+  network: string;
   publicKey: string;
   xpub: string;
   zpub?: string;
 }
 
+interface CoinInfoPriv {
+    coin: string;
+    masterPrivkey: string;
+    xpriv?: string;
+    type?:string
+}
+
 interface Wallet {
-  coins: {
-    [index: string]: CoinInfo;
-  };
+    walletPrivate:{
+        coins: {
+            [index: string]: CoinInfoPriv;
+        }
+    },
+    walletPublic:{
+        coins: {
+            [index: string]: CoinInfo;
+        }
+    }
 }
 
 // We might not need this. Leaving it for now to debug further
@@ -154,7 +169,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   //CORE pioneer info
   _WALLET_SEED: string = "";
-  _WALLET_PUBLIC: Wallet;
+  _WALLET_PUBLIC: any;
   _WALLET_PRIVATE = "";
 
   transport = new PioneerTransport(new Keyring());
@@ -260,7 +275,10 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   public async loadDevice(msg: LoadDevice): Promise<void> {
     this._WALLET_SEED = msg.mnemonic;
-    this._WALLET_PUBLIC = await generateWalletFromSeed(msg.mnemonic);
+    let {walletPublic , walletPrivate} = await generateWalletFromSeed(msg.mnemonic)
+    this._WALLET_PUBLIC = walletPublic
+    // @ts-ignore
+    this._WALLET_PRIVATE = walletPrivate
     return Promise.resolve();
   }
 
@@ -287,8 +305,14 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
         pubkey = this._WALLET_PUBLIC.coins[COIN_MAP[coin]].xpub
       }
 
+      //console.log("wwallet coin: ",COIN_MAP[coin])
+      //console.log("wwallet coin: ",COIN_MAP[coin])
+      //console.log("wwallet public: ",this._WALLET_PUBLIC.coins[COIN_MAP[coin]])
+      let network = this._WALLET_PUBLIC.coins[COIN_MAP[coin]].network || symbol
+
       publicKeys.push({
         coin,
+        network,
         symbol,
         pubkey,
         // @ts-ignore

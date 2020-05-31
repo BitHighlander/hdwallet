@@ -38,7 +38,7 @@ enum COIN_SUPPORT_ENUM {
   ATOM,
 }
 
-const COIN_SUPPORT = ["ETH", "BTC", "BCH", "DASH", "DGB", "DOGE", "LTC", "RDD", "ATOM", "BNB", "EOS", "ADA"];
+const COIN_SUPPORT = ["ETH", "BTC", "BCH", "DASH", "DGB", "DOGE", "LTC", "RDD", "ATOM", "BNB", "EOS"];
 
 const supportedCoins = [
   "Bitcoin",
@@ -73,7 +73,6 @@ const SLIP_44: any = {
   ATOM: 118,
   BNB: 714,
   EOS: 194,
-  ADA: 194,
   TRX: 195,
   BTC: 0,
   BCH: 145,
@@ -175,14 +174,29 @@ interface CoinInfo {
   master: string;
   publicKey: string;
   long: string;
+  network:string;
   xpub: string;
   zpub?: string;
 }
 
+interface CoinInfoPriv {
+  coin: string;
+  masterPrivkey: string;
+  xpriv?: string;
+  type?:string
+}
+
 interface Wallet {
-  coins: {
-    [index: string]: CoinInfo;
-  };
+  walletPrivate:{
+    coins: {
+    [index: string]: CoinInfoPriv;
+    }
+  },
+  walletPublic:{
+    coins: {
+      [index: string]: CoinInfo;
+    }
+  }
 }
 
 // All known xyx... pub formats
@@ -230,9 +244,15 @@ export async function generateWalletFromSeed(mnemonic: string) {
   let tag = TAG + " | importConfig | ";
   try {
     //
-    let output: Wallet = {
-      coins: {},
-    };
+    let output: any = {
+      walletPublic:{
+        coins:{}
+      },
+      walletPrivate:{
+        coins:{}
+      }
+    }
+
     //for each coin
     for (let i = 0; i < COIN_SUPPORT.length; i++) {
       let coin = COIN_SUPPORT[i];
@@ -244,31 +264,36 @@ export async function generateWalletFromSeed(mnemonic: string) {
 
       // let master = bitcoin.bip32.fromBase58(xpub).derive(0).derive(0)
       let addressMaster: string = "";
-
+      let network
       if (coin === "BTC") {
         let { address: address } = bitcoin.payments.p2wpkh({
           pubkey: publicKey,
           network: NETWORKS[coin.toLowerCase()],
         });
         addressMaster = address;
+        network = 'BTC'
       } else if (coin === "ETH") {
         var address;
         address = ethUtils.bufferToHex(ethUtils.pubToAddress(publicKey, true));
         addressMaster = address;
+        network = 'ETH'
       } else if (coin === "ATOM") {
         var address;
         address = createCosmosAddress(publicKey)
         addressMaster = address;
+        network = 'COSMOS'
       } else if (coin === "BNB") {
         var address;
         address = createBNBAddress(publicKey)
         addressMaster = address;
+        network = 'BNB'
       }else if (coin === "XRP") {
-
+        network = 'XRP'
       }else if (coin === "EOS") {
         var address;
         address = createEOSAddress(privateKey)
         addressMaster = address;
+        network = 'EOS'
       }else if (coin === "ADA") {
         // let settings = Cardano.BlockchainSettings.mainnet();
         // let entropy = Cardano.Entropy.from_english_mnemonics(mnemonic);
@@ -292,25 +317,27 @@ export async function generateWalletFromSeed(mnemonic: string) {
         addressMaster = address;
       }
 
+      let coinInfoPriv: CoinInfoPriv = {
+        coin,
+        masterPrivkey: privateKey,
+      };
+
+      //if xpriv
+
       //console.log("MASTER: ",addressMaster);
       let coinInfo: CoinInfo = {
         coin,
+        network,
         long: COIN_MAP[coin],
         master: addressMaster,
         publicKey: publicKey.toString(`hex`),
         xpub,
       };
 
-      if (coin === "BTC") {
-        let root = new BIP84.fromSeed(mnemonic);
-        let child0 = root.deriveAccount(0);
-        let account0 = new BIP84.fromZPrv(child0);
-        let zpub = account0.getAccountPublicKey();
-        coinInfo.zpub = zpub;
-      }
 
-      //console.log({ coinInfo });
-      output.coins[coin] = coinInfo;
+      console.log({ coinInfo });
+      output.walletPublic.coins[coin] = coinInfo;
+      output.walletPrivate.coins[coin] = coinInfoPriv;
     }
 
     return output;
