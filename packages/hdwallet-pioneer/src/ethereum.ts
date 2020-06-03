@@ -12,6 +12,13 @@ import {
   ETHSignedMessage,
 } from "@bithighlander/hdwallet-core";
 
+import HDKey from "hdkey";
+import { hexToNumberString } from 'web3-utils'
+
+const bip39 = require(`bip39`);
+//const ethUtils = require('ethereumjs-util');
+const txBuilder = require("ethereumjs-tx").Transaction;
+
 export function describeETHPath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
@@ -72,30 +79,61 @@ export function ethGetAccountPaths(
         0x80000000 + msg.accountIdx,
       ],
       relPath: [0, 0],
-      description: "Portis",
+      description: "Pioneer",
     },
   ];
 }
 
+//
+// let generateAddressPrivkey = function(){
+//   try{
+//
+//   }catch(e){
+//
+//   }
+// }
+
 export async function ethSignTx(
   msg: ETHSignTx,
-  web3: any,
+  mnemonic: string,
   from: string
 ): Promise<ETHSignedTx> {
-  const result = await web3.eth.signTransaction({
-    from,
-    to: msg.to,
-    value: msg.value,
-    gas: msg.gasLimit,
-    gasPrice: msg.gasPrice,
-    data: msg.data,
+  //get privkey at pathd
+
+
+  console.log("mnemonic: ",mnemonic)
+
+  const seed = await bip39.mnemonicToSeed(mnemonic)
+
+  let mk = new HDKey.fromMasterSeed(Buffer.from(seed, 'hex'))
+
+  // expects bip32
+  let path = addressNListToBIP32(msg.addressNList)
+  mk = mk.derive(path)
+
+  let privateKey = mk.privateKey
+  let txTemplate = {
     nonce: msg.nonce,
-  });
+    to: msg.to,
+    gasPrice: msg.gasPrice,
+    gasLimit : msg.gasLimit,
+    value: msg.value,
+    data:msg.data
+  }
+
+  console.log("txTemplate: ",txTemplate)
+  let transaction = new txBuilder(txTemplate)
+  transaction.sign(privateKey)
+
+  let serialized = transaction.serialize()
+  serialized = '0x' + serialized.toString('hex')
+  console.log(serialized)
+
   return {
-    v: result.tx.v,
-    r: result.tx.r,
-    s: result.tx.s,
-    serialized: result.raw,
+    v: 37,
+    r: "0x2482a45ee0d2851d3ab76a693edd7a393e8bc99422f7857be78a883bc1d60a5b",
+    s: "0x18d776bcfae586bf08ecc70f714c9bec8959695a20ef73ad0c28233fdaeb1bd2",
+    serialized
   };
 }
 

@@ -4,7 +4,6 @@ import {
   ETHWallet,
   supportsETH,
 } from "@bithighlander/hdwallet-core";
-import { isLedger } from "@bithighlander/hdwallet-ledger";
 import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE =
@@ -192,7 +191,6 @@ export function ethereumTests(
       "ethSignMessage()",
       async () => {
         if (!wallet) return;
-        if (isLedger(wallet)) return; // FIXME: Expected failure
         let res = await wallet.ethSignMessage({
           addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
           message: "Hello World",

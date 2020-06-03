@@ -335,7 +335,7 @@ export async function generateWalletFromSeed(mnemonic: string) {
       };
 
 
-      console.log({ coinInfo });
+     // console.log({ coinInfo });
       output.walletPublic.coins[coin] = coinInfo;
       output.walletPrivate.coins[coin] = coinInfoPriv;
     }

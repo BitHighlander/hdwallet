@@ -9,6 +9,8 @@ import {
   Ping,
   Pong,
   LoadDevice,
+  BinanceSignTx,
+  BinanceSignedTx,
   ETHWallet,
   ETHGetAddress,
   ETHSignTx,
@@ -36,9 +38,10 @@ import {
   BTCGetAccountPaths,
   BTCAccountPath,
   BTCWalletInfo,
-  slip44ByCoin,
+  slip44ByCoin
 } from "@bithighlander/hdwallet-core";
 import * as eth from "./ethereum";
+import * as bnb from "./bnb";
 import * as btc from "./bitcoin";
 import { isObject } from "lodash";
 
@@ -158,7 +161,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsBTC: boolean = true;
   _supportsCosmosInfo: boolean = false;
   _supportsCosmos: boolean = true;
-  _supportsBinanceInfo: boolean = false;
+  _supportsBinanceInfo: boolean = true;
   _supportsBinance: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsRipple: boolean = true;
@@ -406,7 +409,13 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
     return this.info.btcNextAccountPath(msg);
   }
-
+  public async bnbSignTx(msg: BinanceSignTx): Promise<BinanceSignedTx> {
+    return bnb.bnbSignTx(msg, this._WALLET_SEED, "");
+  }
+  /**
+   *  ETH params
+   * @param chainId
+   */
   public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
     return this.info.ethSupportsNetwork(chainId);
   }
@@ -429,7 +438,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx> {
-    return eth.ethSignTx(msg, {}, await this._ethGetAddress());
+    return eth.ethSignTx(msg, this._WALLET_SEED, await this._ethGetAddress());
   }
 
   public async ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage> {
@@ -480,28 +489,28 @@ export class PioneerHDWalletInfo
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
-  _supportsBinanceInfo: boolean = false;
+  _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
 
   public getVendor(): string {
-    return " ";
+    return "pioneer";
   }
 
   public hasOnDevicePinEntry(): boolean {
-    return true;
+    return false;
   }
 
   public hasOnDevicePassphrase(): boolean {
-    return true;
+    return false;
   }
 
   public hasOnDeviceDisplay(): boolean {
-    return true;
+    return false;
   }
 
   public hasOnDeviceRecovery(): boolean {
-    return true;
+    return false;
   }
 
   public hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean {

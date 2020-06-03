@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-pioneer",
-  "version": "0.19.11",
+  "version": "0.19.15",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -11,8 +11,9 @@
   "module": "dist/index.m.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "npm run build && node __tests__/test-pubkeys.js",
-    "build": "microbundle --target=web --name=pioneer",
+    "test-pubkeys": "npm run build && node __tests__/test-pubkeys.js",
+    "test-eth-signtx": "npm run build && node __tests__/test-eth-signtx.js",
+    "build": "microbundle --target=web --name=pioneer --no-compress --raw",
     "clean": "rm -rf dist .rts2_*",
     "dev": "microbundle watch --target=web --name=pioneer --compress=false",
     "prepublishOnly": "yarn clean && yarn build"
@@ -34,9 +35,11 @@
     "dotenv": "^8.2.0",
     "eosjs-ecc": "^4.0.7",
     "eslint-config-prettier": "^6.11.0",
+    "ethereumjs-tx": "^2.1.2",
     "eventemitter2": "^5.0.1",
     "hdkey": "^1.1.1",
     "lodash": "^4.17.15",
+    "react-native-bip39": "^2.3.0",
     "secp256k1": "^3.8.0",
     "web3": "^1.2.1"
   },
