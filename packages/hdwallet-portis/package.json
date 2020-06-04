@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-portis",
-  "version": "0.18.10",
+  "version": "0.18.11",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
