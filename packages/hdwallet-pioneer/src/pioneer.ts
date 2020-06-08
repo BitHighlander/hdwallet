@@ -173,7 +173,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   //CORE pioneer info
   _WALLET_SEED: string = "";
   _WALLET_PUBLIC: any;
-  _WALLET_PRIVATE = "";
+  _WALLET_PRIVATE: any;
 
   transport = new PioneerTransport(new Keyring());
 
@@ -289,6 +289,40 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.describePath(msg);
   }
 
+  public async getPrivateKeys(
+      msg: Array<any>
+  ): Promise<Array<any | null>> {
+    //console.log("msg: ", msg);
+    const publicKeys = [];
+    //console.log({ pubWallet: this._WALLET_PRIVATE });
+    for (let i = 0; i < msg.length; i++) {
+      const { coin, symbol } = msg[i];
+      //console.log("coin: ", coin);
+      //console.log("coin: ", COIN_MAP[coin]);
+
+      let privkey
+      // @ts-ignore
+      if(msg[i].type === "address"){
+        privkey = this._WALLET_PRIVATE.coins[COIN_MAP[coin]].privateKey.toString('hex')
+      } else {
+        privkey = this._WALLET_PRIVATE.coins[COIN_MAP[coin]].xpriv
+      }
+      //get network info
+      let network = this._WALLET_PRIVATE.coins[COIN_MAP[coin]].network || symbol
+
+      publicKeys.push({
+        coin,
+        network,
+        symbol,
+        privkey,
+        // @ts-ignore
+        type:msg[i].type
+      });
+    }
+
+    return publicKeys;
+  }
+
   public async getPublicKeys(
     msg: Array<any>
   ): Promise<Array<any | null>> {
@@ -308,9 +342,6 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
         pubkey = this._WALLET_PUBLIC.coins[COIN_MAP[coin]].xpub
       }
 
-      //console.log("wwallet coin: ",COIN_MAP[coin])
-      //console.log("wwallet coin: ",COIN_MAP[coin])
-      //console.log("wwallet public: ",this._WALLET_PUBLIC.coins[COIN_MAP[coin]])
       let network = this._WALLET_PUBLIC.coins[COIN_MAP[coin]].network || symbol
 
       publicKeys.push({
@@ -450,15 +481,12 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async ethGetAddress(msg: ETHGetAddress): Promise<string> {
-    //console.log("*** msg", msg);
     let pathStr = addressNListToBIP32(msg.addressNList);
-    //console.log("*** pathStr", pathStr);
     let pubKey = await generatePubkey(
       "ETH",
       this._WALLET_PUBLIC.coins["ETH"].xpub,
       pathStr
     );
-    //console.log("*** pubKey: ", pubKey);
     //address
     let address = await generateAddress("ETH", pubKey, null);
     return address;

@@ -25,9 +25,23 @@ export interface GetPublicKey {
   coin?: Coin;
 }
 
+export interface GetPrivateKey {
+  addressNList: BIP32Path;
+  showDisplay?: boolean;
+  scriptType?: BTCInputScriptType;
+  curve: string;
+  type: string;
+  coin?: Coin;
+}
+
 export interface PublicKey {
   xpub: string;
 }
+
+export interface PrivateKey {
+  privkey: string;
+}
+
 
 export interface Ping {
   msg: string;
@@ -277,9 +291,16 @@ export interface HDWallet extends HDWalletInfo {
   getLabel(): Promise<string>;
 
   /**
-   * Derive one or more xpubs.
+   * Derive one or more public keys.
+   * (Xpub or Address)
    */
   getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>>;
+
+  /**
+   * Derive one or more private keys.
+   * (xpriv or private key)
+   */
+  getPrivateKeys(msg: Array<GetPrivateKey>): Promise<Array<PublicKey | null>>;
 
   /**
    * Check whether the device has been initialized with a secret.

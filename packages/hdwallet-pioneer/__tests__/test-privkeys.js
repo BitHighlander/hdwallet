@@ -31,9 +31,6 @@ let run_test = async function(){
         const resultPriv = await wallet.getPrivateKeys(paths.paths)
         console.log('get resultPriv: ', resultPriv)
 
-        //verify addys
-        const result = await wallet.getPublicKeys(paths.paths)
-        console.log('get Xpubs: ', result)
 
     }catch(e){
         console.error(e)

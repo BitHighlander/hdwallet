@@ -125,14 +125,23 @@ export async function ethSignTx(
   let transaction = new txBuilder(txTemplate)
   transaction.sign(privateKey)
 
+  let sig = {
+    v:transaction.v.toString('hex'),
+    r:transaction.r.toString('hex'),
+    s:transaction.s.toString('hex')
+  }
+
+  const txid = '0x' + transaction.hash().toString('hex')
+
   let serialized = transaction.serialize()
   serialized = '0x' + serialized.toString('hex')
-  console.log(serialized)
+  //console.log(serialized)
 
   return {
-    v: 37,
-    r: "0x2482a45ee0d2851d3ab76a693edd7a393e8bc99422f7857be78a883bc1d60a5b",
-    s: "0x18d776bcfae586bf08ecc70f714c9bec8959695a20ef73ad0c28233fdaeb1bd2",
+    txid,
+    v: sig.v,
+    r: sig.r,
+    s: sig.s,
     serialized
   };
 }

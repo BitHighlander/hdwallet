@@ -182,6 +182,8 @@ interface CoinInfo {
 interface CoinInfoPriv {
   coin: string;
   masterPrivkey: string;
+  privateKey:string,
+  publicKey?:string,
   xpriv?: string;
   type?:string
 }
@@ -258,7 +260,7 @@ export async function generateWalletFromSeed(mnemonic: string) {
       let coin = COIN_SUPPORT[i];
 
       let path = "m/44'/" + SLIP_44[coin] + "'/0'/0/0";
-      const { masterKey, xpub } = await deriveMasterKey(mnemonic, path);
+      const { masterKey, xpub, xpriv } = await deriveMasterKey(mnemonic, path);
       const { privateKey, publicKey } = deriveKeypair(masterKey, path);
       //const bnbAddress = createBNBAddress(publicKey)
 
@@ -272,6 +274,7 @@ export async function generateWalletFromSeed(mnemonic: string) {
         });
         addressMaster = address;
         network = 'BTC'
+
       } else if (coin === "ETH") {
         var address;
         address = ethUtils.bufferToHex(ethUtils.pubToAddress(publicKey, true));
@@ -295,20 +298,7 @@ export async function generateWalletFromSeed(mnemonic: string) {
         addressMaster = address;
         network = 'EOS'
       }else if (coin === "ADA") {
-        // let settings = Cardano.BlockchainSettings.mainnet();
-        // let entropy = Cardano.Entropy.from_english_mnemonics(mnemonic);
-        // // recover the wallet
-        // let wallet = Cardano.Bip44RootPrivateKey.recover(entropy, "");
-        //
-        // // create a wallet account
-        // let account = wallet.bip44_account(Cardano.AccountIndex.new(0 | 0x80000000));
-        // let account_public = account.public();
-        //
-        // // create an address
-        // let chain_pub = account_public.bip44_chain(false);
-        // let key_pub = chain_pub.address_key(Cardano.AddressKeyIndex.new(0));
-        // let address = key_pub.bootstrap_era_address(settings);
-        // addressMaster = address.to_base58();
+        //TODO
       }else {
         let { address: address } = bitcoin.payments.p2pkh({
           pubkey: publicKey,
@@ -320,6 +310,9 @@ export async function generateWalletFromSeed(mnemonic: string) {
       let coinInfoPriv: CoinInfoPriv = {
         coin,
         masterPrivkey: privateKey,
+        privateKey,
+        publicKey,
+        xpriv,
       };
 
       //if xpriv
@@ -481,8 +474,6 @@ async function deriveMasterKey(mnemonic: string, path: string) {
   bip39.validateMnemonic(mnemonic);
 
   const seed = await bip39.mnemonicToSeed(mnemonic);
-  // let masterKey =  new HDKey.fromMasterSeed(new Buffer(seed, 'hex'), coininfo(network).versions.bip32.versions)
-  // //console.log("masterKey: ",masterKey)
   let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
   //console.log(mk.publicExtendedKey)
 
@@ -490,15 +481,13 @@ async function deriveMasterKey(mnemonic: string, path: string) {
   mk = mk.derive(path);
   //console.log(mk.publicExtendedKey)
 
-  //get correct address with xpub
+  //get extended keys
   let xpub = mk.publicExtendedKey;
-  //console.log("xpub: ",xpub)
-
-  let publicKey = bitcoin.bip32.fromBase58(xpub).derive(0).derive(0).publicKey;
-  //console.log("publicKey: ",publicKey)
+  let xpriv = mk.privateExtendedKey;
 
   const masterKey = bip32.fromSeed(seed);
-  return { masterKey, xpub };
+
+  return { masterKey, xpub, xpriv, path };
 }
 
 function deriveKeypair(masterKey: any, path: string) {

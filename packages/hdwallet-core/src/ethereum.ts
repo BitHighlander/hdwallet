@@ -52,6 +52,7 @@ export interface ETHSignTx {
 }
 
 export interface ETHSignedTx {
+  txid?:string
   /** uint32 */
   v: number;
   /** big-endian hex, prefixed with '0x' */

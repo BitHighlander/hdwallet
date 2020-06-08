@@ -74,25 +74,6 @@ export class PioneerAdapter {
     this.currentDeviceId = deviceId;
     this.keyring.emit(["Pioneer", deviceId, Events.CONNECT], deviceId);
 
-    const watchForInactivity = () => {
-      let time;
-      const resetTimer = () => {
-        clearTimeout(time);
-        time = setTimeout(() => {
-          window.onload = null;
-          document.onmousemove = null;
-          document.onkeypress = null;
-          clearTimeout(time);
-          this.pioneer.logout();
-        }, INACTIVITY_LOGOUT_TIME);
-      };
-      window.onload = resetTimer;
-      document.onmousemove = resetTimer;
-      document.onkeypress = resetTimer;
-      resetTimer();
-    };
-
-    watchForInactivity();
     return wallet;
   }
 }
