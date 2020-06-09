@@ -172,8 +172,8 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   //CORE pioneer info
   _WALLET_SEED: string = "";
-  _WALLET_PUBLIC: any;
-  _WALLET_PRIVATE: any;
+  _WALLET_PUBLIC: any = {};
+  _WALLET_PRIVATE: any = {};
 
   transport = new PioneerTransport(new Keyring());
 
@@ -279,9 +279,34 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   public async loadDevice(msg: LoadDevice): Promise<void> {
     this._WALLET_SEED = msg.mnemonic;
     let {walletPublic , walletPrivate} = await generateWalletFromSeed(msg.mnemonic)
+    console.log("Wallet: ",{walletPublic , walletPrivate})
+
+    //generate 1 keypair per asset
+    //build wallet
+    // for(let i = 0; i < walletPublic.length; i++){
+    //   let pubkey =  walletPublic[i]
+    //   this._WALLET_PUBLIC[pubkey.coin] = pubkey
+    // }
+    //
+    // //build wallet
+    // for(let i = 0; i < walletPrivate.length; i++){
+    //   let privkey = walletPrivate[i]
+    //   this._WALLET_PRIVATE[privkey.coin] = privkey
+    // }
+
+
     this._WALLET_PUBLIC = walletPublic
-    // @ts-ignore
     this._WALLET_PRIVATE = walletPrivate
+
+    return Promise.resolve();
+  }
+
+  public async loadDeviceFromWallet(msg: any): Promise<void> {
+    this._WALLET_SEED = 'Not Available!'
+
+    this._WALLET_PUBLIC = msg.walletPublic
+    this._WALLET_PRIVATE = msg.walletPrivate
+
     return Promise.resolve();
   }
 
@@ -293,34 +318,16 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
       msg: Array<any>
   ): Promise<Array<any | null>> {
     //console.log("msg: ", msg);
-    const publicKeys = [];
+    const privateKeys = [];
     //console.log({ pubWallet: this._WALLET_PRIVATE });
     for (let i = 0; i < msg.length; i++) {
       const { coin, symbol } = msg[i];
-      //console.log("coin: ", coin);
-      //console.log("coin: ", COIN_MAP[coin]);
 
-      let privkey
-      // @ts-ignore
-      if(msg[i].type === "address"){
-        privkey = this._WALLET_PRIVATE.coins[COIN_MAP[coin]].privateKey.toString('hex')
-      } else {
-        privkey = this._WALLET_PRIVATE.coins[COIN_MAP[coin]].xpriv
-      }
-      //get network info
-      let network = this._WALLET_PRIVATE.coins[COIN_MAP[coin]].network || symbol
-
-      publicKeys.push({
-        coin,
-        network,
-        symbol,
-        privkey,
-        // @ts-ignore
-        type:msg[i].type
-      });
+      let coinInfo:CoinInfoPriv = this._WALLET_PRIVATE[symbol]
+      privateKeys.push(coinInfo);
     }
 
-    return publicKeys;
+    return privateKeys;
   }
 
   public async getPublicKeys(
@@ -333,25 +340,8 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
       const { coin, symbol } = msg[i];
       //console.log("coin: ", coin);
       //console.log("coin: ", COIN_MAP[coin]);
-      let pubkey
-      // @ts-ignore
-      if(msg[i].type === "address"){
-        //console.log("Wallet: info",this._WALLET_PUBLIC.coins[COIN_MAP[coin]])
-        pubkey = this._WALLET_PUBLIC.coins[COIN_MAP[coin]].master
-      } else {
-        pubkey = this._WALLET_PUBLIC.coins[COIN_MAP[coin]].xpub
-      }
-
-      let network = this._WALLET_PUBLIC.coins[COIN_MAP[coin]].network || symbol
-
-      publicKeys.push({
-        coin,
-        network,
-        symbol,
-        pubkey,
-        // @ts-ignore
-        type:msg[i].type
-      });
+      let coinInfo:CoinInfo = this._WALLET_PUBLIC[symbol]
+      publicKeys.push(coinInfo);
     }
 
     return publicKeys;
@@ -372,7 +362,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     //console.log("*** pathStr", pathStr);
     let pubKey = await generatePubkey(
       coinSymbol,
-      this._WALLET_PUBLIC.coins[coinSymbol].xpub,
+      this._WALLET_PUBLIC[coinSymbol].pubkey,
       pathStr
     );
     //console.log("*** pubKey: ", pubKey);
@@ -387,7 +377,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     let pathStr = addressNListToBIP32(msg.addressNList);
     let pubKey = await generatePubkey(
       coinSymbol,
-      this._WALLET_PUBLIC.coins[coinSymbol].xpub,
+      this._WALLET_PUBLIC[coinSymbol].xpub,
       pathStr
     );
 
@@ -484,7 +474,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     let pathStr = addressNListToBIP32(msg.addressNList);
     let pubKey = await generatePubkey(
       "ETH",
-      this._WALLET_PUBLIC.coins["ETH"].xpub,
+      this._WALLET_PUBLIC["ETH"].xpub,
       pathStr
     );
     //address

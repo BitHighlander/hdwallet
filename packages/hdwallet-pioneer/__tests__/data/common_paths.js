@@ -45,7 +45,7 @@ let paths = [
         symbol: 'ETH',
         network: 'ETH',
         type:"address",
-        addressNList: [0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0, 0x80000000 + 0],
+        addressNList: [0x80000000 + 44, 0x80000000 + 118],
         curve: 'secp256k1',
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: 'Ethereum'

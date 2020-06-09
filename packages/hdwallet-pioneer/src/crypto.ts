@@ -168,22 +168,30 @@ const NETWORKS: any = {
   },
 };
 
+
+//export interface PubkeyTypes  address | xpub
+
 // TYPES
-interface CoinInfo {
+export interface CoinInfo {
   coin: string;
+  long?: string;
+  path:string
   master: string;
-  publicKey: string;
-  long: string;
   network:string;
-  xpub: string;
+  pubkey: string;
+  xpub?: string;
   zpub?: string;
+  type?:string
 }
 
-interface CoinInfoPriv {
+export interface CoinInfoPriv {
   coin: string;
+  long?: string;
+  path: string
+  master?:string
   masterPrivkey: string;
-  privateKey:string,
-  publicKey?:string,
+  pubkey?:string,
+  privkey:string,
   xpriv?: string;
   type?:string
 }
@@ -247,12 +255,8 @@ export async function generateWalletFromSeed(mnemonic: string) {
   try {
     //
     let output: any = {
-      walletPublic:{
-        coins:{}
-      },
-      walletPrivate:{
-        coins:{}
-      }
+      walletPublic:{},
+      walletPrivate:{}
     }
 
     //for each coin
@@ -267,7 +271,11 @@ export async function generateWalletFromSeed(mnemonic: string) {
       // let master = bitcoin.bip32.fromBase58(xpub).derive(0).derive(0)
       let addressMaster: string = "";
       let network
+
+      //key off assets
+      let type
       if (coin === "BTC") {
+        type = "xpub"
         let { address: address } = bitcoin.payments.p2wpkh({
           pubkey: publicKey,
           network: NETWORKS[coin.toLowerCase()],
@@ -276,23 +284,28 @@ export async function generateWalletFromSeed(mnemonic: string) {
         network = 'BTC'
 
       } else if (coin === "ETH") {
+        type = "xpub"
         var address;
         address = ethUtils.bufferToHex(ethUtils.pubToAddress(publicKey, true));
         addressMaster = address;
         network = 'ETH'
       } else if (coin === "ATOM") {
+        type = "xpub"
         var address;
         address = createCosmosAddress(publicKey)
         addressMaster = address;
         network = 'COSMOS'
       } else if (coin === "BNB") {
+        type = "xpub"
         var address;
         address = createBNBAddress(publicKey)
         addressMaster = address;
         network = 'BNB'
       }else if (coin === "XRP") {
+        type = "xpub"
         network = 'XRP'
       }else if (coin === "EOS") {
+        type = "address"
         var address;
         address = createEOSAddress(privateKey)
         addressMaster = address;
@@ -300,6 +313,7 @@ export async function generateWalletFromSeed(mnemonic: string) {
       }else if (coin === "ADA") {
         //TODO
       }else {
+        type = "xpub"
         let { address: address } = bitcoin.payments.p2pkh({
           pubkey: publicKey,
           network: NETWORKS[coin.toLowerCase()],
@@ -307,30 +321,44 @@ export async function generateWalletFromSeed(mnemonic: string) {
         addressMaster = address;
       }
 
+
+      let pubkey
+      let privkey
+      //if xpriv
+      if(type === 'address'){
+        pubkey = addressMaster
+        privkey = privateKey.toString('hex')
+      } else {
+        pubkey = xpub
+        privkey = xpriv
+      }
+
       let coinInfoPriv: CoinInfoPriv = {
         coin,
-        masterPrivkey: privateKey,
-        privateKey,
-        publicKey,
+        path,
+        master: addressMaster,
+        masterPrivkey: privateKey.toString('hex'),
+        privkey,
+        pubkey:xpub,
         xpriv,
       };
-
-      //if xpriv
 
       //console.log("MASTER: ",addressMaster);
       let coinInfo: CoinInfo = {
         coin,
         network,
+        path,
         long: COIN_MAP[coin],
         master: addressMaster,
-        publicKey: publicKey.toString(`hex`),
+        pubkey,
         xpub,
+        type
       };
 
 
      // console.log({ coinInfo });
-      output.walletPublic.coins[coin] = coinInfo;
-      output.walletPrivate.coins[coin] = coinInfoPriv;
+      output.walletPublic[coin] = coinInfo;
+      output.walletPrivate[coin] = coinInfoPriv;
     }
 
     return output;
