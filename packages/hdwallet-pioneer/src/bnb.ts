@@ -6,8 +6,8 @@ export async function bnbSignTx(
     from: string
 ): Promise<BinanceSignedTx> {
 
-    console.log("MSG: ",msg)
-    console.log("mnemonic: ",mnemonic)
+    // console.log("MSG: ",msg)
+    // console.log("mnemonic: ",mnemonic)
 
 
     return{

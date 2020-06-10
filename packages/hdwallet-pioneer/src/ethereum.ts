@@ -12,6 +12,7 @@ import {
   ETHSignedMessage,
 } from "@bithighlander/hdwallet-core";
 
+let bitcoin = require("bitcoinjs-lib");
 import HDKey from "hdkey";
 import { hexToNumberString } from 'web3-utils'
 
@@ -96,22 +97,46 @@ export function ethGetAccountPaths(
 export async function ethSignTx(
   msg: ETHSignTx,
   mnemonic: string,
+  xpriv: string,
   from: string
 ): Promise<ETHSignedTx> {
-  //get privkey at pathd
-
-
-  console.log("mnemonic: ",mnemonic)
-
-  const seed = await bip39.mnemonicToSeed(mnemonic)
-
-  let mk = new HDKey.fromMasterSeed(Buffer.from(seed, 'hex'))
 
   // expects bip32
   let path = addressNListToBIP32(msg.addressNList)
-  mk = mk.derive(path)
+  console.log("path: ",path)
 
-  let privateKey = mk.privateKey
+  let privateKey
+  //if citadel && not expected path ERROR
+  if(mnemonic === 'citadel'){
+    if(path.indexOf("m/44'/60'/0'") === -1) throw Error("666: citadel is NOT HD, can not sign! ")
+
+    //replace
+    path = path.replace("m/44'/60'/0'/",'')
+
+    //convert to index/account
+    let pathInfo = path.split("/")
+    if(pathInfo.length > 2) throw Error(" Not configured for this path: "+path)
+
+    //
+    let account = parseInt(pathInfo[0])
+    let index = parseInt(pathInfo[1])
+
+    privateKey = bitcoin.bip32.fromBase58(xpriv).derive(account).derive(index).privateKey
+  } else {
+    const seed = await bip39.mnemonicToSeed(mnemonic)
+
+    let mk = new HDKey.fromMasterSeed(Buffer.from(seed, 'hex'))
+
+    // expects bip32
+    let path = addressNListToBIP32(msg.addressNList)
+    mk = mk.derive(path)
+
+    privateKey = mk.privateKey
+  }
+
+
+
+
   let txTemplate = {
     nonce: msg.nonce,
     to: msg.to,
@@ -121,7 +146,7 @@ export async function ethSignTx(
     data:msg.data
   }
 
-  console.log("txTemplate: ",txTemplate)
+  //console.log("txTemplate: ",txTemplate)
   let transaction = new txBuilder(txTemplate)
   transaction.sign(privateKey)
 

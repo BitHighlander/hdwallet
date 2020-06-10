@@ -279,21 +279,6 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   public async loadDevice(msg: LoadDevice): Promise<void> {
     this._WALLET_SEED = msg.mnemonic;
     let {walletPublic , walletPrivate} = await generateWalletFromSeed(msg.mnemonic)
-    console.log("Wallet: ",{walletPublic , walletPrivate})
-
-    //generate 1 keypair per asset
-    //build wallet
-    // for(let i = 0; i < walletPublic.length; i++){
-    //   let pubkey =  walletPublic[i]
-    //   this._WALLET_PUBLIC[pubkey.coin] = pubkey
-    // }
-    //
-    // //build wallet
-    // for(let i = 0; i < walletPrivate.length; i++){
-    //   let privkey = walletPrivate[i]
-    //   this._WALLET_PRIVATE[privkey.coin] = privkey
-    // }
-
 
     this._WALLET_PUBLIC = walletPublic
     this._WALLET_PRIVATE = walletPrivate
@@ -302,7 +287,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async loadDeviceFromWallet(msg: any): Promise<void> {
-    this._WALLET_SEED = 'Not Available!'
+    this._WALLET_SEED = 'citadel'
 
     this._WALLET_PUBLIC = msg.walletPublic
     this._WALLET_PRIVATE = msg.walletPrivate
@@ -459,7 +444,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx> {
-    return eth.ethSignTx(msg, this._WALLET_SEED, await this._ethGetAddress());
+    return eth.ethSignTx(msg, this._WALLET_SEED, this._WALLET_PRIVATE['ETH'].xpriv, await this._ethGetAddress());
   }
 
   public async ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage> {

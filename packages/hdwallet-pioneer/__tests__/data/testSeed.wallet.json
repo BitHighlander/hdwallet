@@ -1,0 +1,123 @@
+{
+  "WALLET_ID": "testSeed",
+  "TYPE": "citadel",
+  "CREATED": 1591763680451,
+  "VERSION": "0.1.2",
+  "WALLET_PUBLIC": {
+    "BTC": {
+      "coin": "BTC",
+      "network": "BTC",
+      "path": "m/44'/0'/0'",
+      "long": "Bitcoin",
+      "master": "bc1qnjwjrarnsfmzmuadsyu3acykfv5dm9gh0ah6x8",
+      "pubkey": "xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH",
+      "xpub": "xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH",
+      "type": "xpub"
+    },
+    "LTC": {
+      "coin": "LTC",
+      "path": "m/44'/2'/0'",
+      "long": "Litecoin",
+      "master": "LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ",
+      "pubkey": "xpub6D6wXaReSuH2E34guCJTVF1XR8EW9NK5c1czup39syvBLddyCNqhGMre4SKNJFRstP2bWQxbyXarH8Pv7ZHWipUiyuZAgH66N8aEwBCF8B4",
+      "xpub": "xpub6D6wXaReSuH2E34guCJTVF1XR8EW9NK5c1czup39syvBLddyCNqhGMre4SKNJFRstP2bWQxbyXarH8Pv7ZHWipUiyuZAgH66N8aEwBCF8B4",
+      "type": "xpub"
+    },
+    "ETH": {
+      "coin": "ETH",
+      "network": "ETH",
+      "path": "m/44'/60'/0'",
+      "long": "Ethereum",
+      "master": "0x3f2329c9adfbccd9a84f52c906e936a42da18cb8",
+      "pubkey": "xpub6D54vV8eUYHMVBZCnz4SLjuiQngXURVCGKKGoJrWUDRegdMByLTJKfRs64q3UKiQCsSHJPtCQehTvERczdghS7gb8oedWSyNDtBU1zYDJtb",
+      "xpub": "xpub6D54vV8eUYHMVBZCnz4SLjuiQngXURVCGKKGoJrWUDRegdMByLTJKfRs64q3UKiQCsSHJPtCQehTvERczdghS7gb8oedWSyNDtBU1zYDJtb",
+      "type": "xpub"
+    },
+    "EOS": {
+      "coin": "EOS",
+      "network": "EOS",
+      "path": "m/44'/194'/0'",
+      "long": "Eos",
+      "master": "EOS4u6Sfnzj4Sh2pEQnkXyZQJqH3PkKjGByDCbsqqmyq6PttM9KyB",
+      "pubkey": "EOS4u6Sfnzj4Sh2pEQnkXyZQJqH3PkKjGByDCbsqqmyq6PttM9KyB",
+      "xpub": "xpub6CXDVBWos7N7817NoKcz5YVhu2qZz9gMc17HRCdU5ZF8xdtTiTXw9RCpWr46xhJ1buBhAxRudCPB5Duh2XwTNmD676Mcv8HgPU3mvCVftuw",
+      "type": "address"
+    },
+    "BNB": {
+      "coin": "BNB",
+      "network": "BNB",
+      "path": "m/44'/714'/0'",
+      "long": "Binance",
+      "master": "bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre",
+      "pubkey": "xpub6DGtEv66SUi8iNdevJwZFx45ze8z3zjmrDDoTyasFsg2eGDZEauRqPng4zuvxbZ7NCV6XsnueTGCrZrKQBnV7rKb12ySx3c2vwWUhBdj47R",
+      "xpub": "xpub6DGtEv66SUi8iNdevJwZFx45ze8z3zjmrDDoTyasFsg2eGDZEauRqPng4zuvxbZ7NCV6XsnueTGCrZrKQBnV7rKb12ySx3c2vwWUhBdj47R",
+      "type": "xpub"
+    },
+    "ATOM": {
+      "coin": "ATOM",
+      "network": "COSMOS",
+      "path": "m/44'/118'/0'",
+      "long": "Cosmos",
+      "master": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+      "pubkey": "xpub6BqnysfsqvE5wgD4o55gEDM9q2e4AEzLqTKxWh3tZxC418rYhPbU5nkEK8mqxtqE7hYmYNhHWT4TLjXFSWCowJ4TxEiwcGKvDnzY3waD6dH",
+      "xpub": "xpub6BqnysfsqvE5wgD4o55gEDM9q2e4AEzLqTKxWh3tZxC418rYhPbU5nkEK8mqxtqE7hYmYNhHWT4TLjXFSWCowJ4TxEiwcGKvDnzY3waD6dH",
+      "type": "xpub"
+    }
+  },
+  "WALLET_PRIVATE": {
+    "BTC": {
+      "coin": "BTC",
+      "path": "m/44'/0'/0'",
+      "master": "bc1qnjwjrarnsfmzmuadsyu3acykfv5dm9gh0ah6x8",
+      "masterPrivkey": "c5b89b8775dc9d73c152a6516607cd9fc5c9d034ea0b4c2c9de0b3db665f3799",
+      "privkey": "xprv9z2bF1eiQoEpzM78iMXTE999QNSeAJ7LibHe7ujUJ2qCgPprJnTJqEM3WewhQLY19fkT9CBu3B1ZQPj6Zqm94rKLgkqVvocRrgyopeR7EuP",
+      "pubkey": "xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH",
+      "xpriv": "xprv9z2bF1eiQoEpzM78iMXTE999QNSeAJ7LibHe7ujUJ2qCgPprJnTJqEM3WewhQLY19fkT9CBu3B1ZQPj6Zqm94rKLgkqVvocRrgyopeR7EuP"
+    },
+    "LTC": {
+      "coin": "LTC",
+      "path": "m/44'/2'/0'",
+      "master": "LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ",
+      "masterPrivkey": "d3d6b1295703bc2e93ace8b082d2625edfa94191cd455a6a057106986bf13dfb",
+      "privkey": "xprv9z7b84tkcXij1YzDoAmT874ns6Q1jubEEnhQ7RdYKePCTqJpeqXSiZYAD95vQzGYj6tMUyCT8yLKFJkEBHVeJZ9XgbcmMydusMd9BGcNd5S",
+      "pubkey": "xpub6D6wXaReSuH2E34guCJTVF1XR8EW9NK5c1czup39syvBLddyCNqhGMre4SKNJFRstP2bWQxbyXarH8Pv7ZHWipUiyuZAgH66N8aEwBCF8B4",
+      "xpriv": "xprv9z7b84tkcXij1YzDoAmT874ns6Q1jubEEnhQ7RdYKePCTqJpeqXSiZYAD95vQzGYj6tMUyCT8yLKFJkEBHVeJZ9XgbcmMydusMd9BGcNd5S"
+    },
+    "ETH": {
+      "coin": "ETH",
+      "path": "m/44'/60'/0'",
+      "master": "0x3f2329c9adfbccd9a84f52c906e936a42da18cb8",
+      "masterPrivkey": "ab82a5450b159fc4603c84feaef4da4264073242e37bf85fe04aa730be12a580",
+      "privkey": "xprv9z5iWybkeAj4GhUjgxXRybxyrkr34xmLu6PfzvStustfoq23Ro93ms7PEo1DEvrkY4gzaY6LTPbfrs338KgVZfYCb2cbWwHgkBJXhsPGDSg",
+      "pubkey": "xpub6D54vV8eUYHMVBZCnz4SLjuiQngXURVCGKKGoJrWUDRegdMByLTJKfRs64q3UKiQCsSHJPtCQehTvERczdghS7gb8oedWSyNDtBU1zYDJtb",
+      "xpriv": "xprv9z5iWybkeAj4GhUjgxXRybxyrkr34xmLu6PfzvStustfoq23Ro93ms7PEo1DEvrkY4gzaY6LTPbfrs338KgVZfYCb2cbWwHgkBJXhsPGDSg"
+    },
+    "EOS": {
+      "coin": "EOS",
+      "path": "m/44'/194'/0'",
+      "master": "EOS4u6Sfnzj4Sh2pEQnkXyZQJqH3PkKjGByDCbsqqmyq6PttM9KyB",
+      "masterPrivkey": "149511a3dbb16016c0151a16c12488dc34a840eaa044fb25b509ad31d1a8f70f",
+      "privkey": "149511a3dbb16016c0151a16c12488dc34a840eaa044fb25b509ad31d1a8f70f",
+      "pubkey": "xpub6CXDVBWos7N7817NoKcz5YVhu2qZz9gMc17HRCdU5ZF8xdtTiTXw9RCpWr46xhJ1buBhAxRudCPB5Duh2XwTNmD676Mcv8HgPU3mvCVftuw",
+      "xpriv": "xprv9yXs5fyv2joouX2uhJ5yiQYyM115agxWEnBgcpDrXDiA5qZKAvDgbctLfZqS3Mpv7prgHVExX61DHdJd8pzsC75Adk6TXU5pWiYds4yi2fx"
+    },
+    "BNB": {
+      "coin": "BNB",
+      "path": "m/44'/714'/0'",
+      "master": "bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre",
+      "masterPrivkey": "2bb8e233f682e914ade4dc43e2dac12c6aa2468c18dc8e884dc0f552f721561a",
+      "privkey": "xprv9zHXqQZCc79qVtZBpHQYtp7MScJVeY1vUzJCfbBFhY93mTtQh3bBHbUCDkoW8iubjAachHQ2aaDQgARZ4zCiTNQRQhgdNBJ3BcYxv193zb2",
+      "pubkey": "xpub6DGtEv66SUi8iNdevJwZFx45ze8z3zjmrDDoTyasFsg2eGDZEauRqPng4zuvxbZ7NCV6XsnueTGCrZrKQBnV7rKb12ySx3c2vwWUhBdj47R",
+      "xpriv": "xprv9zHXqQZCc79qVtZBpHQYtp7MScJVeY1vUzJCfbBFhY93mTtQh3bBHbUCDkoW8iubjAachHQ2aaDQgARZ4zCiTNQRQhgdNBJ3BcYxv193zb2"
+    },
+    "ATOM": {
+      "coin": "ATOM",
+      "path": "m/44'/118'/0'",
+      "master": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+      "masterPrivkey": "fc383d8ebe95e0d075991238aec956b1e26bb19b4048084b6e91fc3b7e286713",
+      "privkey": "xprv9xrSaN8z1YfnjC8bh3Yfs5QRGzoZknGVUEQMiJeH1cf58LXQ9rHDXzRkTr9bEpctbDSx7xHydrEs7R9AnYUpmvQVycJiRpoFVdTbxuNUPER",
+      "pubkey": "xpub6BqnysfsqvE5wgD4o55gEDM9q2e4AEzLqTKxWh3tZxC418rYhPbU5nkEK8mqxtqE7hYmYNhHWT4TLjXFSWCowJ4TxEiwcGKvDnzY3waD6dH",
+      "xpriv": "xprv9xrSaN8z1YfnjC8bh3Yfs5QRGzoZknGVUEQMiJeH1cf58LXQ9rHDXzRkTr9bEpctbDSx7xHydrEs7R9AnYUpmvQVycJiRpoFVdTbxuNUPER"
+    }
+  }
+}

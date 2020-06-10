@@ -263,10 +263,14 @@ export async function generateWalletFromSeed(mnemonic: string) {
     for (let i = 0; i < COIN_SUPPORT.length; i++) {
       let coin = COIN_SUPPORT[i];
 
-      let path = "m/44'/" + SLIP_44[coin] + "'/0'/0/0";
-      const { masterKey, xpub, xpriv } = await deriveMasterKey(mnemonic, path);
-      const { privateKey, publicKey } = deriveKeypair(masterKey, path);
-      //const bnbAddress = createBNBAddress(publicKey)
+      let path = "m/44'/" + SLIP_44[coin] + "'/0'";
+      const { xpub, xpriv } = await deriveMasterKey(mnemonic, path);
+
+
+      //get master address at account 0 index 0
+
+      let publicKey = bitcoin.bip32.fromBase58(xpub).derive(0).derive(0).publicKey
+      let privateKey = bitcoin.bip32.fromBase58(xpriv).derive(0).derive(0).privateKey
 
       // let master = bitcoin.bip32.fromBase58(xpub).derive(0).derive(0)
       let addressMaster: string = "";

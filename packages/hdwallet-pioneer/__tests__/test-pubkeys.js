@@ -13,7 +13,7 @@ let paths = require("./data/common_paths")
 //console.log("paths",paths)
 
 
-let walletHighlander = require("./data/walletHighlander.wallet")
+let walletFile = require("./data/testSeed.wallet")
 
 // console.log(hdwallet)
 // console.log(pioneer)
@@ -22,7 +22,7 @@ let walletHighlander = require("./data/walletHighlander.wallet")
 let keyring = new hdwallet.Keyring()
 
 let config = {}
-config.wallet = walletHighlander
+config.wallet = walletFile
 
 let run_test = async function(){
     try{
@@ -33,21 +33,22 @@ let run_test = async function(){
 
 
         //load
-        await wallet.loadDevice({ mnemonic: TEST_SEED })
+        // await wallet.loadDevice({ mnemonic: TEST_SEED })
 
-        // await wallet.loadDeviceFromWallet({
-        //     walletPublic: config.wallet.WALLET_PUBLIC,
-        //     walletPrivate: config.wallet.WALLET_PRIVATE
-        // })
+        await wallet.loadDeviceFromWallet({
+            walletPublic: config.wallet.WALLET_PUBLIC,
+            walletPrivate: config.wallet.WALLET_PRIVATE
+        })
 
         //get privkeys
-        const resultPriv = await wallet.getPrivateKeys(paths.paths)
-        console.log('get resultPriv: ', resultPriv)
+        // const resultPriv = await wallet.getPrivateKeys(paths.paths)
+        // console.log('get resultPriv: ', resultPriv)
 
         // public addys
         const result = await wallet.getPublicKeys(paths.paths)
         console.log('get Xpubs: ', result)
 
+        if(result[0].master !== "bc1qnjwjrarnsfmzmuadsyu3acykfv5dm9gh0ah6x8") throw Error("invalid wallet!")
     }catch(e){
         console.error(e)
     }

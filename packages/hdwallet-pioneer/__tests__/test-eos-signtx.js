@@ -22,18 +22,7 @@ let run_test = async function(){
         //get master
 
         //build tx
-        let ethTx = {
-            addressNList: [ 2147483692, 2147483708, 2147483648, 0, 0 ],
-            nonce: '0x1e3',
-            gasPrice: '0x649534e00',
-            gasLimit: '0x649534e00',
-            value: '0x649534e00',
-            to: '0xdb0aaa864046971d116e3c33efb7e59bb7667816',
-            chainId: 1,
-            data: undefined }
 
-        let result = await wallet.ethSignTx(ethTx)
-        console.log("result: ",result)
 
 
 
