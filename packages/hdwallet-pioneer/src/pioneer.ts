@@ -11,6 +11,10 @@ import {
   LoadDevice,
   BinanceSignTx,
   BinanceSignedTx,
+  CosmosSignTx,
+  CosmosSignedTx,
+  EosTx,
+  EosSignedTx,
   ETHWallet,
   ETHGetAddress,
   ETHSignTx,
@@ -40,9 +44,13 @@ import {
   BTCWalletInfo,
   slip44ByCoin
 } from "@bithighlander/hdwallet-core";
+
 import * as eth from "./ethereum";
 import * as bnb from "./bnb";
 import * as btc from "./bitcoin";
+import * as cosmos from "./cosmos";
+import * as eos from "./eos";
+
 import { isObject } from "lodash";
 
 import {
@@ -159,7 +167,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsETHInfo: boolean = true;
   _supportsBTCInfo: boolean = true;
   _supportsBTC: boolean = true;
-  _supportsCosmosInfo: boolean = false;
+  _supportsCosmosInfo: boolean = true;
   _supportsCosmos: boolean = true;
   _supportsBinanceInfo: boolean = true;
   _supportsBinance: boolean = true;
@@ -416,8 +424,25 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.btcNextAccountPath(msg);
   }
   public async bnbSignTx(msg: BinanceSignTx): Promise<BinanceSignedTx> {
-    return bnb.bnbSignTx(msg, this._WALLET_SEED, "");
+    return bnb.bnbSignTx(msg, this._WALLET_SEED,this._WALLET_PRIVATE['ATOM'].xpriv, "");
   }
+
+  /**
+   *  ATOM tx's
+   */
+
+  public async cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx> {
+    return cosmos.cosmosSignTx(msg, this._WALLET_SEED, this._WALLET_PRIVATE['ATOM'].xpriv, "");
+  }
+
+  /**
+   *  EOS tx's
+   */
+
+  public async eosSignTx(msg: EosTx): Promise<any> {
+    return eos.eosSignTx(msg, this._WALLET_SEED, this._WALLET_PRIVATE['EOS'].xpriv, "");
+  }
+
   /**
    *  ETH params
    * @param chainId

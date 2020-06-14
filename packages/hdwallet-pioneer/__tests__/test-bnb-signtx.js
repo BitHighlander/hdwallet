@@ -1,9 +1,11 @@
 
 
+
 global.window = {};
 global.document = {};
 
-let TEST_SEED  = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle"
+//let TEST_SEED  = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle"
+let TEST_SEED = process.env['HIGHLANDER_SEED']
 
 let hdwallet = require("../../hdwallet-core/dist")
 let pioneer = require("../dist/index")
@@ -19,8 +21,6 @@ let run_test = async function(){
         //load
         await wallet.loadDevice({ mnemonic: TEST_SEED })
 
-        //get master
-
         //build tx
         let bnbTx = {
             "account_number": "34",
@@ -31,7 +31,7 @@ let run_test = async function(){
                 {
                     "inputs": [
                         {
-                            "address": "tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd",
+                            "address": "bnb1gx3nyps3etlux8gpfzyqqalhrnak2z0al7qqrs",
                             "coins": [
                                 {
                                     "amount": 1000000000,
@@ -42,7 +42,7 @@ let run_test = async function(){
                     ],
                     "outputs": [
                         {
-                            "address": "tbnb1ss57e8sa7xnwq030k2ctr775uac9gjzglqhvpy",
+                            "address": "bnb1g3kquht4uzjjfp8dcgfmyrs0myl33mus58qyve",
                             "coins": [
                                 {
                                     "amount": 1000000000,
@@ -57,8 +57,15 @@ let run_test = async function(){
             "source": "1"
         }
 
+        //bip32ToAddressNList(`m/44'/714'/0'/0/0`)
 
-        let result = await wallet.bnbSignTx(bnbTx)
+        let result = await wallet.bnbSignTx({
+            addressNList: [ 0x80000000 + 44, 0x80000000 + 714, 0x80000000 + 0 , 0, 0 ],
+            chain_id: "Binance-Chain-Nile",
+            account_number: "24250",
+            sequence: "31",
+            tx: bnbTx,
+        })
         console.log("result: ",result)
 
 

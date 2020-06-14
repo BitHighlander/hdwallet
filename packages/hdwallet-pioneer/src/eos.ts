@@ -1,9 +1,10 @@
-import {addressNListToBIP32, ETHSignedTx, ETHSignTx} from "@bithighlander/hdwallet-core";
+import {addressNListToBIP32, ETHSignedTx, EosTx, ETHSignTx} from "@bithighlander/hdwallet-core";
 
 
 export async function eosSignTx(
-    msg: ETHSignTx,
+    msg: EosTx,
     mnemonic: string,
+    xpriv: string,
     from: string
 ): Promise<ETHSignedTx> {
 

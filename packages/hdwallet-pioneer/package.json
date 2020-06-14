@@ -19,7 +19,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bithighlander/binance-js-sdk": "^1.0.5",
+    "@bithighlander/cosmos-tx-builder": "^6.2.0",
+    "@bithighlander/javascript-sdk-patch": "^2.16.4",
     "assert": "^2.0.0",
     "base64-js": "^1.3.1",
     "bech32": "^1.1.3",

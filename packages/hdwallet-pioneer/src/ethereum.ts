@@ -84,7 +84,7 @@ export function ethGetAccountPaths(
     },
   ];
 }
-
+const BnbApiClient = require('@bithighlander/javascript-sdk-patch');
 //
 // let generateAddressPrivkey = function(){
 //   try{
