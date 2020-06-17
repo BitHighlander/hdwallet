@@ -13,7 +13,7 @@ import {
   BinanceSignedTx,
   CosmosSignTx,
   CosmosSignedTx,
-  EosTx,
+  EosToSignTx,
   EosSignedTx,
   ETHWallet,
   ETHGetAddress,
@@ -439,7 +439,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
    *  EOS tx's
    */
 
-  public async eosSignTx(msg: EosTx): Promise<any> {
+  public async eosSignTx(msg: EosToSignTx): Promise<any> {
     return eos.eosSignTx(msg, this._WALLET_SEED, this._WALLET_PRIVATE['EOS'].xpriv, "");
   }
 

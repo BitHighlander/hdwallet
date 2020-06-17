@@ -44,6 +44,7 @@ export async function cosmosSignTx(
         let index = parseInt(pathInfo[1])
 
         privateKey = bitcoin.bip32.fromBase58(xpriv).derive(account).derive(index).privateKey
+        publicKey = bitcoin.bip32.fromBase58(xpriv).derive(account).derive(index).publicKey
     } else {
         const seed = await bip39.mnemonicToSeed(mnemonic)
 
@@ -70,8 +71,5 @@ export async function cosmosSignTx(
     const signedTx = txBuilder.createSignedTx(msg.tx, result)
     console.log("signedTx: ",signedTx)
 
-    return{
-        "type": "auth/StdTx",
-        "value": signedTx
-    };
+    return signedTx;
 }

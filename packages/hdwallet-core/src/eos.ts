@@ -61,8 +61,8 @@ export interface EosTxActionRequest {}
 
 export interface EosSignedTx {
   signatureV?: number;
-  signatureR: Uint8Array | string;
-  signatureS: Uint8Array | string;
+  signatureR?: Uint8Array | string;
+  signatureS?: Uint8Array | string;
   hash: Uint8Array | string;
   eosFormSig: string;
 }

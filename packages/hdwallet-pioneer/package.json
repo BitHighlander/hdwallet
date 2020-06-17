@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-pioneer",
-  "version": "0.18.24",
+  "version": "0.18.28",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

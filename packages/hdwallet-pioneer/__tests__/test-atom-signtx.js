@@ -11,13 +11,24 @@ let pioneer = require("../dist/index")
 
 let keyring = new hdwallet.Keyring()
 
+let walletFile = require("./data/testSeed.wallet")
+
+let config = {}
+config.wallet = walletFile
+
 let run_test = async function(){
     try{
         const pioneerAdapter = pioneer.PioneerAdapter.useKeyring(keyring, {})
         //pair
         const wallet = await pioneerAdapter.pairDevice()
+
         //load
-        await wallet.loadDevice({ mnemonic: TEST_SEED })
+        //await wallet.loadDevice({ mnemonic: TEST_SEED })
+
+        await wallet.loadDeviceFromWallet({
+            walletPublic: config.wallet.WALLET_PUBLIC,
+            walletPrivate: config.wallet.WALLET_PRIVATE
+        })
 
         //get master
         let fromAddress
@@ -57,13 +68,13 @@ let run_test = async function(){
         };
 
         let res = await wallet.cosmosSignTx({
-            addressNList: [ 2147483692, 2147483708, 2147483648, 0, 0 ],
+            addressNList: [ 0x80000000 + 44, 0x80000000 + 118, 0x80000000 + 0 , 0, 0 ],
             chain_id: "cosmoshub-2",
             account_number: "24250",
             sequence: "3",
             tx: unsigned,
         });
-        console.log("res: ",res)
+        console.log("res: ",JSON.stringify(res))
 
     }catch(e){
         console.error(e)
