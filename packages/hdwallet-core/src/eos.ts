@@ -60,6 +60,8 @@ export interface EosToSignTx {
 export interface EosTxActionRequest {}
 
 export interface EosSignedTx {
+  txid?: string
+  serialized?:string
   signatureV?: number;
   signatureR?: Uint8Array | string;
   signatureS?: Uint8Array | string;

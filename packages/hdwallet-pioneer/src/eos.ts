@@ -1,4 +1,4 @@
-import {addressNListToBIP32, ETHSignedTx, EosToSignTx, ETHSignTx, bip32ToAddressNList} from "@bithighlander/hdwallet-core";
+import {addressNListToBIP32, EosToSignTx, EosSignedTx} from "@bithighlander/hdwallet-core";
 
 let bitcoin = require("bitcoinjs-lib");
 import HDKey from "hdkey";
@@ -10,7 +10,7 @@ export async function eosSignTx(
     mnemonic: string,
     xpriv: string,
     from: string
-): Promise<ETHSignedTx> {
+): Promise<any> {
 
 
     console.log("MSG: ",msg)
@@ -52,7 +52,7 @@ export async function eosSignTx(
         privateKey = mk.privateKey
         publicKey = mk.publicKey
     }
-
+    console.log("Checkpoint 1")
     //convert privkey to EOS format
     privateKey = PrivateKey.fromBuffer(privateKey)
     privateKey = privateKey.toString()
@@ -69,9 +69,12 @@ export async function eosSignTx(
 
     console.log(signatureProvider.keys)
 
+    console.log("Checkpoint 2")
     const rpc = new JsonRpc(URL_REMOTE, { fetch });
     const api = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
 
+
+    console.log("Checkpoint 3")
     let result = await api.transact({
         actions: msg.tx.actions
     }, {
@@ -79,15 +82,16 @@ export async function eosSignTx(
         blocksBehind: 3,
         expireSeconds: 300,
     });
+    console.log("Checkpoint 4")
+    console.log("result: ",result)
+    console.log("result: ",result.serialized)
 
-    let serialized = new Buffer(result.serializedTransaction).toString('hex')
-    console.log(serialized)
+    let serialized = result.serializedTransaction
+    serialized = new Buffer(result.serializedTransaction).toString('hex')
+    // console.log(serialized)
 
     return {
-
-        v: 37,
-        r: "0x2482a45ee0d2851d3ab76a693edd7a393e8bc99422f7857be78a883bc1d60a5b",
-        s: "0x18d776bcfae586bf08ecc70f714c9bec8959695a20ef73ad0c28233fdaeb1bd2",
+        eosFormSig:result.signatures,
         serialized
     };
 }

@@ -54,11 +54,11 @@ export interface ETHSignTx {
 export interface ETHSignedTx {
   txid?:string
   /** uint32 */
-  v: number;
+  v?: number;
   /** big-endian hex, prefixed with '0x' */
-  r: string;
+  r?: string;
   /** big-endian hex, prefixed with '0x' */
-  s: string;
+  s?: string;
   /** big-endian hex, prefixed with '0x' */
   serialized: string;
 }

@@ -54,7 +54,7 @@ let run_test = async function(){
             chain_id: chainid_main,
             tx: unsigned_main,
         });
-        console.log("res: ",res)
+        console.log("**** res: ",res)
 
 
     }catch(e){
