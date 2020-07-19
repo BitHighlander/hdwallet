@@ -53,7 +53,16 @@ const supportedCoins = [
 
 const segwitCoins = ["Bitcoin", "Testnet", "BitcoinGold", "Litecoin"];
 
-const COIN_MAP = {
+let prefurredScripts:any = {
+  BTC:"p2pkh",
+  LTC:"p2pkh",
+  ETH:"eth",
+  EOS:"eos",
+  BNB:"binance",
+  ATOM:"cosmos"
+}
+
+const ASSET_MAP = {
   BTC: "Bitcoin",
   BTCT: "Testnet",
   ETH: "Ethereum",
@@ -171,21 +180,30 @@ const NETWORKS: any = {
 
 //export interface PubkeyTypes  address | xpub
 
+/*
+  Citadel Wallet Format
+
+ */
+
 // TYPES
-export interface CoinInfo {
-  coin: string;
+export interface AssetInfo {
+  asset: string;
+  note?: string;
+  script_type:string;
+  available_scripts_types?:[string]
   long?: string;
   path:string
   master: string;
   network:string;
   pubkey: string;
+  curve?: string,
   xpub?: string;
   zpub?: string;
   type?:string
 }
 
-export interface CoinInfoPriv {
-  coin: string;
+export interface AssetInfoPriv {
+  asset: string;
   long?: string;
   path: string
   master?:string
@@ -198,13 +216,13 @@ export interface CoinInfoPriv {
 
 interface Wallet {
   walletPrivate:{
-    coins: {
-    [index: string]: CoinInfoPriv;
+    assets: {
+    [index: string]: AssetInfoPriv;
     }
   },
   walletPublic:{
-    coins: {
-      [index: string]: CoinInfo;
+    assets: {
+      [index: string]: AssetInfo;
     }
   }
 }
@@ -250,22 +268,33 @@ export async function xpubConvert(xpub: string, target: string) {
   }
 }
 
-export async function generateWalletFromSeed(mnemonic: string) {
+/**
+ *
+ * Generate a wallet for keypairs
+ *
+ *
+ * @param mnemonic
+ * @param paths
+ */
+
+export async function generateWalletFromSeed(mnemonic: string,paths:[any]) {
   let tag = TAG + " | importConfig | ";
   try {
+    console.log(tag,"paths: ",paths)
+    //TODO use paths instead of defaults
+
     //
     let output: any = {
       walletPublic:{},
       walletPrivate:{}
     }
 
-    //for each coin
+    //for each asset
     for (let i = 0; i < COIN_SUPPORT.length; i++) {
-      let coin = COIN_SUPPORT[i];
+      let asset = COIN_SUPPORT[i];
 
-      let path = "m/44'/" + SLIP_44[coin] + "'/0'";
+      let path = "m/44'/" + SLIP_44[asset] + "'/0'";
       const { xpub, xpriv } = await deriveMasterKey(mnemonic, path);
-
 
       //get master address at account 0 index 0
 
@@ -275,52 +304,54 @@ export async function generateWalletFromSeed(mnemonic: string) {
       // let master = bitcoin.bip32.fromBase58(xpub).derive(0).derive(0)
       let addressMaster: string = "";
       let network
+      let script_type = prefurredScripts[asset]
 
       //key off assets
       let type
-      if (coin === "BTC") {
+      if (asset === "BTC") {
         type = "xpub"
         let { address: address } = bitcoin.payments.p2wpkh({
           pubkey: publicKey,
-          network: NETWORKS[coin.toLowerCase()],
+          network: NETWORKS[asset.toLowerCase()],
         });
+        script_type = 'p2wpkh'
         addressMaster = address;
         network = 'BTC'
-
-      } else if (coin === "ETH") {
+      } else if (asset === "ETH") {
         type = "xpub"
         var address;
         address = ethUtils.bufferToHex(ethUtils.pubToAddress(publicKey, true));
         addressMaster = address;
         network = 'ETH'
-      } else if (coin === "ATOM") {
+      } else if (asset === "ATOM") {
         type = "xpub"
         var address;
         address = createCosmosAddress(publicKey)
         addressMaster = address;
         network = 'COSMOS'
-      } else if (coin === "BNB") {
+      } else if (asset === "BNB") {
         type = "xpub"
         var address;
         address = createBNBAddress(publicKey)
         addressMaster = address;
         network = 'BNB'
-      }else if (coin === "XRP") {
+      }else if (asset === "XRP") {
         type = "xpub"
         network = 'XRP'
-      }else if (coin === "EOS") {
+      }else if (asset === "EOS") {
         type = "address"
         var address;
         address = createEOSAddress(privateKey)
         addressMaster = address;
         network = 'EOS'
-      }else if (coin === "ADA") {
+      }else if (asset === "ADA") {
         //TODO
       }else {
+        network = asset
         type = "xpub"
         let { address: address } = bitcoin.payments.p2pkh({
           pubkey: publicKey,
-          network: NETWORKS[coin.toLowerCase()],
+          network: NETWORKS[asset.toLowerCase()],
         });
         addressMaster = address;
       }
@@ -337,8 +368,8 @@ export async function generateWalletFromSeed(mnemonic: string) {
         privkey = xpriv
       }
 
-      let coinInfoPriv: CoinInfoPriv = {
-        coin,
+      let assetInfoPriv: AssetInfoPriv = {
+        asset,
         path,
         master: addressMaster,
         masterPrivkey: privateKey.toString('hex'),
@@ -348,11 +379,12 @@ export async function generateWalletFromSeed(mnemonic: string) {
       };
 
       //console.log("MASTER: ",addressMaster);
-      let coinInfo: CoinInfo = {
-        coin,
+      let assetInfo: AssetInfo = {
+        asset,
+        script_type,
         network,
         path,
-        long: COIN_MAP[coin],
+        long: ASSET_MAP[asset],
         master: addressMaster,
         pubkey,
         xpub,
@@ -360,9 +392,9 @@ export async function generateWalletFromSeed(mnemonic: string) {
       };
 
 
-     // console.log({ coinInfo });
-      output.walletPublic[coin] = coinInfo;
-      output.walletPrivate[coin] = coinInfoPriv;
+     // console.log({ assetInfo });
+      output.walletPublic[asset] = assetInfo;
+      output.walletPrivate[asset] = assetInfoPriv;
     }
 
     return output;
@@ -405,17 +437,17 @@ function createBNBAddress(publicKey) {
 
 
 
-export async function generatePubkey(coin: string, xpub: string, path: string) {
+export async function generatePubkey(asset: string, xpub: string, path: string) {
   let tag = TAG + " | importConfig | ";
   try {
     let publicKey;
-    if (coin === "BTC") {
+    if (asset === "BTC") {
       //TODO we need flexable paths!
       //publicKey = bitcoin.bip32.fromBase58(xpub).derivePath(path).publicKey
 
       //notice assumes index wtf
       publicKey = bitcoin.bip32.fromBase58(xpub).derive(0).publicKey;
-    } else if (coin === "ETH") {
+    } else if (asset === "ETH") {
       publicKey = bitcoin.bip32.fromBase58(xpub).derive(0).publicKey;
     } else {
       //assume bitcoinish?
@@ -433,11 +465,11 @@ export async function generatePubkey(coin: string, xpub: string, path: string) {
   }
 }
 
-export async function generateAddress(coin: string, pubkey: any, type: any) {
+export async function generateAddress(asset: string, pubkey: any, type: any) {
   let tag = TAG + " | importConfig | ";
   try {
     let output: any;
-    switch (coin) {
+    switch (asset) {
       case "BTC":
         //if no type default to bech32
         if (!type) type = "bech32";
@@ -471,11 +503,11 @@ export async function generateAddress(coin: string, pubkey: any, type: any) {
         output = cosmosAddress;
         break;
       default:
-        if (!NETWORKS[coin.toLowerCase()])
-          throw Error("103: unknown coin, no network found! coin: " + coin);
+        if (!NETWORKS[asset.toLowerCase()])
+          throw Error("103: unknown asset, no network found! asset: " + asset);
         const { address } = bitcoin.payments.p2pkh({
           pubkey: Buffer.from(pubkey, "hex"),
-          network: NETWORKS[coin.toLowerCase()],
+          network: NETWORKS[asset.toLowerCase()],
         });
 
         output = address;

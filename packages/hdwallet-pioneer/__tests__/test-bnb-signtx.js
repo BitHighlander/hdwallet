@@ -10,6 +10,9 @@ let TEST_SEED = process.env['HIGHLANDER_SEED']
 let hdwallet = require("../../hdwallet-core/dist")
 let pioneer = require("../dist/index")
 
+let walletCitadel = require("./data/citadel-highlander-1.wallet")
+let config = {}
+config.wallet = walletCitadel
 
 let keyring = new hdwallet.Keyring()
 
@@ -19,7 +22,12 @@ let run_test = async function(){
         //pair
         const wallet = await pioneerAdapter.pairDevice()
         //load
-        await wallet.loadDevice({ mnemonic: TEST_SEED })
+        // await wallet.loadDevice({ mnemonic: TEST_SEED })
+        await wallet.loadDeviceFromWallet({
+            walletPublic: config.wallet.WALLET_PUBLIC,
+            walletPrivate: config.wallet.WALLET_PRIVATE
+        })
+
 
         //build tx
         let bnbTx = {
@@ -42,7 +50,7 @@ let run_test = async function(){
                     ],
                     "outputs": [
                         {
-                            "address": "bnb1g3kquht4uzjjfp8dcgfmyrs0myl33mus58qyve",
+                            "address": "bnb1v7wds8atg9pxss86vq5qjuz38wqsadq7e5m2rr",
                             "coins": [
                                 {
                                     "amount": 1000000000,

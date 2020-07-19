@@ -5,7 +5,7 @@ import {
   PublicKey,
   RecoverDevice,
   ResetDevice,
-  Coin,
+  Asset,
   Ping,
   Pong,
   LoadDevice,
@@ -42,7 +42,7 @@ import {
   BTCGetAccountPaths,
   BTCAccountPath,
   BTCWalletInfo,
-  slip44ByCoin
+  slip44ByAsset
 } from "@bithighlander/hdwallet-core";
 
 import * as eth from "./ethereum";
@@ -63,7 +63,7 @@ import {
  * @globals
  */
 
-const supportedCoins = [
+const supportedAssets = [
   "Bitcoin",
   "Testnet",
   "BitcoinCash",
@@ -75,7 +75,7 @@ const supportedCoins = [
   "Dogecoin",
 ];
 
-const segwitCoins = ["Bitcoin", "Testnet", "BitcoinGold", "Litecoin"];
+const segwitAssets = ["Bitcoin", "Testnet", "BitcoinGold", "Litecoin"];
 
 const COIN_MAP = {
   Bitcoin: "BTC",
@@ -93,7 +93,7 @@ const COIN_MAP = {
   EOS: "EOS",
 };
 
-
+// TODO needed?
 // const COIN_MAP = {
 //   BTC: "Bitcoin",
 //   BTCT: "Testnet",
@@ -112,37 +112,41 @@ const COIN_MAP = {
 
 
 /**
+ *  Citadel Wallet Spec
+ *    A typed Wallet Spec designed for versatility
+ *
   @Types
 
   TODO? move these somewhere else?
 
  */
 
-interface CoinInfo {
-  coin: string;
+export interface AssetInfo {
+  asset: string;
   master: string;
+  script_type: string;
   network: string;
   publicKey: string;
   xpub: string;
   zpub?: string;
 }
 
-interface CoinInfoPriv {
+export interface AssetInfoPriv {
     coin: string;
     masterPrivkey: string;
     xpriv?: string;
     type?:string
 }
 
-interface Wallet {
+export interface Wallet {
     walletPrivate:{
         coins: {
-            [index: string]: CoinInfoPriv;
+            [index: string]: AssetInfoPriv;
         }
     },
     walletPublic:{
         coins: {
-            [index: string]: CoinInfo;
+            [index: string]: AssetInfo;
         }
     }
 }
@@ -180,8 +184,8 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   //CORE pioneer info
   _WALLET_SEED: string = "";
-  _WALLET_PUBLIC: any = {};
-  _WALLET_PRIVATE: any = {};
+  _WALLET_PUBLIC: any = [];
+  _WALLET_PRIVATE: any = [];
 
   transport = new PioneerTransport(new Keyring());
 
@@ -237,8 +241,8 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.hasOnDeviceRecovery();
   }
 
-  public hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean {
-    return this.info.hasNativeShapeShift(srcCoin, dstCoin);
+  public hasNativeShapeShift(srcAsset: Asset, dstAsset: Asset): boolean {
+    return this.info.hasNativeShapeShift(srcAsset, dstAsset);
   }
 
   public ping(msg: Ping): Promise<Pong> {
@@ -286,7 +290,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   public async loadDevice(msg: LoadDevice): Promise<void> {
     this._WALLET_SEED = msg.mnemonic;
-    let {walletPublic , walletPrivate} = await generateWalletFromSeed(msg.mnemonic)
+    let {walletPublic , walletPrivate} = await generateWalletFromSeed(msg.mnemonic,msg.paths)
 
     this._WALLET_PUBLIC = walletPublic
     this._WALLET_PRIVATE = walletPrivate
@@ -316,7 +320,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     for (let i = 0; i < msg.length; i++) {
       const { coin, symbol } = msg[i];
 
-      let coinInfo:CoinInfoPriv = this._WALLET_PRIVATE[symbol]
+      let coinInfo:AssetInfoPriv = this._WALLET_PRIVATE[symbol]
       privateKeys.push(coinInfo);
     }
 
@@ -333,7 +337,9 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
       const { coin, symbol } = msg[i];
       //console.log("coin: ", coin);
       //console.log("coin: ", COIN_MAP[coin]);
-      let coinInfo:CoinInfo = this._WALLET_PUBLIC[symbol]
+
+      //TODO if multi with same symbol?
+      let coinInfo:AssetInfo = this._WALLET_PUBLIC[symbol]
       publicKeys.push(coinInfo);
     }
 
@@ -353,9 +359,10 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     let coinSymbol = COIN_MAP[msg.coin];
     let pathStr = addressNListToBIP32(msg.addressNList);
     //console.log("*** pathStr", pathStr);
+    let xpub = this._WALLET_PUBLIC['BTC'].xpub
     let pubKey = await generatePubkey(
       coinSymbol,
-      this._WALLET_PUBLIC[coinSymbol].pubkey,
+      xpub.xpub,
       pathStr
     );
     //console.log("*** pubKey: ", pubKey);
@@ -368,9 +375,10 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
   public async cosmosGetAddress(msg: BTCGetAddress): Promise<string> {
     let coinSymbol = COIN_MAP[msg.coin];
     let pathStr = addressNListToBIP32(msg.addressNList);
+    let xpub = this._WALLET_PUBLIC['ATOM'].xpub
     let pubKey = await generatePubkey(
       coinSymbol,
-      this._WALLET_PUBLIC[coinSymbol].xpub,
+      xpub.xpub,
       pathStr
     );
 
@@ -393,12 +401,12 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return btc.btcVerifyMessage(msg);
   }
 
-  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
-    return this.info.btcSupportsCoin(coin);
+  public async btcSupportsAsset(coin: Asset): Promise<boolean> {
+    return this.info.btcSupportsAsset(coin);
   }
 
   public async btcSupportsScriptType(
-    coin: Coin,
+    coin: Asset,
     scriptType: BTCInputScriptType
   ): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
@@ -424,7 +432,7 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.btcNextAccountPath(msg);
   }
   public async bnbSignTx(msg: BinanceSignTx): Promise<BinanceSignedTx> {
-    return bnb.bnbSignTx(msg, this._WALLET_SEED,this._WALLET_PRIVATE['ATOM'].xpriv, "");
+    return bnb.bnbSignTx(msg, this._WALLET_SEED,this._WALLET_PRIVATE['BNB'].xpriv, "");
   }
 
   /**
@@ -482,9 +490,10 @@ export class PioneerHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   public async ethGetAddress(msg: ETHGetAddress): Promise<string> {
     let pathStr = addressNListToBIP32(msg.addressNList);
+    let xpub = this._WALLET_PUBLIC['ETH'].xpub
     let pubKey = await generatePubkey(
       "ETH",
-      this._WALLET_PUBLIC["ETH"].xpub,
+      xpub.xpub,
       pathStr
     );
     //address
@@ -541,7 +550,7 @@ export class PioneerHDWalletInfo
     return false;
   }
 
-  public hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean {
+  public hasNativeShapeShift(srcAsset: Asset, dstAsset: Asset): boolean {
     // It doesn't... yet?
     return false;
   }
@@ -557,12 +566,12 @@ export class PioneerHDWalletInfo
     }
   }
 
-  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
-    return btc.btcSupportsCoin(coin);
+  public async btcSupportsAsset(coin: Asset): Promise<boolean> {
+    return btc.btcSupportsAsset(coin);
   }
 
   public async btcSupportsScriptType(
-    coin: Coin,
+    coin: Asset,
     scriptType: BTCInputScriptType
   ): Promise<boolean> {
     return btc.btcSupportsScriptType(coin, scriptType);

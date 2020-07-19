@@ -22,6 +22,7 @@ let walletFile = require("./data/testSeed.wallet")
 let keyring = new hdwallet.Keyring()
 
 let config = {}
+
 config.wallet = walletFile
 
 let run_test = async function(){
@@ -33,12 +34,12 @@ let run_test = async function(){
 
 
         //load
-        // await wallet.loadDevice({ mnemonic: TEST_SEED })
+        await wallet.loadDevice({ mnemonic: TEST_SEED, paths:paths.paths })
 
-        await wallet.loadDeviceFromWallet({
-            walletPublic: config.wallet.WALLET_PUBLIC,
-            walletPrivate: config.wallet.WALLET_PRIVATE
-        })
+        // await wallet.loadDeviceFromWallet({
+        //     walletPublic: config.wallet.WALLET_PUBLIC,
+        //     walletPrivate: config.wallet.WALLET_PRIVATE
+        // })
 
         //get privkeys
         // const resultPriv = await wallet.getPrivateKeys(paths.paths)
@@ -48,7 +49,7 @@ let run_test = async function(){
         const result = await wallet.getPublicKeys(paths.paths)
         console.log('get Xpubs: ', result)
 
-        if(result[0].master !== "bc1qnjwjrarnsfmzmuadsyu3acykfv5dm9gh0ah6x8") throw Error("invalid wallet!")
+        // if(result[0].master !== "bc1qnjwjrarnsfmzmuadsyu3acykfv5dm9gh0ah6x8") throw Error("invalid wallet!")
     }catch(e){
         console.error(e)
     }
