@@ -13,9 +13,8 @@
   "scripts": {
     "test-pubkeys": "npm run build && node __tests__/test-pubkeys.js",
     "test-eth-signtx": "npm run build && node __tests__/test-eth-signtx.js",
-    "build": "microbundle --target=web --name=pioneer --no-compress --raw",
-    "clean": "rm -rf dist .rts2_*",
-    "dev": "microbundle watch --target=web --name=pioneer --compress=false",
+    "build": "tsc --build",
+    "clean": "rm -rf dist",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
