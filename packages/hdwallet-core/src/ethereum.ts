@@ -1,4 +1,5 @@
-import { ExchangeType, BIP32Path } from "./wallet";
+import { ExchangeType, BIP32Path, PathDescription } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
 
 export interface ETHGetAccountPath {
   coin: string;
@@ -52,7 +53,7 @@ export interface ETHSignTx {
 }
 
 export interface ETHSignedTx {
-  txid?:string
+  txid?: string;
   /** uint32 */
   v?: number;
   /** big-endian hex, prefixed with '0x' */
@@ -120,4 +121,35 @@ export interface ETHWallet extends ETHWalletInfo {
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage>;
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean>;
+}
+
+export function describeETHPath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Ethereum",
+    isKnown: false,
+  };
+
+  if (path.length !== 5) return unknown;
+
+  if (path[0] !== 0x80000000 + 44) return unknown;
+
+  if (path[1] !== 0x80000000 + slip44ByCoin("Ethereum")) return unknown;
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+
+  if (path[3] !== 0) return unknown;
+
+  if (path[4] !== 0) return unknown;
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Ethereum Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Ethereum",
+    isKnown: true,
+    isPrefork: false,
+  };
 }
