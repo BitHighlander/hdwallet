@@ -2,8 +2,9 @@ import * as core from "@bithighlander/hdwallet-core";
 
 import { addressNListToBIP32, BinanceSignTx, BinanceSignedTx } from "@bithighlander/hdwallet-core";
 
-import BncClient from "bnb-javascript-sdk-nobroadcast";
-import HDKey from "hdkey";
+//import BncClient from "bnb-javascript-sdk-nobroadcast";
+import { getNetwork } from "./networks";
+import * as bitcoin from "bitcoinjs-lib";
 const bip39 = require(`bip39`);
 const ripemd160 = require("crypto-js/ripemd160");
 const CryptoJS = require("crypto-js");
@@ -70,28 +71,28 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
       const seed = await bip39.mnemonicToSeed(this.#seed);
 
-      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
-      // expects bip32
-      let path = addressNListToBIP32(msg.addressNList);
+      const network = getNetwork("bitcoin");
+      const hdkey = bitcoin.bip32.fromSeed(seed, network);
+      const path = core.addressNListToBIP32(msg.addressNList);
 
-      mk = mk.derive(path);
-      let publicKey = mk.publicKey;
-      let address = createBNBAddress(publicKey);
+      let keypair = await bitcoin.ECPair.fromWIF(hdkey.derivePath(path).toWIF(), network);
+
+      let address = createBNBAddress(keypair.publicKey.toString("hex"));
       return address;
     }
 
-    async binanceSignTx(msg: BinanceSignTx, mnemonic: string, xpriv: string, from: string): Promise<BinanceSignedTx> {
+    async binanceSignTx(msg: BinanceSignTx, mnemonic: string, xpriv: string, from: string): Promise<any> {
       const seed = await bip39.mnemonicToSeed(this.#seed);
 
-      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
-      // expects bip32
-      let path = addressNListToBIP32(msg.addressNList);
-      mk = mk.derive(path);
+      const network = getNetwork("bitcoin");
+      const hdkey = bitcoin.bip32.fromSeed(seed, network);
+      const path = core.addressNListToBIP32(msg.addressNList);
 
-      let privateKey = mk.privateKey;
-      let publicKey = mk.publicKey;
-      publicKey = publicKey.toString("hex");
-      privateKey = privateKey.toString("hex");
+      let keypair = await bitcoin.ECPair.fromWIF(hdkey.derivePath(path).toWIF(), network);
+      // expects bip32
+
+      let privateKey = keypair.privateKey.toString("hex");
+      let publicKey = keypair.publicKey.toString("hex");
 
       let wallet = {
         privateKey,
@@ -107,47 +108,47 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
       // }
 
       //use sdk to build Amino encoded hex transaction
-      const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
-      await client.chooseNetwork("mainnet");
-      await client.setPrivateKey(privateKey);
-      await client.initChain();
+      // const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
+      // await client.chooseNetwork("mainnet");
+      // await client.setPrivateKey(privateKey);
+      // await client.initChain();
+      //
+      // //let fromAddress = msg
+      // let addressFrom = msg.tx.msgs[0].inputs[0].address;
+      // let addressTo = msg.tx.msgs[0].outputs[0].address;
+      // let amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
+      // let asset = "BNB";
+      // let message = ""; //TODO do memo's
+      //
+      // console.log("pre-client: ", {
+      //   addressFrom,
+      //   addressTo,
+      //   amount,
+      //   asset,
+      //   message,
+      // });
+      //
+      // let result = await client.transfer(addressFrom, addressTo, amount, asset, message, null);
+      //
+      // let rawHex = result.serialize();
+      // const buffer = Buffer.from(rawHex, "hex");
+      // let txid = "";
+      //
+      // let output: BinanceSignedTx = {
+      //   account_number: result.account,
+      //   chain_id: result.chain_id,
+      //   data: null,
+      //   memo: result.memo,
+      //   msgs: result.msgs,
+      //   //txid,
+      //   //serialized:rawHex,
+      //   signatures: {
+      //     pub_key: result.signatures[0].pub_key,
+      //     signature: result.signatures[0].signature,
+      //   },
+      // };
 
-      //let fromAddress = msg
-      let addressFrom = msg.tx.msgs[0].inputs[0].address;
-      let addressTo = msg.tx.msgs[0].outputs[0].address;
-      let amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
-      let asset = "BNB";
-      let message = ""; //TODO do memo's
-
-      console.log("pre-client: ", {
-        addressFrom,
-        addressTo,
-        amount,
-        asset,
-        message,
-      });
-
-      let result = await client.transfer(addressFrom, addressTo, amount, asset, message, null);
-
-      let rawHex = result.serialize();
-      const buffer = Buffer.from(rawHex, "hex");
-      let txid = "";
-
-      let output: BinanceSignedTx = {
-        account_number: result.account,
-        chain_id: result.chain_id,
-        data: null,
-        memo: result.memo,
-        msgs: result.msgs,
-        //txid,
-        //serialized:rawHex,
-        signatures: {
-          pub_key: result.signatures[0].pub_key,
-          signature: result.signatures[0].signature,
-        },
-      };
-
-      return output;
+      return {};
     }
   };
 }

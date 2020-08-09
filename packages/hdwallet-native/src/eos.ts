@@ -1,7 +1,8 @@
 import * as core from "@bithighlander/hdwallet-core";
 
 import { addressNListToBIP32, CosmosSignTx, CosmosSignedTx } from "@bithighlander/hdwallet-core";
-import HDKey from "hdkey";
+import { getNetwork } from "./networks";
+import * as bitcoin from "bitcoinjs-lib";
 const bip39 = require(`bip39`);
 let { PrivateKey, PublicKey, Signature, Aes, key_utils, config } = require("eosjs-ecc");
 
@@ -69,57 +70,59 @@ export function MixinNativeEosWallet<TBase extends core.Constructor>(Base: TBase
 
     async eosSignTx(msg: any): Promise<any> {
       const seed = await bip39.mnemonicToSeed(this.#seed);
-
-      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
-      // expects bip32
-      let path = core.addressNListToBIP32(msg.addressNList);
-      mk = mk.derive(path);
-
-      let privateKey = mk.privateKey;
-
-      //convert privkey to EOS format
-      privateKey = PrivateKey.fromBuffer(privateKey);
-      privateKey = privateKey.toString();
-
-      let URL_REMOTE = "https://api.eossweden.org"; //not used (TODO fork eosjs and removeme)
       //
-      let { Api, JsonRpc, RpcError } = require("eosjs");
-      const { JsSignatureProvider } = require("eosjs/dist/eosjs-jssig"); // development only
-      const fetch = require("node-fetch"); // node only; not needed in browsers
-      const { TextEncoder, TextDecoder } = require("util");
-      const privateKeys = [privateKey];
-      const signatureProvider = new JsSignatureProvider(privateKeys);
+      // const network = getNetwork('bitcoin');
+      // const hdkey = bitcoin.bip32.fromSeed(seed, network);
+      // const path = core.addressNListToBIP32(msg.addressNList);
+      //
+      // let keypair = await bitcoin.ECPair.fromWIF(hdkey.derivePath(path).toWIF(), network)
+      // // expects bip32
+      //
+      // let privateKey = keypair.privateKey.toString('hex');
+      //
+      // //convert privkey to EOS format
+      // privateKey = PrivateKey.fromBuffer(privateKey);
+      // privateKey = privateKey.toString();
+      //
+      // let URL_REMOTE = "https://api.eossweden.org"; //not used (TODO fork eosjs and removeme)
+      // //
+      // let { Api, JsonRpc, RpcError } = require("eosjs");
+      // const { JsSignatureProvider } = require("eosjs/dist/eosjs-jssig"); // development only
+      // const fetch = require("node-fetch"); // node only; not needed in browsers
+      // const { TextEncoder, TextDecoder } = require("util");
+      // const privateKeys = [privateKey];
+      // const signatureProvider = new JsSignatureProvider(privateKeys);
+      //
+      // console.log(signatureProvider.keys);
+      //
+      // console.log("Checkpoint 2");
+      // const rpc = new JsonRpc(URL_REMOTE, { fetch });
+      // const api = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
+      //
+      // console.log("Checkpoint 3");
+      // let result = await api.transact(
+      //   {
+      //     actions: msg.tx.actions,
+      //   },
+      //   {
+      //     broadcast: false,
+      //     blocksBehind: 3,
+      //     expireSeconds: 300,
+      //   }
+      // );
+      // console.log("Checkpoint 4");
+      // console.log("result: ", result);
+      // console.log("result: ", result.serialized);
+      //
+      // let serialized = result.serializedTransaction;
+      // serialized = new Buffer(result.serializedTransaction).toString("hex");
+      //
+      // let sig = {
+      //   serialized,
+      //   eosFormSig: result.signatures,
+      // };
 
-      console.log(signatureProvider.keys);
-
-      console.log("Checkpoint 2");
-      const rpc = new JsonRpc(URL_REMOTE, { fetch });
-      const api = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
-
-      console.log("Checkpoint 3");
-      let result = await api.transact(
-        {
-          actions: msg.tx.actions,
-        },
-        {
-          broadcast: false,
-          blocksBehind: 3,
-          expireSeconds: 300,
-        }
-      );
-      console.log("Checkpoint 4");
-      console.log("result: ", result);
-      console.log("result: ", result.serialized);
-
-      let serialized = result.serializedTransaction;
-      serialized = new Buffer(result.serializedTransaction).toString("hex");
-
-      let sig = {
-        serialized,
-        eosFormSig: result.signatures,
-      };
-
-      return sig;
+      return {};
     }
   };
 }

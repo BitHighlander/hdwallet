@@ -128,19 +128,15 @@ export class NativeHDWallet
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
     return Promise.all(
       msg.map(async (getPublicKey) => {
-        console.log("getPublicKey: ", getPublicKey);
         let { addressNList } = getPublicKey;
         const seed = await mnemonicToSeed(this.#mnemonic);
 
         const network = getNetwork("bitcoin", getPublicKey.scriptType);
         const node = fromSeed(seed, network);
-        const xpub = node
-          .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
-          .neutered()
-          .toBase58();
+        const xpub = node.derivePath(core.addressNListToBIP32(addressNList)).neutered().toBase58();
 
         let addressInfo: core.GetAddress = {
-          path: core.hardenedPath(addressNList),
+          path: addressNList,
           coin: getPublicKey.coin.toLowerCase(),
           scriptType: getPublicKey.script_type,
         };
@@ -149,7 +145,7 @@ export class NativeHDWallet
           coin: getPublicKey.network,
           network: getPublicKey.network,
           script_type: getPublicKey.script_type,
-          path: core.addressNListToBIP32(core.hardenedPath(addressNList)),
+          path: core.addressNListToBIP32(addressNList),
           long: getPublicKey.coin,
           address: await this.getAddress(addressInfo),
           master: await this.getAddress(addressInfo),
@@ -157,10 +153,8 @@ export class NativeHDWallet
           xpub,
         };
         if (getPublicKey.type == "address") {
-          console.log("Address type: ");
           pubkey.pubkey = pubkey.address;
         } else {
-          console.log("Address type: ");
           pubkey.pubkey = pubkey.xpub;
         }
 
@@ -225,6 +219,7 @@ export class NativeHDWallet
     const seed = await mnemonicToSeed(this.#mnemonic);
     super.binanceInitializeWallet(this.#mnemonic);
     super.eosInitializeWallet(this.#mnemonic);
+    super.cosmosInitializeWallet(this.#mnemonic);
     super.ethInitializeWallet("0x" + seed.toString("hex"));
     await super.btcInitializeWallet(seed);
     this.#initialized = true;
