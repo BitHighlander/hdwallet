@@ -38,9 +38,6 @@ export function MixinNativeEosWalletInfo<TBase extends core.Constructor>(Base: T
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + 194, 0x80000000 + msg.accountIdx, 0, 0],
-          // hardenedPath: [0x80000000 + 44, 0x80000000 + 194, 0x80000000 + msg.accountIdx],
-          // relPath: [0, 0],
-          // description: "Native",
         },
       ];
     }
@@ -89,7 +86,7 @@ export function MixinNativeEosWallet<TBase extends core.Constructor>(Base: TBase
       privateKey = privateKey.toString();
 
       let URL_REMOTE = "https://api.eossweden.org"; //not used (TODO fork eosjs and removeme)
-      //
+
       let { Api, JsonRpc, RpcError } = require("eosjs");
       const { JsSignatureProvider } = require("eosjs/dist/eosjs-jssig"); // development only
       const fetch = require("node-fetch"); // node only; not needed in browsers
@@ -111,8 +108,7 @@ export function MixinNativeEosWallet<TBase extends core.Constructor>(Base: TBase
         }
       );
 
-      let serialized = result.serializedTransaction;
-      serialized = new Buffer(result.serializedTransaction).toString("hex");
+      const serialized = new Buffer(result.serializedTransaction).toString("hex");
 
       let sig = {
         serialized,

@@ -1,3 +1,5 @@
+import * as core from "@shapeshiftoss/hdwallet-core";
+import { EventEmitter2 } from "eventemitter2";
 import * as core from "@bithighlander/hdwallet-core";
 import { mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
@@ -7,21 +9,70 @@ import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
+import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
+import type { NativeAdapterArgs } from "./adapter";
+
+export enum NativeEvents {
+  MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",
+  READY = "READY",
+}
+
+export class NativeHDWalletBase {
+  readonly #events: EventEmitter2;
+
+  constructor() {
+    this.#events = new EventEmitter2();
+  }
+
+  get events() {
+    return this.#events;
+  }
+
+  /**
+   * Wrap a function call that needs a mnemonic seed
+   * Raise an event if the wallet hasn't been initialized with a mnemonic seed
+   */
+  needsMnemonic<T>(hasMnemonic: boolean, callback: () => T): T | null {
+    if (hasMnemonic) {
+      return callback();
+    }
+
+    this.#events.emit(
+      NativeEvents.MNEMONIC_REQUIRED,
+      core.makeEvent({
+        message_type: NativeEvents.MNEMONIC_REQUIRED,
+        from_wallet: true,
+      })
+    );
+
+    return null;
+  }
+}
 import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
+import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
 
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
     MixinNativeETHWalletInfo(
-      MixinNativeBinanceWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeEosWalletInfo(class Base {})))
+      MixinNativeBinanceWalletInfo(
+        MixinNativeCosmosWalletInfo(
+          MixinNativeEosWalletInfo(
+            MixinNativeFioWalletInfo(
+              class Base {}
+            )
+          )
+        )
+      )
     )
   )
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
-  _supportsBinanceInfo: boolean = false;
+  _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
+  _supportsFioInfo: boolean = false;
 
   getVendor(): string {
     return "Native";
@@ -57,13 +108,23 @@ class NativeHDWalletInfo
       case "litecoin":
       case "testnet":
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
-
         if (!super.btcSupportsCoin(msg.coin)) return unknown;
         if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
         return core.describeETHPath(msg.path);
+      //TODO below wrong
+      case "cosmos":
+        return core.describeETHPath(msg.path);
+      case "binance":
+        return core.describeETHPath(msg.path);
+      case "eos":
+        return core.describeETHPath(msg.path);
+      case "atom":
+        return core.cosmosDescribePath(msg.path);
+      case "binance":
+        return core.binanceDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -72,13 +133,24 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeETHWallet(MixinNativeBinanceWallet(MixinNativeCosmosWallet(MixinNativeEosWallet(NativeHDWalletInfo))))
+    MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo)))
+  )
+  extends MixinNativeBTCWallet(
+    MixinNativeETHWallet(
+      MixinNativeBinanceWallet(
+        MixinNativeCosmosWallet(
+          MixinNativeFioWallet(
+            MixinNativeEosWallet(NativeHDWalletInfo)
+          )
+        )
+      )
+    )
   )
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
-  _supportsBinance = false;
+  _supportsBinance = true;
   _supportsRipple = false;
   _supportsEos = false;
   _supportsDebugLink = false;
@@ -88,10 +160,14 @@ export class NativeHDWallet
   #initialized: boolean;
   #mnemonic: string;
 
-  constructor(mnemonic: string, deviceId: string) {
+  constructor({ mnemonic, deviceId }: NativeAdapterArgs) {
     super();
     this.#mnemonic = mnemonic;
     this.#deviceId = deviceId;
+  }
+
+  async getFeatures(): Promise<Record<string, any>> {
+    return {};
   }
 
   async getDeviceID(): Promise<string> {
@@ -178,6 +254,11 @@ export class NativeHDWallet
           scriptType: msg.scriptType,
         };
         return super.ethGetAddress(inputETH);
+      case "fio":
+        let inputFIO: core.FioAccountPath = {
+          addressNList: msg.path,
+        };
+        return super.fioGetAddress(inputFIO);
       case "eos":
         let inputEOS: core.EosAccountPath = {
           addressNList: msg.path,
@@ -233,7 +314,14 @@ export class NativeHDWallet
 
   async cancel(): Promise<void> {}
 
-  async wipe(): Promise<void> {}
+  async wipe(): Promise<void> {
+    this.#mnemonic = null;
+
+    super.btcWipe();
+    super.ethWipe();
+    super.cosmosWipe();
+    super.binanceWipe();
+  }
 
   async reset(): Promise<void> {}
 
@@ -243,6 +331,15 @@ export class NativeHDWallet
     this.#mnemonic = msg.mnemonic;
     this.#initialized = false;
     await this.initialize();
+
+    // Once we've been seeded with a mnemonic we re-emit the connected event
+    this.events.emit(
+      NativeEvents.READY,
+      core.makeEvent({
+        message_type: NativeEvents.READY,
+        from_wallet: true,
+      })
+    );
   }
 
   async disconnect(): Promise<void> {}
@@ -256,6 +353,10 @@ export function info() {
   return new NativeHDWalletInfo();
 }
 
-export function create(mnemonic: string, deviceId: string): NativeHDWallet {
-  return new NativeHDWallet(mnemonic, deviceId);
+export function create(args: NativeAdapterArgs): NativeHDWallet {
+  return new NativeHDWallet(args);
 }
+
+// This prevents any malicious code from overwriting the prototype
+// to potentially steal the mnemonic when calling "loadDevice"
+Object.freeze(Object.getPrototypeOf(NativeHDWallet));

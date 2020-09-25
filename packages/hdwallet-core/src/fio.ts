@@ -1,94 +1,94 @@
 import { BIP32Path } from "./wallet";
 
-export interface EosGetPublicKey {
-  addressNList: Array<number>;
+
+export interface FioGetPublicKey {
+  addressNList: BIP32Path;
   showDisplay?: boolean;
-  kind?: 0 | 1 | 2;
 }
 
-export interface EosGetAccountPaths {
+export interface FioGetAccountPaths {
   accountIdx: number;
 }
 
-export interface EosAccountPath {
+export interface FioAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface eosNextAccountPath {
+export interface fioNextAccountPath {
   accountIdx: number;
 }
 
-export namespace Eos {
-  export interface EosPermissionLevel {
+export namespace Fio {
+  export interface FioPermissionLevel {
     actor?: string;
     permission?: string;
   }
 
   /* add action acks here as they are added to the wallet */
-  export interface EosTxActionAck {
+  export interface FioTxActionAck {
     account?: string;
     name?: string;
-    authorization?: Array<Eos.EosPermissionLevel>;
+    authorization?: Array<Fio.FioPermissionLevel>;
     data?: any;
   }
 }
 
-export interface EosTx {
+export interface FioTx {
   expiration?: string;
   ref_block_num?: number;
   ref_block_prefix?: number;
   max_net_usage_words?: number;
   max_cpu_usage_ms?: number;
   delay_sec?: number;
-  actions: Array<Eos.EosTxActionAck>; // could be several kinds of actions
+  actions: Array<Fio.FioTxActionAck>; // could be several kinds of actions
 }
 
-export interface EosToSignTx {
+export interface FioToSignTx {
   addressNList: BIP32Path;
   chain_id: string;
-  tx: EosTx;
+  tx: FioTx;
 }
 
 /* device response asking for next action */
-export interface EosTxActionRequest {}
+export interface FioTxActionRequest {}
 
 /*
-export interface EosTxSigned {
+export interface FioTxSigned {
   signatureV?: number;
   signatureR: Uint8Array | string;
   signatureS: Uint8Array | string;
   hash: Uint8Array | string;
-  eosFormSig: string;
+  fioFormSig: string;
 }
 */
 
-export interface EosTxSigned {
+export interface FioTxSigned {
   signatureV?: number;
   signatureR?: Uint8Array;
   signatureS?: Uint8Array;
   hash?: Uint8Array;
   serialized?: string;
-  eosFormSig: string;
+  fioFormSig: string;
 }
 
-export interface EosWalletInfo {
-  _supportsEosInfo: boolean;
+export interface FioWalletInfo {
+  _supportsFioInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
    * from most to least preferred.
    */
-  eosGetAccountPaths(msg: EosGetAccountPaths): Array<EosAccountPath>;
+  fioGetAccountPaths(msg: FioGetAccountPaths): Array<FioAccountPath>;
 
   /**
    * Returns the "next" account path, if any.
    */
-  eosNextAccountPath(msg: EosAccountPath): EosAccountPath | undefined;
+  fioNextAccountPath(msg: FioAccountPath): FioAccountPath | undefined;
 }
 
-export interface EosWallet extends EosWalletInfo {
-  _supportsEos: boolean;
+export interface FioWallet extends FioWalletInfo {
+  _supportsFio: boolean;
 
-  eosGetPublicKey(msg: EosGetPublicKey): Promise<string>;
-  eosSignTx(msg: EosToSignTx): Promise<EosTxSigned>;
+  fioGetPublicKey(msg: FioGetPublicKey): Promise<string>;
+  fioSignTx(msg: FioToSignTx): Promise<FioTxSigned>;
 }
