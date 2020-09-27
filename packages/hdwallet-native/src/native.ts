@@ -57,7 +57,9 @@ class NativeHDWalletInfo
       MixinNativeBinanceWalletInfo(
         MixinNativeCosmosWalletInfo(
           MixinNativeEosWalletInfo(
-            MixinNativeFioWalletInfo(MixinNativeBcashWalletInfo(MixinNativeCardanoWalletInfo(class Base {})))
+            MixinNativeFioWalletInfo(
+              MixinNativeBcashWalletInfo(MixinNativeCardanoWalletInfo(class NativeHDWalletBase {}))
+            )
           )
         )
       )
@@ -138,7 +140,6 @@ export class NativeHDWallet
   extends MixinNativeBTCWallet(
     MixinNativeETHWallet(
       MixinNativeBinanceWallet(
-        // @ts-ignore
         MixinNativeCosmosWallet(
           MixinNativeFioWallet(
             MixinNativeBcashWallet(MixinNativeCardanoWallet(MixinNativeEosWallet(NativeHDWalletInfo)))
@@ -147,7 +148,14 @@ export class NativeHDWallet
       )
     )
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
+  implements
+    core.HDWallet,
+    core.BTCWallet,
+    core.ETHWallet,
+    core.CosmosWallet,
+    core.FioWallet,
+    core.BcashWallet,
+    core.CardanoWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
@@ -155,6 +163,8 @@ export class NativeHDWallet
   _supportsRipple = false;
   _supportsEos = false;
   _supportsFio = true;
+  _supportsCardano = true;
+  _supportsBcash = true;
   _supportsDebugLink = false;
   _isNative = true;
 
