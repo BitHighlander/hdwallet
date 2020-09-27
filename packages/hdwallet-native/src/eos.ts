@@ -72,6 +72,18 @@ export function MixinNativeEosWallet<TBase extends core.Constructor<NativeHDWall
       return address;
     }
 
+    async eosGetPublicKey(msg: any): Promise<string> {
+      const seed = await mnemonicToSeed(this.#seed);
+      const network = getNetwork("bitcoin");
+      const wallet = bitcoin.bip32.fromSeed(seed, network);
+      const path = core.addressNListToBIP32(msg.addressNList);
+      const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+
+      let address = await createEOSAddress(keypair.privateKey);
+
+      return address;
+    }
+
     async eosSignTx(msg: any): Promise<any> {
       const seed = await bip39.mnemonicToSeed(this.#seed);
 

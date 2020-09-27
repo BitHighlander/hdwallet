@@ -145,7 +145,7 @@ export class NativeHDWallet
       )
     )
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.BinanceWallet, core.EosWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
