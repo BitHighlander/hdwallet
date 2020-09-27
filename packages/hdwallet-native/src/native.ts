@@ -145,7 +145,14 @@ export class NativeHDWallet
       )
     )
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.BinanceWallet, core.EosWallet {
+  implements
+    core.HDWallet,
+    core.BTCWallet,
+    core.ETHWallet,
+    core.CosmosWallet,
+    core.BinanceWallet,
+    core.EosWallet,
+    core.FioWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
@@ -188,6 +195,53 @@ export class NativeHDWallet
     return "Native";
   }
 
+  getAddress(msg: core.GetAddress): Promise<string> {
+    switch (msg.coin.toLowerCase()) {
+      case "bitcoin":
+      case "bitcoincash":
+      case "dash":
+      case "digibyte":
+      case "dogecoin":
+      case "litecoin":
+      case "testnet":
+        let inputClone: core.BTCAccountPath = {
+          addressNList: msg.path,
+          coin: msg.coin,
+          scriptType: msg.scriptType,
+        };
+        return super.btcGetAddress(inputClone);
+      case "ethereum":
+        let inputETH: core.BTCAccountPath = {
+          addressNList: msg.path,
+          coin: msg.coin,
+          scriptType: msg.scriptType,
+        };
+        return super.ethGetAddress(inputETH);
+      case "fio":
+        let inputFIO: core.FioAccountPath = {
+          addressNList: msg.path,
+        };
+        return super.fioGetAddress(inputFIO);
+      case "eos":
+        let inputEOS: core.EosAccountPath = {
+          addressNList: msg.path,
+        };
+        return super.eosGetAddress(inputEOS);
+      case "cosmos":
+        let inputATOM: core.CosmosGetAddress = {
+          addressNList: msg.path,
+        };
+        return super.cosmosGetAddress(inputATOM);
+      case "binance":
+        let inputBNB: core.EosAccountPath = {
+          addressNList: msg.path,
+        };
+        return super.binanceGetAddress(inputBNB);
+      default:
+        throw new Error("Unsupported path " + msg.coin);
+    }
+  }
+
   /*
    * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
    * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
@@ -198,13 +252,35 @@ export class NativeHDWallet
         msg.map(async (getPublicKey) => {
           let { addressNList } = getPublicKey;
           const seed = await mnemonicToSeed(this.#mnemonic);
-          const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
+
+          const network = getNetwork("bitcoin", getPublicKey.scriptType);
           const node = fromSeed(seed, network);
-          const xpub = node
-            .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
-            .neutered()
-            .toBase58();
-          return { xpub };
+          const xpub = node.derivePath(core.addressNListToBIP32(addressNList)).neutered().toBase58();
+
+          let addressInfo: core.GetAddress = {
+            path: addressNList,
+            coin: getPublicKey.coin.toLowerCase(),
+            scriptType: getPublicKey.script_type,
+          };
+
+          let pubkey: core.PublicKey = {
+            coin: getPublicKey.network,
+            network: getPublicKey.network,
+            script_type: getPublicKey.script_type,
+            path: core.addressNListToBIP32(addressNList),
+            long: getPublicKey.coin,
+            address: await this.getAddress(addressInfo),
+            master: await this.getAddress(addressInfo),
+            type: getPublicKey.type,
+            xpub,
+          };
+          if (getPublicKey.type == "address") {
+            pubkey.pubkey = pubkey.address;
+          } else {
+            pubkey.pubkey = pubkey.xpub;
+          }
+
+          return pubkey;
         })
       )
     );

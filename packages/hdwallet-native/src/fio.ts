@@ -50,6 +50,12 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       return publicKeyRes.publicKey;
     }
 
+    async fioGetPublicKey(msg: any): Promise<string> {
+      const privateKeyRes = await fio.FIOSDK.createPrivateKeyMnemonic(this.#seed);
+      const publicKeyRes = fio.FIOSDK.derivedPublicKey(privateKeyRes.fioKey);
+      return publicKeyRes.publicKey;
+    }
+
     async fioSignTx(msg: any): Promise<any> {
       let sig = {
         serialized: "",
