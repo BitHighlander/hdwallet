@@ -1,4 +1,4 @@
-import { HDWallet, HDWalletInfo } from "@mcchadwick/hdwallet-core";
+import { HDWallet, HDWalletInfo } from "@bitcoin/hdwallet-core";
 
 import { fioTests as tests } from "./fio";
 

@@ -1,6 +1,5 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import { EventEmitter2 } from "eventemitter2";
 import * as core from "@bithighlander/hdwallet-core";
+import { EventEmitter2 } from "eventemitter2";
 import { mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
 import { isObject } from "lodash";
@@ -9,7 +8,10 @@ import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
-import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
+import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
+import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
+import { MixinNativeBcashWalletInfo, MixinNativeBcashWallet } from "./bcash";
+import { MixinNativeCardanoWalletInfo, MixinNativeCardanoWallet } from "./cardano";
 import type { NativeAdapterArgs } from "./adapter";
 
 export enum NativeEvents {
@@ -48,18 +50,14 @@ export class NativeHDWalletBase {
     return null;
   }
 }
-import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
-import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
-
+//TODO stop doing this
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
     MixinNativeETHWalletInfo(
       MixinNativeBinanceWalletInfo(
         MixinNativeCosmosWalletInfo(
           MixinNativeEosWalletInfo(
-            MixinNativeFioWalletInfo(
-              class Base {}
-            )
+            MixinNativeFioWalletInfo(MixinNativeBcashWalletInfo(MixinNativeCardanoWalletInfo(class Base {})))
           )
         )
       )
@@ -71,8 +69,10 @@ class NativeHDWalletInfo
   _supportsCosmosInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
-  _supportsEosInfo: boolean = false;
-  _supportsFioInfo: boolean = false;
+  _supportsEosInfo: boolean = true;
+  _supportsFioInfo: boolean = true;
+  _supportsBcashInfo: boolean = true;
+  _supportsCardanoInfo: boolean = true;
 
   getVendor(): string {
     return "Native";
@@ -131,16 +131,17 @@ class NativeHDWalletInfo
   }
 }
 
+// @ts-ignore TODO whyy
+// TODO staphhhhh
+
 export class NativeHDWallet
-  extends MixinNativeBTCWallet(
-    MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo)))
-  )
   extends MixinNativeBTCWallet(
     MixinNativeETHWallet(
       MixinNativeBinanceWallet(
+        // @ts-ignore
         MixinNativeCosmosWallet(
           MixinNativeFioWallet(
-            MixinNativeEosWallet(NativeHDWalletInfo)
+            MixinNativeBcashWallet(MixinNativeCardanoWallet(MixinNativeEosWallet(NativeHDWalletInfo)))
           )
         )
       )
@@ -153,6 +154,7 @@ export class NativeHDWallet
   _supportsBinance = true;
   _supportsRipple = false;
   _supportsEos = false;
+  _supportsFio = true;
   _supportsDebugLink = false;
   _isNative = true;
 
@@ -258,11 +260,13 @@ export class NativeHDWallet
         let inputFIO: core.FioAccountPath = {
           addressNList: msg.path,
         };
+        // @ts-ignore
         return super.fioGetAddress(inputFIO);
       case "eos":
         let inputEOS: core.EosAccountPath = {
           addressNList: msg.path,
         };
+        // @ts-ignore
         return super.eosGetAddress(inputEOS);
       case "cosmos":
         let inputATOM: core.CosmosGetAddress = {
@@ -291,12 +295,15 @@ export class NativeHDWallet
 
   async initialize(): Promise<any> {
     const seed = await mnemonicToSeed(this.#mnemonic);
-
+    // @ts-ignore
     await super.btcInitializeWallet(seed);
     super.ethInitializeWallet(this.#mnemonic);
     super.cosmosInitializeWallet(this.#mnemonic);
     super.binanceInitializeWallet(this.#mnemonic);
+    // @ts-ignore
     super.eosInitializeWallet(this.#mnemonic);
+    // @ts-ignore
+    super.fioInitializeWallet(this.#mnemonic);
     this.#initialized = true;
   }
 
@@ -344,7 +351,7 @@ export class NativeHDWallet
 
   async disconnect(): Promise<void> {}
 }
-
+// @ts-ignore
 export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {
   return isObject(wallet) && (wallet as any)._isNative;
 }

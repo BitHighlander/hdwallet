@@ -1,4 +1,4 @@
-import * as core from "@mcchadwick/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 const fio = require("@fioprotocol/fiosdk");
 const fetch = require("node-fetch");
 
@@ -44,6 +44,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor>(Base: TBase
     baseUrl = "https://testnet.fioprotocol.io:443/v1/";
     #seed = "";
     #privateKey = "";
+
     #publicKey = "";
     #fioSdk;
 
@@ -59,9 +60,12 @@ export function MixinNativeFioWallet<TBase extends core.Constructor>(Base: TBase
       return this.#publicKey;
     }
 
-    async fioSignTx(msg: core.FioTx): Promise<any> {
+    async fioSignTx(msg: any): Promise<any> {
+      // @ts-ignore
       const account: string = msg.actions.account || "fio.token";
+      // @ts-ignore
       const action: string = msg.actions.name || "fiotrnspubky";
+      // @ts-ignore
       const data: core.FioTxActionData = msg.actions.data;
       if (!this.#fioSdk) {
         // Throw error. fioInitializeWallet has not been called.

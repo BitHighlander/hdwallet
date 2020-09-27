@@ -107,12 +107,12 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         data: null,
         memo: result.memo,
         msgs: result.msgs,
-        txid,
+        txid: "",
         serialized: result.serialized,
         signatures: {
           pub_key,
           signature,
-        }
+        },
       };
     }
   };
