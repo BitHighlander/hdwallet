@@ -69,40 +69,38 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      return this.needsMnemonic(!!this.#ethWallet, async () => {
-        const seed = await mnemonicToSeed(this.#seed);
+      const seed = await mnemonicToSeed(this.#seed);
 
-        const network = getNetwork("ethereum");
-        const mkey = bitcoin.bip32.fromSeed(seed, network);
-        const path = core.addressNListToBIP32(msg.addressNList);
+      const network = getNetwork("ethereum");
+      const mkey = bitcoin.bip32.fromSeed(seed, network);
+      const path = core.addressNListToBIP32(msg.addressNList);
 
-        let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
-        let privateKey = keypair.privateKey;
+      let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
+      let privateKey = keypair.privateKey;
 
-        let txTemplate = {
-          nonce: msg.nonce,
-          to: msg.to,
-          gasPrice: msg.gasPrice,
-          gasLimit: msg.gasLimit,
-          value: msg.value,
-          data: msg.data,
-        };
+      let txTemplate = {
+        nonce: msg.nonce,
+        to: msg.to,
+        gasPrice: msg.gasPrice,
+        gasLimit: msg.gasLimit,
+        value: msg.value,
+        data: msg.data,
+      };
 
-        let transaction = new txBuilder(txTemplate);
-        transaction.sign(privateKey);
+      let transaction = new txBuilder(txTemplate);
+      transaction.sign(privateKey);
 
-        const txid = "0x" + transaction.hash().toString("hex");
-        let serialized = transaction.serialize();
-        serialized = "0x" + serialized.toString("hex");
+      const txid = "0x" + transaction.hash().toString("hex");
+      let serialized = transaction.serialize();
+      serialized = "0x" + serialized.toString("hex");
 
-        return {
-          v: transaction.v.toString("hex"),
-          r: transaction.r.toString("hex"),
-          s: transaction.s.toString("hex"),
-          txid,
-          serialized: serialized,
-        };
-      });
+      return {
+        v: transaction.v.toString("hex"),
+        r: transaction.r.toString("hex"),
+        s: transaction.s.toString("hex"),
+        txid,
+        serialized: serialized,
+      };
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {

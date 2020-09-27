@@ -105,12 +105,14 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
       "ethGetAddress()",
       async () => {
         if (!wallet) return;
-        expect(
-          await wallet.ethGetAddress({
-            addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
-            showDisplay: false,
-          })
-        ).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
+        let addressRef = "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8";
+        addressRef = addressRef.toLowerCase();
+        let address = await wallet.ethGetAddress({
+          addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          showDisplay: false,
+        });
+        address = address.toLowerCase();
+        expect(address).toEqual(addressRef);
       },
       TIMEOUT
     );
