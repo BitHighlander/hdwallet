@@ -4,6 +4,8 @@ import { BIP32Path, PathDescription } from "./wallet";
 export interface CosmosGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
+  /** Optional. Required for showDisplay == true. */
+  address?: string;
 }
 
 export namespace Cosmos {

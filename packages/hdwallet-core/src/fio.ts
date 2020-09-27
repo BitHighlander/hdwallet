@@ -3,6 +3,15 @@ import { BIP32Path } from "./wallet";
 export interface FioGetPublicKey {
   addressNList: BIP32Path;
   showDisplay?: boolean;
+  /** Optional. Required for showDisplay == true. */
+  address?: string;
+}
+
+export interface FioGetAddress {
+  addressNList: BIP32Path;
+  showDisplay?: boolean;
+  /** Optional. Required for showDisplay == true. */
+  address?: string;
 }
 
 export interface FioGetAccountPaths {
@@ -13,7 +22,7 @@ export interface FioAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface fioNextAccountPath {
+export interface FioNextAccountPath {
   accountIdx: number;
 }
 
@@ -23,12 +32,26 @@ export namespace Fio {
     permission?: string;
   }
 
+  export interface FioPublicAddress {
+    chain_code?: string;
+    token_code?: string;
+    public_address?: string;
+  }
+
+  export interface FioTxActionData {
+    fio_address?: string;
+    public_addresses: Array<Fio.FioPublicAddress>;
+    max_fee?: number;
+    tpid?: string;
+    actor?: string;
+  }
+
   /* add action acks here as they are added to the wallet */
   export interface FioTxActionAck {
     account?: string;
     name?: string;
     authorization?: Array<Fio.FioPermissionLevel>;
-    data?: any;
+    data?: Fio.FioTxActionData;
   }
 }
 
@@ -36,38 +59,12 @@ export interface FioTx {
   expiration?: string;
   ref_block_num?: number;
   ref_block_prefix?: number;
-  max_net_usage_words?: number;
-  max_cpu_usage_ms?: number;
-  delay_sec?: number;
-  actions: Array<Fio.FioTxActionAck>; // could be several kinds of actions
+  actions: Array<Fio.FioTxActionAck>;
 }
 
-export interface FioToSignTx {
-  addressNList: BIP32Path;
-  chain_id: string;
-  tx: FioTx;
-}
-
-/* device response asking for next action */
-export interface FioTxActionRequest {}
-
-/*
-export interface FioTxSigned {
-  signatureV?: number;
-  signatureR: Uint8Array | string;
-  signatureS: Uint8Array | string;
-  hash: Uint8Array | string;
-  fioFormSig: string;
-}
-*/
-
-export interface FioTxSigned {
-  signatureV?: number;
-  signatureR?: Uint8Array;
-  signatureS?: Uint8Array;
-  hash?: Uint8Array;
-  serialized?: string;
-  fioFormSig: string;
+export interface FioSignedTx {
+  serialized: string;
+  signature: string;
 }
 
 export interface FioWalletInfo {
@@ -89,5 +86,5 @@ export interface FioWallet extends FioWalletInfo {
   _supportsFio: boolean;
 
   fioGetPublicKey(msg: FioGetPublicKey): Promise<string>;
-  fioSignTx(msg: FioToSignTx): Promise<FioTxSigned>;
+  fioSignTx(msg: FioTx): Promise<FioSignedTx>;
 }

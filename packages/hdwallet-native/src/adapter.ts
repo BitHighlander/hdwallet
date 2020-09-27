@@ -22,10 +22,12 @@ export class NativeAdapter {
   }
 
   async initialize(): Promise<number> {
+    // @ts-ignore
     let wallet = this.keyring.get<NativeHDWallet>(this.deviceId);
 
     if (!wallet) {
       wallet = create({ mnemonic: this.#mnemonic, deviceId: this.deviceId });
+      // @ts-ignore
       this.keyring.add(wallet, this.deviceId);
       this.keyring.decorateEvents(this.deviceId, wallet.events);
     }

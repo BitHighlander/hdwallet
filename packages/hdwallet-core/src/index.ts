@@ -12,3 +12,5 @@ export * from "./exceptions";
 export * from "./ripple";
 export * from "./eos";
 export * from "./fio";
+export * from "./bcash";
+export * from "./cardano";
