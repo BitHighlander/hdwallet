@@ -2,11 +2,12 @@ import * as core from "@bithighlander/hdwallet-core";
 
 import { getNetwork } from "./networks";
 import { mnemonicToSeed } from "bip39";
+import { NativeHDWalletBase } from "./native";
 const bip39 = require(`bip39`);
 let { PrivateKey } = require("eosjs-ecc");
 let bitcoin = require("bitcoinjs-lib");
-
 // NOTE: this only works with a compressed public key (33 bytes)
+
 function createEOSAddress(privateKey) {
   try {
     privateKey = PrivateKey.fromBuffer(privateKey);
@@ -50,7 +51,7 @@ export function MixinNativeEosWalletInfo<TBase extends core.Constructor>(Base: T
   };
 }
 
-export function MixinNativeEosWallet<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeEosWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeEosWallet extends Base {
     _supportsEos = true;
     #seed = "";

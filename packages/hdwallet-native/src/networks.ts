@@ -188,6 +188,7 @@ export function getNetwork(coin: string, scriptType?: string): Network {
     case "eos":
     case "cosmos":
     case "binance":
+    case "fio":
       network = networks["bitcoin"];
       break;
     default:

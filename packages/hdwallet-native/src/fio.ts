@@ -1,4 +1,5 @@
 import * as core from "@bithighlander/hdwallet-core";
+import { NativeHDWalletBase } from "./native";
 
 const fio = require("@fioprotocol/fiosdk");
 
@@ -34,7 +35,7 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: T
   };
 }
 
-export function MixinNativeFioWallet<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeFioWallet extends Base {
     _supportsFio = true;
     #seed = "";

@@ -1,4 +1,5 @@
 import * as core from "@bithighlander/hdwallet-core";
+import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeRippleWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeRippleWalletInfo extends Base implements core.RippleWalletInfo {
@@ -32,7 +33,7 @@ export function MixinNativeRippleWalletInfo<TBase extends core.Constructor>(Base
   };
 }
 
-export function MixinNativeRippleWallet<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeRippleWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeRippleWallet extends Base {
     _supportsRipple = true;
     #seed = "";

@@ -1,4 +1,5 @@
 import * as core from "@bithighlander/hdwallet-core";
+import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeBcashWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeBcashWalletInfo extends Base implements core.BcashWalletInfo {
@@ -41,7 +42,7 @@ export function MixinNativeBcashWalletInfo<TBase extends core.Constructor>(Base:
   };
 }
 
-export function MixinNativeBcashWallet<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeBcashWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeBcashWallet extends Base {
     _supportsBcash = true;
     #seed = "";

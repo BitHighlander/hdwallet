@@ -8,6 +8,11 @@ import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
+import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
+import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
+import { MixinNativeBcashWalletInfo, MixinNativeBcashWallet } from "./bcash";
+import { MixinNativeCardanoWalletInfo, MixinNativeCardanoWallet } from "./cardano";
+
 import type { NativeAdapterArgs } from "./adapter";
 
 export enum NativeEvents {
@@ -48,8 +53,16 @@ export class NativeHDWalletBase {
 }
 
 class NativeHDWalletInfo
-  extends MixinNativeBTCWalletInfo(
-    MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(NativeHDWalletBase)))
+  extends MixinNativeBinanceWalletInfo(
+    MixinNativeETHWalletInfo(
+      MixinNativeCosmosWalletInfo(
+        MixinNativeEosWalletInfo(
+          MixinNativeFioWalletInfo(
+            MixinNativeBcashWalletInfo(MixinNativeCardanoWalletInfo(MixinNativeBTCWalletInfo(NativeHDWalletBase)))
+          )
+        )
+      )
+    )
   )
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
@@ -58,6 +71,9 @@ class NativeHDWalletInfo
   _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
+  _supportsFioInfo: boolean = true;
+  _supportsBcashInfo: boolean = true;
+  _supportsCardanoInfo: boolean = true;
 
   getVendor(): string {
     return "Native";
@@ -87,6 +103,7 @@ class NativeHDWalletInfo
     switch (msg.coin.toLowerCase()) {
       case "bitcoin":
       case "bitcoincash":
+      case "bcash":
       case "dash":
       case "digibyte":
       case "dogecoin":
@@ -103,6 +120,12 @@ class NativeHDWalletInfo
       case "atom":
         return core.cosmosDescribePath(msg.path);
       case "binance":
+        return core.binanceDescribePath(msg.path);
+      case "eos":
+        return core.binanceDescribePath(msg.path);
+      case "fio":
+        return core.binanceDescribePath(msg.path);
+      case "cardano":
         return core.binanceDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");

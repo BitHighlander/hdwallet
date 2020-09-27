@@ -1,4 +1,5 @@
 import * as core from "@bithighlander/hdwallet-core";
+import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeCardanoWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeCardanoWalletInfo extends Base implements core.CardanoWalletInfo {
@@ -32,7 +33,7 @@ export function MixinNativeCardanoWalletInfo<TBase extends core.Constructor>(Bas
   };
 }
 
-export function MixinNativeCardanoWallet<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeCardanoWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeCardanoWallet extends Base {
     _supportsCardano = true;
     #seed = "";
