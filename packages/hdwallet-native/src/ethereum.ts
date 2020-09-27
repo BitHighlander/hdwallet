@@ -51,6 +51,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase
       this.#seed = seed;
     }
 
+    ethWipe() {
+      this.#ethWallet = undefined;
+    }
+
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
       const seed = await mnemonicToSeed(this.#seed);
 
@@ -99,11 +103,13 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-      const result = await this.#ethWallet.signMessage(msg.message);
-      return {
-        address: await this.#ethWallet.getAddress(),
-        signature: result,
-      };
+      return this.needsMnemonic(!!this.#ethWallet, async () => {
+        const result = await this.#ethWallet.signMessage(msg.message);
+        return {
+          address: await this.#ethWallet.getAddress(),
+          signature: result,
+        };
+      });
     }
 
     async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {

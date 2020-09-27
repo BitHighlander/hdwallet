@@ -1,8 +1,5 @@
 import { Keyring } from "@bithighlander/hdwallet-core";
-import {
-  SEGMENT_SIZE,
-  KeepKeyTransport,
-} from "@bithighlander/hdwallet-keepkey";
+import { SEGMENT_SIZE, KeepKeyTransport } from "@bithighlander/hdwallet-keepkey";
 import * as ByteBuffer from "bytebuffer";
 import { Device as NodeHIDDevice, HID } from "node-hid";
 import { VENDOR_ID, PRODUCT_ID } from "./utils";
