@@ -1,5 +1,5 @@
-import { create as createLedger } from "@shapeshiftoss/hdwallet-ledger";
-import { Events, Keyring, HDWallet } from "@shapeshiftoss/hdwallet-core";
+import { create as createLedger } from "@bithighlander/hdwallet-ledger";
+import { Events, Keyring, HDWallet } from "@bithighlander/hdwallet-core";
 import { LedgerU2FTransport } from "./transport";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 
@@ -42,15 +42,10 @@ export class U2FLedgerAdapter {
 
       const ledgerTransport = await TransportU2F.open();
 
-      const wallet = createLedger(
-        new LedgerU2FTransport(device, ledgerTransport, this.keyring)
-      );
+      const wallet = createLedger(new LedgerU2FTransport(device, ledgerTransport, this.keyring));
 
       this.keyring.add(wallet, device.deviceID);
-      this.keyring.emit(
-        ["Ledger", device.deviceID, Events.CONNECT],
-        device.deviceID
-      );
+      this.keyring.emit(["Ledger", device.deviceID, Events.CONNECT], device.deviceID);
     }
 
     return Object.keys(this.keyring.wallets).length;

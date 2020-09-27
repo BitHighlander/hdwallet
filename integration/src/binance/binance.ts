@@ -1,6 +1,6 @@
-import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance } from "@shapeshiftoss/hdwallet-core";
-import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance } from "@bithighlander/hdwallet-core";
+import { isKeepKey } from "@bithighlander/hdwallet-keepkey";
+import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
 import tx02_unsigned from "./tx02.mainnet.unsigned.json";
 import tx02_signed from "./tx02.mainnet.signed.json";

@@ -1,4 +1,4 @@
-import { Transport, Keyring } from "@shapeshiftoss/hdwallet-core";
+import { Transport, Keyring } from "@bithighlander/hdwallet-core";
 
 export interface TrezorConnectResponse {
   success: boolean;
@@ -16,9 +16,5 @@ export abstract class TrezorTransport extends Transport {
 
   public abstract async cancel(): Promise<void>;
 
-  public abstract async call(
-    method: string,
-    msg: any,
-    msTimeout?: number
-  ): Promise<TrezorConnectResponse>;
+  public abstract async call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse>;
 }

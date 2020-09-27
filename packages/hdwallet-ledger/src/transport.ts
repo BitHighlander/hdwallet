@@ -1,4 +1,4 @@
-import { Coin, Transport, Keyring } from "@shapeshiftoss/hdwallet-core";
+import { Coin, Transport, Keyring } from "@bithighlander/hdwallet-core";
 
 export interface LedgerResponse {
   success: boolean;
@@ -15,9 +15,5 @@ export abstract class LedgerTransport extends Transport {
     this.transport = transport;
   }
 
-  public abstract async call(
-    coin: string,
-    method: string,
-    ...args: any[]
-  ): Promise<LedgerResponse>;
+  public abstract async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse>;
 }
