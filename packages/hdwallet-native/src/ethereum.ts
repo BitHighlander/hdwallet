@@ -5,6 +5,7 @@ import { getNetwork } from "./networks";
 import * as bitcoin from "bitcoinjs-lib";
 const txBuilder = require("ethereumjs-tx").Transaction;
 const ethUtils = require("ethereumjs-util");
+import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
@@ -41,7 +42,7 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: T
   };
 }
 
-export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeETHWallet extends Base {
     _supportsETH = true;
     #seed = "";
@@ -68,38 +69,40 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      const seed = await mnemonicToSeed(this.#seed);
+      return this.needsMnemonic(!!this.#ethWallet, async () => {
+        const seed = await mnemonicToSeed(this.#seed);
 
-      const network = getNetwork("ethereum");
-      const mkey = bitcoin.bip32.fromSeed(seed, network);
-      const path = core.addressNListToBIP32(msg.addressNList);
+        const network = getNetwork("ethereum");
+        const mkey = bitcoin.bip32.fromSeed(seed, network);
+        const path = core.addressNListToBIP32(msg.addressNList);
 
-      let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
-      let privateKey = keypair.privateKey;
+        let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
+        let privateKey = keypair.privateKey;
 
-      let txTemplate = {
-        nonce: msg.nonce,
-        to: msg.to,
-        gasPrice: msg.gasPrice,
-        gasLimit: msg.gasLimit,
-        value: msg.value,
-        data: msg.data,
-      };
+        let txTemplate = {
+          nonce: msg.nonce,
+          to: msg.to,
+          gasPrice: msg.gasPrice,
+          gasLimit: msg.gasLimit,
+          value: msg.value,
+          data: msg.data,
+        };
 
-      let transaction = new txBuilder(txTemplate);
-      transaction.sign(privateKey);
+        let transaction = new txBuilder(txTemplate);
+        transaction.sign(privateKey);
 
-      const txid = "0x" + transaction.hash().toString("hex");
-      let serialized = transaction.serialize();
-      serialized = "0x" + serialized.toString("hex");
+        const txid = "0x" + transaction.hash().toString("hex");
+        let serialized = transaction.serialize();
+        serialized = "0x" + serialized.toString("hex");
 
-      return {
-        v: transaction.v.toString("hex"),
-        r: transaction.r.toString("hex"),
-        s: transaction.s.toString("hex"),
-        txid,
-        serialized: serialized,
-      };
+        return {
+          v: transaction.v.toString("hex"),
+          r: transaction.r.toString("hex"),
+          s: transaction.s.toString("hex"),
+          txid,
+          serialized: serialized,
+        };
+      });
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
