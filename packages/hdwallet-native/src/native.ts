@@ -134,8 +134,16 @@ class NativeHDWalletInfo
 }
 
 export class NativeHDWallet
-  extends MixinNativeBTCWallet(
-    MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo)))
+  extends MixinNativeBinanceWallet(
+    MixinNativeETHWallet(
+      MixinNativeCosmosWallet(
+        MixinNativeEosWallet(
+          MixinNativeFioWallet(
+            MixinNativeBcashWallet(MixinNativeCardanoWallet(MixinNativeBTCWallet(NativeHDWalletInfo)))
+          )
+        )
+      )
+    )
   )
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
   _supportsBTC = true;
@@ -144,6 +152,9 @@ export class NativeHDWallet
   _supportsBinance = true;
   _supportsRipple = false;
   _supportsEos = false;
+  _supportsFio = true;
+  _supportsCardano = true;
+  _supportsBcash = true;
   _supportsDebugLink = false;
   _isNative = true;
 
