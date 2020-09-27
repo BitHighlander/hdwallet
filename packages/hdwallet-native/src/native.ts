@@ -4,15 +4,18 @@ import { fromSeed } from "bip32";
 import { isObject } from "lodash";
 import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
-import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
+import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
+import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
 
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
     MixinNativeETHWalletInfo(
-      MixinNativeBinanceWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeEosWalletInfo(class Base {})))
+      MixinNativeBinanceWalletInfo(
+        MixinNativeCosmosWalletInfo(MixinNativeEosWalletInfo(MixinNativeFioWalletInfo(class Base {})))
+      )
     )
   )
   implements core.HDWalletInfo {
@@ -20,8 +23,9 @@ class NativeHDWalletInfo
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
-  _supportsEosInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
+  _supportsEosInfo: boolean = false;
+  _supportsFioInfo: boolean = false;
 
   getVendor(): string {
     return "Native";
@@ -62,14 +66,12 @@ class NativeHDWalletInfo
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
         return core.describeETHPath(msg.path);
-      case "eos":
-        //TODO
-        return core.describeETHPath(msg.path);
+      //TODO below wrong
       case "cosmos":
-        //TODO
         return core.describeETHPath(msg.path);
       case "binance":
-        //TODO
+        return core.describeETHPath(msg.path);
+      case "eos":
         return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
@@ -79,15 +81,17 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeETHWallet(MixinNativeBinanceWallet(MixinNativeCosmosWallet(MixinNativeEosWallet(NativeHDWalletInfo))))
+    MixinNativeETHWallet(
+      MixinNativeBinanceWallet(MixinNativeCosmosWallet(MixinNativeFioWallet(MixinNativeEosWallet(NativeHDWalletInfo))))
+    )
   )
-  implements core.HDWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
   _supportsBinance = true;
-  _supportsEos = true;
   _supportsRipple = false;
+  _supportsEos = false;
   _supportsDebugLink = false;
   _isNative = true;
 
@@ -185,6 +189,11 @@ export class NativeHDWallet
           scriptType: msg.scriptType,
         };
         return super.ethGetAddress(inputETH);
+      case "fio":
+        let inputFIO: core.FioAccountPath = {
+          addressNList: msg.path,
+        };
+        return super.fioGetAddress(inputFIO);
       case "eos":
         let inputEOS: core.EosAccountPath = {
           addressNList: msg.path,
@@ -217,11 +226,12 @@ export class NativeHDWallet
 
   async initialize(): Promise<any> {
     const seed = await mnemonicToSeed(this.#mnemonic);
+
+    await super.btcInitializeWallet(seed);
+    super.ethInitializeWallet(this.#mnemonic);
+    super.cosmosInitializeWallet(this.#mnemonic);
     super.binanceInitializeWallet(this.#mnemonic);
     super.eosInitializeWallet(this.#mnemonic);
-    super.cosmosInitializeWallet(this.#mnemonic);
-    super.ethInitializeWallet("0x" + seed.toString("hex"));
-    await super.btcInitializeWallet(seed);
     this.#initialized = true;
   }
 
