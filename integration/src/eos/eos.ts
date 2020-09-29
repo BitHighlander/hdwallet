@@ -1,10 +1,10 @@
 import { EosPublicKeyKind } from "@keepkey/device-protocol/lib/messages-eos_pb";
 
-import { bip32ToAddressNList, HDWallet, EosWallet, supportsEos, EosTx } from "@shapeshiftoss/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, EosWallet, supportsEos, EosTx } from "@bithighlander/hdwallet-core";
 
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
-import { toHexString } from "@shapeshiftoss/hdwallet-core";
+import { toHexString } from "@bithighlander/hdwallet-core";
 
 import * as tx01_unsigned from "./tx01.unsigned.json";
 import * as tx02_unsigned from "./tx02.unsigned.json";

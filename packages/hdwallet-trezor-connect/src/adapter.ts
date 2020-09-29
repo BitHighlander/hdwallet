@@ -1,5 +1,5 @@
-import { Keyring, HDWallet, Events, PopupClosedError } from "@shapeshiftoss/hdwallet-core";
-import { create as createTrezor, TrezorHDWallet } from "@shapeshiftoss/hdwallet-trezor";
+import { Keyring, HDWallet, Events, PopupClosedError } from "@bithighlander/hdwallet-core";
+import { create as createTrezor, TrezorHDWallet } from "@bithighlander/hdwallet-trezor";
 import { TrezorConnectTransport, POPUP, TrezorDevice } from "./transport";
 
 import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI_EVENT, UI } from "trezor-connect";

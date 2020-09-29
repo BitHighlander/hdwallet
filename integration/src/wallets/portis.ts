@@ -1,5 +1,5 @@
-import { HDWallet, ETHWallet, supportsETH, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
-import { PortisAdapter, PortisHDWallet, isPortis, info, create } from "@shapeshiftoss/hdwallet-portis";
+import { HDWallet, ETHWallet, supportsETH, HDWalletInfo } from "@bithighlander/hdwallet-core";
+import { PortisAdapter, PortisHDWallet, isPortis, info, create } from "@bithighlander/hdwallet-portis";
 
 export function name(): string {
   return "Portis";

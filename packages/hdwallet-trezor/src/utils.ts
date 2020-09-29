@@ -1,4 +1,4 @@
-import { ActionCancelled, DeviceDisconnected, PopupClosedError } from "@shapeshiftoss/hdwallet-core";
+import { ActionCancelled, DeviceDisconnected, PopupClosedError } from "@bithighlander/hdwallet-core";
 
 import { TrezorTransport } from "./transport";
 

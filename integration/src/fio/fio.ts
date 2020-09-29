@@ -1,6 +1,6 @@
-import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@shapeshiftoss/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@bithighlander/hdwallet-core";
 
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
 import * as tx01_unsigned from "./tx01.unsigned.json";
 import * as tx02_signed from "./tx02.signed.json";

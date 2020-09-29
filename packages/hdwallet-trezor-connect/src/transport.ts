@@ -1,5 +1,5 @@
-import { Events, makeEvent, Keyring, HDWalletErrorType, ActionCancelled } from "@shapeshiftoss/hdwallet-core";
-import { TrezorHDWallet, TrezorTransport, TrezorConnectResponse } from "@shapeshiftoss/hdwallet-trezor";
+import { Events, makeEvent, Keyring, HDWalletErrorType, ActionCancelled } from "@bithighlander/hdwallet-core";
+import { TrezorHDWallet, TrezorTransport, TrezorConnectResponse } from "@bithighlander/hdwallet-trezor";
 import TrezorConnect, { DEVICE_EVENT, UI_EVENT } from "trezor-connect";
 
 export const POPUP = true;
