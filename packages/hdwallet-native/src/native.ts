@@ -303,6 +303,7 @@ export class NativeHDWallet
         await super.ethInitializeWallet(this.#mnemonic);
         await super.cosmosInitializeWallet(this.#mnemonic);
         await super.binanceInitializeWallet(this.#mnemonic);
+        await super.fioInitializeWallet(this.#mnemonic);
 
         this.#initialized = true;
       } catch (e) {

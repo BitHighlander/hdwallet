@@ -57,6 +57,11 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       });
     }
 
+    async fioGetPublicKey(msg: core.FioGetAddress): Promise<string> {
+      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+      return sdk.getFioPublicKey();
+    }
+
     async fioGetAddress(msg: core.FioGetAddress): Promise<string> {
       const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
       return sdk.getFioPublicKey();

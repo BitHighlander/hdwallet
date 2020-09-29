@@ -22,6 +22,7 @@
     "bnb-javascript-sdk-nobroadcast": "^2.16.7",
     "cosmos-tx-builder": "^6.3.4",
     "crypto-js": "^3.1.9-1",
+    "eosjs-ecc": "^4.0.7",
     "ethereum-tx-decoder": "^3.0.0",
     "ethers": "^5.0.2",
     "fiosdk-offline": "^1.1.7",
