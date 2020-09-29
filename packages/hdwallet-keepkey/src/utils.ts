@@ -1,4 +1,4 @@
-import { BTCInputScriptType, BTCOutputScriptType } from "@bithighlander/hdwallet-core";
+import { BTCInputScriptType, BTCOutputScriptType } from "@shapeshiftoss/hdwallet-core";
 
 import { InputScriptType, OutputScriptType } from "@keepkey/device-protocol/lib/types_pb";
 

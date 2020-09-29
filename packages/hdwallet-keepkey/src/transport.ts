@@ -12,7 +12,7 @@ import {
   Keyring,
   ActionCancelled,
   HDWalletErrorType,
-} from "@bithighlander/hdwallet-core";
+} from "@shapeshiftoss/hdwallet-core";
 import { MessageType, ButtonAck, Cancel, EntropyAck, Failure } from "@keepkey/device-protocol/lib/messages_pb";
 import { FailureType } from "@keepkey/device-protocol/lib/types_pb";
 
