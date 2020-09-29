@@ -1,7 +1,11 @@
 import * as core from "@bithighlander/hdwallet-core";
+import * as fio from "fiosdk-offline";
+import fetch, { RequestInfo, RequestInit } from "node-fetch";
 import { NativeHDWalletBase } from "./native";
 
-const fio = require("@fioprotocol/fiosdk");
+const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
+  return fetch(uri, opts);
+};
 
 export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeFioWalletInfo extends Base implements core.FioWalletInfo {
@@ -19,7 +23,7 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: T
       return false;
     }
 
-    fioGetAccountPaths(msg: any): Array<core.FioAccountPath> {
+    fioGetAccountPaths(msg: core.FioGetAccountPaths): Array<core.FioAccountPath> {
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + 235, 0x80000000 + msg.accountIdx, 0, 0],
@@ -38,31 +42,39 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: T
 export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeFioWallet extends Base {
     _supportsFio = true;
-    #seed = "";
+    baseUrl = "https://fio.eu.eosamsterdam.net/v1/";
+    #mnemonic: string;
 
-    fioInitializeWallet(seed: string): void {
-      this.#seed = seed;
+    async fioInitializeWallet(mnemonic: string): Promise<void> {
+      this.#mnemonic = mnemonic;
     }
 
-    async fioGetAddress(msg: any): Promise<string> {
-      const privateKeyRes = await fio.FIOSDK.createPrivateKeyMnemonic(this.#seed);
-      const publicKeyRes = fio.FIOSDK.derivedPublicKey(privateKeyRes.fioKey);
-      return publicKeyRes.publicKey;
+    async getFioSdk(path: string): Promise<fio.FIOSDK> {
+      return this.needsMnemonic(!!this.#mnemonic, async () => {
+        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(this.#mnemonic, path);
+        const { publicKey } = fio.FIOSDK.derivedPublicKey(privateKey);
+        return new fio.FIOSDK(privateKey, publicKey, this.baseUrl, fetchJson);
+      });
     }
 
-    async fioGetPublicKey(msg: any): Promise<string> {
-      const privateKeyRes = await fio.FIOSDK.createPrivateKeyMnemonic(this.#seed);
-      const publicKeyRes = fio.FIOSDK.derivedPublicKey(privateKeyRes.fioKey);
-      return publicKeyRes.publicKey;
+    async fioGetAddress(msg: core.FioGetAddress): Promise<string> {
+      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+      return sdk.getFioPublicKey();
     }
 
-    async fioSignTx(msg: any): Promise<any> {
-      let sig = {
-        serialized: "",
-        fioFormSig: "",
+    async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx> {
+      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+
+      const account = msg.actions[0].account;
+      const action = msg.actions[0].name;
+      const data = msg.actions[0].data;
+
+      const res = await sdk.prepareTransaction(account, action, data);
+
+      return {
+        serialized: res.packed_trx,
+        signature: res.signatures[0],
       };
-
-      return sig;
     }
   };
 }
