@@ -2,9 +2,21 @@ import * as core from "@bithighlander/hdwallet-core";
 import * as fio from "fiosdk-offline";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 import { NativeHDWalletBase } from "./native";
+import { Fio as fiojs, Ecc as fioecc } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
+import { TextDecoder as TextDecoderNode, TextEncoder as TextEncoderNode } from "util";
+import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "text-encoding";
+
+const REQUEST_CONTENT_TYPE = "new_funds_content";
 
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
+};
+
+const getTextEncoderDecoder = () => {
+  return {
+    textDecoder: typeof window === "undefined" ? new TextDecoderNode() : new TextDecoderWeb(),
+    textEncoder: typeof window === "undefined" ? new TextEncoderNode() : new TextEncoderWeb(),
+  };
 };
 
 export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: TBase) {
@@ -75,6 +87,42 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
         serialized: res.packed_trx,
         signature: res.signatures[0],
       };
+    }
+
+    async fioEncryptRequestContent(msg: core.FioRequestContent): Promise<string> {
+      const { textEncoder, textDecoder } = getTextEncoderDecoder();
+
+      return this.needsMnemonic(!!this.#mnemonic, async () => {
+        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(
+          this.#mnemonic,
+          core.addressNListToBIP32(msg.addressNList)
+        );
+        const sharedCipher = fiojs.createSharedCipher({
+          privateKey,
+          publicKey: msg.publicKey,
+          textEncoder,
+          textDecoder,
+        });
+        return sharedCipher.encrypt(REQUEST_CONTENT_TYPE, msg.content);
+      });
+    }
+
+    async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<string> {
+      const { textEncoder, textDecoder } = getTextEncoderDecoder();
+
+      return this.needsMnemonic(!!this.#mnemonic, async () => {
+        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(
+          this.#mnemonic,
+          core.addressNListToBIP32(msg.addressNList)
+        );
+        const sharedCipher = fiojs.createSharedCipher({
+          privateKey,
+          publicKey: msg.publicKey,
+          textEncoder,
+          textDecoder,
+        });
+        return sharedCipher.decrypt(REQUEST_CONTENT_TYPE, msg.content);
+      });
     }
   };
 }
