@@ -1,3 +1,4 @@
+import { FioActionParameters } from "fiosdk-offline";
 import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@bithighlander/hdwallet-core";
 
 import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
@@ -54,22 +55,76 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     );
 
     test(
-      "fioSignTx()",
+      "fioSignTransferTokenTx()",
       async () => {
         if (!wallet) return;
-
+        const data: FioActionParameters.FioTransferTokensPubKeyActionData = {
+          payee_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
+          amount: "1000000000",
+          max_fee: 800000000000,
+          tpid: "",
+        };
         const res = await wallet.fioSignTx({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           actions: [
             {
-              account: "fio.token",
-              name: "trnsfiopubky",
-              data: {
-                payee_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
-                amount: "1000000000",
-                max_fee: 800000000000,
-                tpid: "",
-              },
+              account: FioActionParameters.FioTransferTokensPubKeyActionAccount,
+              name: FioActionParameters.FioTransferTokensPubKeyActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    test(
+      "fioSignRegisterAddressTx()",
+      async () => {
+        if (!wallet) return;
+        const data: FioActionParameters.FioRegisterFioAddressActionData = {
+          fio_address: "skitter@scatter",
+          owner_fio_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
+          max_fee: 800000000000,
+          tpid: "",
+        };
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioRegisterFioAddressActionAccount,
+              name: FioActionParameters.FioRegisterFioAddressActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    test(
+      "fioSignRegisterDomainTx()",
+      async () => {
+        if (!wallet) return;
+        const data: FioActionParameters.FioRegisterFioDomainActionData = {
+          fio_domain: "fox",
+          owner_fio_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
+          max_fee: 800000000000,
+          tpid: "",
+        };
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioRegisterFioDomainActionAccount,
+              name: FioActionParameters.FioRegisterFioDomainActionName,
+              data,
             },
           ],
         });

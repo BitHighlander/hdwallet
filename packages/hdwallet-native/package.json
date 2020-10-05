@@ -25,8 +25,9 @@
     "eosjs-ecc": "^4.0.7",
     "ethereum-tx-decoder": "^3.0.0",
     "ethers": "^5.0.2",
-    "fiosdk-offline": "^1.1.7",
-    "lodash": "^4.17.15"
+    "fiosdk-offline": "^1.2.14",
+    "lodash": "^4.17.15",
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
     "@types/bchaddrjs": "^0.4.0",
