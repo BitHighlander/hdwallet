@@ -5,7 +5,7 @@ import { NativeHDWalletBase } from "./native";
 import { Fio as fiojs, Ecc as fioecc } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
 import { TextDecoder as TextDecoderNode, TextEncoder as TextEncoderNode } from "util";
 import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "text-encoding";
-import { Fio } from "@shapeshiftoss/hdwallet-core";
+import { Fio } from "@bithighlander/hdwallet-core";
 
 const REQUEST_CONTENT_TYPE = "new_funds_content";
 

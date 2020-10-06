@@ -1,4 +1,4 @@
-import { addressNListToBIP32, BTCInputScriptType, BTCOutputScriptType } from "@shapeshiftoss/hdwallet-core";
+import { addressNListToBIP32, BTCInputScriptType, BTCOutputScriptType } from "@bithighlander/hdwallet-core";
 import * as bitcoin from "bitcoinjs-lib";
 import { BIP32Interface } from "bitcoinjs-lib";
 import { getNetwork } from "./networks";
