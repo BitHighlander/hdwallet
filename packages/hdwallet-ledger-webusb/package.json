@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-ledger-webusb",
-  "version": "2.0.1-alpha.0",
+  "version": "2.0.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bithighlander/hdwallet-core": "^2.0.1-alpha.0",
-    "@bithighlander/hdwallet-ledger": "^2.0.1-alpha.0",
+    "@bithighlander/hdwallet-core": "^2.0.1",
+    "@bithighlander/hdwallet-ledger": "^2.0.1",
     "@ledgerhq/hw-app-btc": "^4.73.4",
     "@ledgerhq/hw-app-eth": "^4.73.4",
     "@ledgerhq/hw-transport": "^4.73.4",
