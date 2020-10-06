@@ -6814,7 +6814,7 @@ find-versions@^3.2.0:
   dependencies:
     semver-regex "^2.0.0"
 
-fiosdk-offline@^1.1.7:
+fiosdk-offline@^1.2.14:
   version "1.2.20"
   resolved "https://registry.yarnpkg.com/fiosdk-offline/-/fiosdk-offline-1.2.20.tgz#492647b5dd8feb52037e5da95363fe4cfb835839"
   integrity sha512-mt/I5Z2u2Wixwl4mnW+vpARFy3iXRsbIFBe07m3IUXX7VZmv61QyZt/7m8OG5byUVD+hrEArhOpCUQAD7vb8Bw==
@@ -13064,7 +13064,7 @@ test-exclude@^5.2.3:
     read-pkg-up "^4.0.0"
     require-main-filename "^2.0.0"
 
-text-encoding@0.7.0:
+text-encoding@0.7.0, text-encoding@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/text-encoding/-/text-encoding-0.7.0.tgz#f895e836e45990624086601798ea98e8f36ee643"
   integrity sha512-oJQ3f1hrOnbRLOcwKz0Liq2IcrvDeZRHXhd9RgLrsT+DjWY/nty1Hi7v3dtkaEYbPYe0mUoOfzRrMwfXXwgPUA==
