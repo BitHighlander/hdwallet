@@ -2,7 +2,7 @@ import * as core from "@bithighlander/hdwallet-core";
 import * as fio from "fiosdk-offline";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 import { NativeHDWalletBase } from "./native";
-import { Fio as fiojs, Ecc as fioecc } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
+import { Fio as fiojs } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
 import { TextDecoder as TextDecoderNode, TextEncoder as TextEncoderNode } from "util";
 import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "text-encoding";
 import { Fio } from "@bithighlander/hdwallet-core";
@@ -70,11 +70,6 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       });
     }
 
-    async fioGetPublicKey(msg: core.FioGetAddress): Promise<string> {
-      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
-      return sdk.getFioPublicKey();
-    }
-
     async fioGetAddress(msg: core.FioGetAddress): Promise<string> {
       const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
       return sdk.getFioPublicKey();
@@ -109,7 +104,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
           textEncoder,
           textDecoder,
         });
-        return sharedCipher.encrypt(REQUEST_CONTENT_TYPE, msg.content);
+        return sharedCipher.encrypt(msg.contentType, msg.content);
       });
     }
 
@@ -127,7 +122,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
           textEncoder,
           textDecoder,
         });
-        return sharedCipher.decrypt(REQUEST_CONTENT_TYPE, JSON.stringify(msg.content));
+        return sharedCipher.decrypt(msg.contentType, JSON.stringify(msg.content));
       });
     }
   };

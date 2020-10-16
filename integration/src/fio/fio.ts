@@ -1,4 +1,4 @@
-import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@bithighlander/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio, FioEncryptionContentType } from "@bithighlander/hdwallet-core";
 import { FioActionParameters, PublicAddress } from "fiosdk-offline";
 
 import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
@@ -40,6 +40,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       });
     }, TIMEOUT);
 
+    /*
+      Get FIO Address
+
+     */
     test(
       "fioGetAddress()",
       async () => {
@@ -54,6 +58,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Transfer FIO tokens
+
+     */
     test(
       "fioSignTransferTokenTx()",
       async () => {
@@ -81,6 +89,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Add pubkey to FIO account
+
+     */
     test(
       "fioSignAddPubAddressTx()",
       async () => {
@@ -115,6 +127,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Register FIO address
+
+     */
     test(
       "fioSignRegisterFioAddressTx()",
       async () => {
@@ -142,12 +158,15 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Create payment request
+
+     */
     test(
       "fioSignNewFundsRequestTx()",
       async () => {
         if (!wallet) return;
 
-        //TODO import content interface
         const originalContent: FioActionParameters.FioRequestContent = {
           payee_public_address: "test@shapeshift",
           amount: "1",
@@ -161,15 +180,13 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
         const encryptedContent: string = await wallet.fioEncryptRequestContent({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
-          publicKey: await wallet.fioGetAddress({
-            addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
-            showDisplay: false,
-          }),
+          publicKey: "FIO6Lxx7BTA8zbgPuqn4QidNNdTCHisXU7RpxJxLwxAka7NV7SoBW",
+          contentType: FioEncryptionContentType.REQUEST
         });
 
         const data: FioActionParameters.FioNewFundsRequestActionData = {
-          payer_fio_address: "test@shapeshift",
-          payee_fio_address: "highlander@scatter",
+          payer_fio_address: "highlander@scatter",
+          payee_fio_address: "test@shapeshift",
           content: encryptedContent,
           max_fee: 800000000000,
           tpid: "",
@@ -192,6 +209,91 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Accept payment request
+
+     */
+    test(
+      "fioRecordObtDataTx()",
+      async () => {
+        if (!wallet) return;
+
+        let content: FioActionParameters.FioObtDataContent = {
+          payee_public_address: "test@shapeshift",
+          payer_public_address: "highlander@scatter",
+          amount: "1",
+          chain_code: "FIO",
+          token_code: "FIO",
+          memo: "memo",
+          hash: "hash",
+          status: "",
+          obt_id: "",
+          offline_url: "offline_url",
+        };
+
+        const data: FioActionParameters.FioRecordObtDataActionData = {
+          payee_fio_address: "test@shapeshift",
+          payer_fio_address: "highlander@scatter",
+          content: content,
+          fio_request_id: "17501",
+          max_fee: 800000000000,
+          tpid: "",
+          actor: "",
+        };
+
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioNewFundsRequestActionAccount,
+              name: FioActionParameters.FioNewFundsRequestActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    /*
+      Reject payment request
+
+     */
+    test(
+      "fioRejectFundsRequestTx()",
+      async () => {
+        if (!wallet) return;
+
+        const data: FioActionParameters.FioRejectFundsRequestActionData = {
+          fio_request_id: "17501",
+          max_fee: 800000000000,
+          tpid: "",
+        };
+
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioRejectFundsRequestActionAccount,
+              name: FioActionParameters.FioRejectFundsRequestActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    /*
+      Register FIO domain
+
+     */
     test(
       "fioSignRegisterDomainTx()",
       async () => {
@@ -219,6 +321,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Encrypt/decrypt request content object
+
+     */
     test(
       "fioEncryptDecryptRequestContent()",
       async () => {
@@ -246,11 +352,56 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
           publicKey: wallet2Pk,
+          contentType: FioEncryptionContentType.REQUEST
         });
         const decryptedContent = await wallet2.fioDecryptRequestContent({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: encryptedContent,
           publicKey: walletPk,
+          contentType: FioEncryptionContentType.REQUEST
+        });
+        expect(originalContent).toEqual(decryptedContent);
+      },
+      TIMEOUT
+    )
+
+    test(
+      "fioEncryptDecryptObtContent()",
+      async () => {
+        if (!wallet) return;
+        if (!wallet2) return;
+        const originalContent: FioActionParameters.FioObtDataContent = {
+          payee_public_address: "purse.alice",
+          payer_public_address: "purse.bob",
+          amount: "1",
+          chain_code: "FIO",
+          token_code: "FIO",
+          status: "status",
+          obt_id: "0x12345",
+          memo: "memo",
+          hash: "hash",
+          offline_url: "offline_url",
+        };
+        const walletPk = await wallet.fioGetAddress({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          showDisplay: false,
+        });
+        const wallet2Pk = await wallet2.fioGetAddress({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          showDisplay: false,
+        });
+
+        const encryptedContent = await wallet.fioEncryptRequestContent({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          content: originalContent,
+          publicKey: wallet2Pk,
+          contentType: FioEncryptionContentType.OBT
+        });
+        const decryptedContent = await wallet2.fioDecryptRequestContent({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          content: encryptedContent,
+          publicKey: walletPk,
+          contentType: FioEncryptionContentType.OBT
         });
         expect(originalContent).toEqual(decryptedContent);
       },
