@@ -3,7 +3,7 @@ import { Wallet, utils } from "ethers";
 import { mnemonicToSeed } from "bip39";
 import { getNetwork } from "./networks";
 import * as bitcoin from "bitcoinjs-lib";
-const txBuilder = require("ethereumjs-tx").Transaction;
+const txBuilder = require("ethereumjs-tx");
 const ethUtils = require("ethereumjs-util");
 import { NativeHDWalletBase } from "./native";
 
