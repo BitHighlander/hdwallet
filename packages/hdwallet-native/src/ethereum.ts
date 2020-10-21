@@ -1,4 +1,5 @@
-import * as core from "@bithighlander/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import { mnemonicToSeed } from "bip39";
 import { Wallet, utils } from "ethers";
 import { mnemonicToSeed } from "bip39";
 import { getNetwork } from "./networks";
@@ -48,8 +49,9 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     #seed = "";
     #ethWallet: Wallet;
 
-    ethInitializeWallet(seed: string): void {
-      this.#seed = seed;
+    async ethInitializeWallet(mnemonic: string): Promise<void> {
+      const seed = `0x${(await mnemonicToSeed(mnemonic)).toString("hex")}`;
+      this.#ethWallet = new Wallet(HDNode.fromSeed(seed).derivePath(defaultPath));
     }
 
     ethWipe() {

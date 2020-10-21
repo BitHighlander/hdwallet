@@ -8,6 +8,7 @@ import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "te
 import { Fio } from "@bithighlander/hdwallet-core";
 
 const REQUEST_CONTENT_TYPE = "new_funds_content";
+import wif from "wif";
 
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
@@ -19,6 +20,15 @@ const getTextEncoderDecoder = () => {
     textEncoder: typeof window === "undefined" ? new TextEncoderNode() : new TextEncoderWeb(),
   };
 };
+
+function getKeyPair(seed: BIP32Interface, addressNList: number[]) {
+  const path = addressNListToBIP32(addressNList);
+  const key = seed.derivePath(path).privateKey;
+  const privateKey = wif.encode(128, key, false);
+  const { publicKey } = fio.FIOSDK.derivedPublicKey(privateKey);
+
+  return { privateKey, publicKey };
+}
 
 export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeFioWalletInfo extends Base implements core.FioWalletInfo {
@@ -56,27 +66,26 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeFioWallet extends Base {
     _supportsFio = true;
     baseUrl = "https://fio.eu.eosamsterdam.net/v1/";
-    #mnemonic: string;
+    #wallet: BIP32Interface;
 
-    async fioInitializeWallet(mnemonic: string): Promise<void> {
-      this.#mnemonic = mnemonic;
+    async fioInitializeWallet(seed: Buffer): Promise<void> {
+      this.#wallet = bitcoin.bip32.fromSeed(seed);
     }
 
-    async getFioSdk(path: string): Promise<fio.FIOSDK> {
-      return this.needsMnemonic(!!this.#mnemonic, async () => {
-        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(this.#mnemonic, path);
-        const { publicKey } = fio.FIOSDK.derivedPublicKey(privateKey);
+    async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK> {
+      return this.needsMnemonic(!!this.#wallet, async () => {
+        const { privateKey, publicKey } = getKeyPair(this.#wallet, addressNList);
         return new fio.FIOSDK(privateKey, publicKey, this.baseUrl, fetchJson);
       });
     }
 
     async fioGetAddress(msg: core.FioGetAddress): Promise<string> {
-      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+      const sdk = await this.getFioSdk(msg.addressNList);
       return sdk.getFioPublicKey();
     }
 
     async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx> {
-      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+      const sdk = await this.getFioSdk(msg.addressNList);
 
       const account: fio.FioActionParameters.FioActionAccount = msg.actions[0].account;
       const action: fio.FioActionParameters.FioActionName = msg.actions[0].name;
@@ -93,11 +102,8 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     async fioEncryptRequestContent(msg: core.FioRequestContent): Promise<string> {
       const { textEncoder, textDecoder } = getTextEncoderDecoder();
 
-      return this.needsMnemonic(!!this.#mnemonic, async () => {
-        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(
-          this.#mnemonic,
-          core.addressNListToBIP32(msg.addressNList)
-        );
+      return this.needsMnemonic(!!this.#wallet, async () => {
+        const { privateKey } = getKeyPair(this.#wallet, msg.addressNList);
         const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
@@ -111,11 +117,8 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<any> {
       const { textEncoder, textDecoder } = getTextEncoderDecoder();
 
-      return this.needsMnemonic(!!this.#mnemonic, async () => {
-        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(
-          this.#mnemonic,
-          core.addressNListToBIP32(msg.addressNList)
-        );
+      return this.needsMnemonic(!!this.#wallet, async () => {
+        const { privateKey } = getKeyPair(this.#wallet, msg.addressNList);
         const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,

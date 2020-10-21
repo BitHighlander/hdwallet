@@ -43,6 +43,7 @@
       "@bithighlander/hdwallet-portis": ["hdwallet-portis/src/*"],
       "@bithighlander/hdwallet-trezor": ["hdwallet-trezor/src/*"],
       "@bithighlander/hdwallet-trezor-connect": ["hdwallet-trezor-connect/src/*"]
+      "@shapeshiftoss/*": ["$1/src/*"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -54,6 +55,7 @@
   "files": [],
   "exclude": ["node_modules", "dist", "integration", "examples"],
   "references": [
+    { "path": "./integration" },
     { "path": "./packages/hdwallet-core" },
     { "path": "./packages/hdwallet-keepkey" },
     { "path": "./packages/hdwallet-keepkey-chromeusb" },
