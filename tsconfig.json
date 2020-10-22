@@ -29,21 +29,7 @@
     "resolveJsonModule": true,
     "baseUrl": "./packages",
     "paths": {
-      "@bithighlander/hdwallet-core": ["hdwallet-core/src/*"],
-      "@bithighlander/hdwallet-keepkey": ["hdwallet-keepkey/src/*"],
-      "@bithighlander/hdwallet-keepkey-chromeusb": ["hdwallet-keepkey-chromeusb/src/*"],
-      "@bithighlander/hdwallet-keepkey-nodehid": ["hdwallet-keepkey-nodehid/src/*"],
-      "@bithighlander/hdwallet-keepkey-nodewebusb": ["hdwallet-keepkey-nodewebusb/src/*"],
-      "@bithighlander/hdwallet-keepkey-tcp": ["hdwallet-keepkey-tcp/src/*"],
-      "@bithighlander/hdwallet-keepkey-webusb": ["hdwallet-keepkey-webusb/src/*"],
-      "@bithighlander/hdwallet-ledger": ["hdwallet-ledger/src/*"],
-      "@bithighlander/hdwallet-ledger-u2f": ["hdwallet-ledger-u2f/src/*"],
-      "@bithighlander/hdwallet-ledger-webusb": ["hdwallet-ledger-webusb/src/*"],
-      "@bithighlander/hdwallet-native": ["hdwallet-native/src/*"],
-      "@bithighlander/hdwallet-portis": ["hdwallet-portis/src/*"],
-      "@bithighlander/hdwallet-trezor": ["hdwallet-trezor/src/*"],
-      "@bithighlander/hdwallet-trezor-connect": ["hdwallet-trezor-connect/src/*"]
-      "@shapeshiftoss/*": ["$1/src/*"]
+      "@bithighlander/*": ["$1/src/*"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

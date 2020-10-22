@@ -1,7 +1,6 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 import { mnemonicToSeed } from "bip39";
 import { Wallet, utils } from "ethers";
-import { mnemonicToSeed } from "bip39";
 import { getNetwork } from "./networks";
 import * as bitcoin from "bitcoinjs-lib";
 const txBuilder = require("ethereumjs-tx");
