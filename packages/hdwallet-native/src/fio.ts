@@ -2,7 +2,7 @@ import * as core from "@bithighlander/hdwallet-core";
 import * as fio from "fiosdk-offline";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 import { NativeHDWalletBase } from "./native";
-import { Fio as fiojs, Ecc as fioecc } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
+import { Fio as fiojs } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
 import { TextDecoder as TextDecoderNode, TextEncoder as TextEncoderNode } from "util";
 import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "text-encoding";
 import { Fio } from "@bithighlander/hdwallet-core";
@@ -19,6 +19,15 @@ const getTextEncoderDecoder = () => {
     textEncoder: typeof window === "undefined" ? new TextEncoderNode() : new TextEncoderWeb(),
   };
 };
+
+function getKeyPair(seed: BIP32Interface, addressNList: number[]) {
+  const path = addressNListToBIP32(addressNList);
+  const key = seed.derivePath(path).privateKey;
+  const privateKey = wif.encode(128, key, false);
+  const { publicKey } = fio.FIOSDK.derivedPublicKey(privateKey);
+
+  return { privateKey, publicKey };
+}
 
 export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeFioWalletInfo extends Base implements core.FioWalletInfo {
@@ -56,27 +65,26 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeFioWallet extends Base {
     _supportsFio = true;
     baseUrl = "https://fio.eu.eosamsterdam.net/v1/";
-    #mnemonic: string;
+    #wallet: BIP32Interface;
 
-    async fioInitializeWallet(mnemonic: string): Promise<void> {
-      this.#mnemonic = mnemonic;
+    async fioInitializeWallet(seed: Buffer): Promise<void> {
+      this.#wallet = bitcoin.bip32.fromSeed(seed);
     }
 
-    async getFioSdk(path: string): Promise<fio.FIOSDK> {
-      return this.needsMnemonic(!!this.#mnemonic, async () => {
-        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(this.#mnemonic, path);
-        const { publicKey } = fio.FIOSDK.derivedPublicKey(privateKey);
+    async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK> {
+      return this.needsMnemonic(!!this.#wallet, async () => {
+        const { privateKey, publicKey } = getKeyPair(this.#wallet, addressNList);
         return new fio.FIOSDK(privateKey, publicKey, this.baseUrl, fetchJson);
       });
     }
 
     async fioGetAddress(msg: core.FioGetAddress): Promise<string> {
-      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+      const sdk = await this.getFioSdk(msg.addressNList);
       return sdk.getFioPublicKey();
     }
 
     async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx> {
-      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+      const sdk = await this.getFioSdk(msg.addressNList);
 
       const account: fio.FioActionParameters.FioActionAccount = msg.actions[0].account;
       const action: fio.FioActionParameters.FioActionName = msg.actions[0].name;
@@ -93,36 +101,30 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     async fioEncryptRequestContent(msg: core.FioRequestContent): Promise<string> {
       const { textEncoder, textDecoder } = getTextEncoderDecoder();
 
-      return this.needsMnemonic(!!this.#mnemonic, async () => {
-        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(
-          this.#mnemonic,
-          core.addressNListToBIP32(msg.addressNList)
-        );
+      return this.needsMnemonic(!!this.#wallet, async () => {
+        const { privateKey } = getKeyPair(this.#wallet, msg.addressNList);
         const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
           textEncoder,
           textDecoder,
         });
-        return sharedCipher.encrypt(REQUEST_CONTENT_TYPE, msg.content);
+        return sharedCipher.encrypt(msg.contentType, msg.content);
       });
     }
 
     async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<any> {
       const { textEncoder, textDecoder } = getTextEncoderDecoder();
 
-      return this.needsMnemonic(!!this.#mnemonic, async () => {
-        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(
-          this.#mnemonic,
-          core.addressNListToBIP32(msg.addressNList)
-        );
+      return this.needsMnemonic(!!this.#wallet, async () => {
+        const { privateKey } = getKeyPair(this.#wallet, msg.addressNList);
         const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
           textEncoder,
           textDecoder,
         });
-        return sharedCipher.decrypt(REQUEST_CONTENT_TYPE, JSON.stringify(msg.content));
+        return sharedCipher.decrypt(msg.contentType, JSON.stringify(msg.content));
       });
     }
   };
