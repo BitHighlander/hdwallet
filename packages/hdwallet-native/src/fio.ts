@@ -1,4 +1,6 @@
+import { addressNListToBIP32 } from "@bithighlander/hdwallet-core";
 import * as core from "@bithighlander/hdwallet-core";
+import * as bitcoin from "bitcoinjs-lib";
 import * as fio from "fiosdk-offline";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 import { NativeHDWalletBase } from "./native";
@@ -6,6 +8,8 @@ import { Fio as fiojs } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk
 import { TextDecoder as TextDecoderNode, TextEncoder as TextEncoderNode } from "util";
 import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "text-encoding";
 import { Fio } from "@bithighlander/hdwallet-core";
+import { BIP32Interface } from "bitcoinjs-lib";
+import wif from "wif";
 
 const REQUEST_CONTENT_TYPE = "new_funds_content";
 

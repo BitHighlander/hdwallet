@@ -22,6 +22,7 @@ export class TCPKeepKeyAdapter {
         let transport = new TCPKeepKeyTransport(host, this.keyring);
 
         await transport.connect();
+        // @ts-ignore
         let wallet = createKeepKey(transport);
 
         await wallet.initialize();

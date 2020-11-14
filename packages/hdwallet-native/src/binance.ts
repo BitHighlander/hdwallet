@@ -1,9 +1,7 @@
 import * as core from "@bithighlander/hdwallet-core";
-import BncClient from "bnb-javascript-sdk-nobroadcast";
 import { BIP32Interface } from "bitcoinjs-lib";
 import { BncClient } from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
-import { BIP32Interface } from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";

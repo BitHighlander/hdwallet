@@ -81,6 +81,7 @@ export class TCPKeepKeyTransport extends KeepKeyTransport {
     }
   }
 
+  // @ts-ignore
   protected async read(debugLink: boolean): Promise<ByteBuffer> {
     const first = await this.readChunk(debugLink);
     // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
