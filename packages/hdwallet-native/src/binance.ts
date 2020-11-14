@@ -1,5 +1,5 @@
 import * as core from "@bithighlander/hdwallet-core";
-import BncClient from "bnb-javascript-sdk-nobroadcast";
+import { BncClient } from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
@@ -83,7 +83,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
       const privateKey = keyPair.privateKey.toString("hex");
 
       const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
-      client.chainId = msg.chain_id;
+      //client.chainId = msg.chain_id;
       client.setAccountNumber(Number(msg.account_number) || undefined);
       await client.chooseNetwork("mainnet");
       await client.setPrivateKey(privateKey, Number.isInteger(Number(msg.account_number)));
@@ -96,7 +96,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
       const memo = msg.tx.memo;
       const sequence = msg.sequence;
 
-      const result = await client.transfer(addressFrom, addressTo, amount, asset, memo, sequence);
+      const result: any = await client.transfer(addressFrom, addressTo, amount, asset, memo, sequence);
       const pub_key = result.signatures[0].pub_key.toString("base64");
       const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 

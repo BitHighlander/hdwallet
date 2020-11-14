@@ -70,7 +70,7 @@ export async function getTransport(): Promise<TransportWebUSB> {
 
 export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice;
-
+  //@ts-ignore
   constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: Keyring) {
     super(transport, keyring);
     this.device = device;
