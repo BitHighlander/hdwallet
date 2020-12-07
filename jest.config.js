@@ -8,6 +8,6 @@ module.exports = {
   testEnvironment: "node",
   testMatch: ["<rootDir>/**/*.test.ts"],
   moduleNameMapper: {
-    "^@bithighlander/(.*)": "<rootDir>/$1/src",
+    "^@bithighlander/(.*)": "<rootDir>/packages/$1/dist/index.js",
   },
 };

@@ -1,4 +1,4 @@
-import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio, FioEncryptionContentType } from "@bithighlander/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@bithighlander/hdwallet-core";
 import { FioActionParameters, PublicAddress } from "fiosdk-offline";
 
 import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
@@ -17,8 +17,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
 
   describe("Fio", () => {
     beforeAll(async () => {
-      const { wallet: w } = get();
-      const { wallet2: w2 } = get();
+      const { wallet: w, wallet2: w2 } = get();
       if (supportsFio(w)) wallet = w;
       if (supportsFio(w2)) wallet2 = w2;
     });
@@ -48,12 +47,20 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       "fioGetAddress()",
       async () => {
         if (!wallet) return;
-        expect(
-          await wallet.fioGetAddress({
+        await expect(
+           wallet.fioGetAddress({
             addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
             showDisplay: false,
           })
-        ).toEqual("FIO6iLE1J4zb2SyDGTH9d6UL9Qm6hhqRce27QvP8AKxVLASGhtm7z");
+        ).resolves.toEqual("FIO6iLE1J4zb2SyDGTH9d6UL9Qm6hhqRce27QvP8AKxVLASGhtm7z");
+
+        if (!wallet2) return;
+        await expect(
+           wallet2.fioGetAddress({
+            addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+            showDisplay: false,
+          })
+        ).resolves.toEqual("FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9");
       },
       TIMEOUT
     );
@@ -330,7 +337,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       async () => {
         if (!wallet) return;
         if (!wallet2) return;
-        const originalContent: any = {
+        const originalContent: FioActionParameters.FioRequestContent = {
           payee_public_address: "purse.alice",
           amount: "1",
           chain_code: "FIO",
@@ -406,6 +413,6 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
         expect(originalContent).toEqual(decryptedContent);
       },
       TIMEOUT
-    );
+    )
   });
 }

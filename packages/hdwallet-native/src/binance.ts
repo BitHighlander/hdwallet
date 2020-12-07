@@ -1,7 +1,7 @@
-import { BncClient } from "bnb-javascript-sdk-nobroadcast";
 import * as core from "@bithighlander/hdwallet-core";
-import * as bitcoin from "bitcoinjs-lib";
 import { BIP32Interface } from "bitcoinjs-lib";
+import { BncClient } from "bnb-javascript-sdk-nobroadcast";
+import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
@@ -25,9 +25,10 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Bas
     }
 
     binanceGetAccountPaths(msg: core.BinanceGetAccountPaths): Array<core.BinanceAccountPath> {
+      const slip44 = core.slip44ByCoin("Binance")
       return [
         {
-          addressNList: [0x80000000 + 44, 0x80000000 + 117, 0x80000000 + msg.accountIdx, 0, 0],
+          addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
         },
       ];
     }
@@ -91,7 +92,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const asset = "BNB";
         const memo = msg.tx.memo;
 
-        const result:any = await client.transfer(addressFrom, addressTo, amount, asset, memo, null);
+        const result: any = await client.transfer(addressFrom, addressTo, amount, asset, memo, null);
         const pub_key = result.signatures[0].pub_key.toString("base64");
         const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 
