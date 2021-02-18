@@ -1,10 +1,7 @@
 import * as core from "@bithighlander/hdwallet-core";
-import { mnemonicToSeed } from "bip39";
 import { Wallet, utils } from "ethers";
-import { getNetwork } from "./networks";
-import * as bitcoin from "bitcoinjs-lib";
-const txBuilder = require("ethereumjs-tx");
-const ethUtils = require("ethereumjs-util");
+import txDecoder from "ethereum-tx-decoder";
+import { HDNode, defaultPath } from "@ethersproject/hdnode";
 import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: TBase) {
@@ -45,12 +42,12 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: T
 export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeETHWallet extends Base {
     _supportsETH = true;
-    #seed = "";
+
     #ethWallet: Wallet;
 
-    async ethInitializeWallet(mnemonic: string): Promise<void> {
-      const seed = `0x${(await mnemonicToSeed(mnemonic)).toString("hex")}`;
-      this.#ethWallet = new Wallet(HDNode.fromSeed(seed).derivePath(defaultPath));
+    async ethInitializeWallet(seed: Buffer): Promise<void> {
+      const address = `0x${seed.toString("hex")}`;
+      this.#ethWallet = new Wallet(HDNode.fromSeed(address).derivePath(defaultPath));
     }
 
     ethWipe() {
@@ -58,50 +55,29 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
-      const seed = await mnemonicToSeed(this.#seed);
-
-      const network = getNetwork("ethereum");
-      const wallet = bitcoin.bip32.fromSeed(seed, network);
-      const path = core.addressNListToBIP32(msg.addressNList);
-      const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
-      let publicKey = keypair.publicKey;
-      let address = ethUtils.bufferToHex(ethUtils.pubToAddress(publicKey, true));
-      return address;
+      return this.needsMnemonic(!!this.#ethWallet, () => this.#ethWallet.getAddress());
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      const seed = await mnemonicToSeed(this.#seed);
-
-      const network = getNetwork("ethereum");
-      const mkey = bitcoin.bip32.fromSeed(seed, network);
-      const path = core.addressNListToBIP32(msg.addressNList);
-
-      let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
-      let privateKey = keypair.privateKey;
-
-      let txTemplate = {
-        nonce: msg.nonce,
-        to: msg.to,
-        gasPrice: msg.gasPrice,
-        gasLimit: msg.gasLimit,
-        value: msg.value,
-        data: msg.data,
-      };
-
-      let transaction = new txBuilder(txTemplate);
-      transaction.sign(privateKey);
-
-      const txid = "0x" + transaction.hash().toString("hex");
-      let serialized = transaction.serialize();
-      serialized = "0x" + serialized.toString("hex");
-
-      return {
-        v: transaction.v.toString("hex"),
-        r: transaction.r.toString("hex"),
-        s: transaction.s.toString("hex"),
-        txid,
-        serialized: serialized,
-      };
+      return this.needsMnemonic(!!this.#ethWallet, async () => {
+        const result = await this.#ethWallet.signTransaction({
+          to: msg.to,
+          from: await this.#ethWallet.getAddress(),
+          nonce: msg.nonce,
+          gasLimit: msg.gasLimit,
+          gasPrice: msg.gasPrice,
+          data: msg.data,
+          value: msg.value,
+          chainId: msg.chainId,
+        });
+        const decoded = txDecoder.decodeTx(result);
+        return {
+          v: decoded.v,
+          r: decoded.r,
+          s: decoded.s,
+          serialized: result,
+        };
+      });
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {

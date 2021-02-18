@@ -1055,6 +1055,12 @@ $btcTx.on("click", async (e) => {
         amount: String(10000 - 1000),
         isChange: false,
       },
+      {
+        scriptType: BTCOutputScriptType.NullDataOutput,
+        data: new Buffer('test:fake:thor:memo'),
+        amount: String(10000 - 1000),
+        isChange: false,
+      },
     ];
 
     let res = await wallet.btcSignTx({

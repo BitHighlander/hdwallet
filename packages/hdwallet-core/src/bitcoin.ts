@@ -71,9 +71,10 @@ export interface BTCSignTxInput {
 export interface BTCSignTxOutput {
   /** bip32 path for destination (device must `btcSupportsSecureTransfer()`) */
   addressNList?: BIP32Path;
+  data?:any;
   scriptType?: BTCOutputScriptType;
   address?: string;
-  addressType: BTCOutputAddressType;
+  addressType?: BTCOutputAddressType;
   amount: string;
   isChange: boolean;
   /**
@@ -84,6 +85,7 @@ export interface BTCSignTxOutput {
 
 export interface BTCSignTx {
   coin: string;
+  memo: string;
   inputs: Array<BTCSignTxInput>;
   outputs: Array<BTCSignTxOutput>;
   version?: number;
@@ -107,6 +109,7 @@ export enum BTCInputScriptType {
 }
 
 export enum BTCOutputScriptType {
+  NullDataOutput = "nullDataOutput",
   PayToAddress = "p2pkh",
   PayToMultisig = "p2sh",
   PayToWitness = "p2wpkh",
