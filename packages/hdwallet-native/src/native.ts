@@ -239,8 +239,13 @@ export class NativeHDWallet
           addressNList: msg.path,
         };
         return super.cosmosGetAddress(inputATOM);
+      case "thorchain":
+        let inputRUNE: core.ThorchainGetAddress = {
+          addressNList: msg.path,
+        };
+        return super.thorchainGetAddress(inputRUNE);
       case "binance":
-        let inputBNB: core.EosAccountPath = {
+        let inputBNB: core.BinanceAccountPath = {
           addressNList: msg.path,
         };
         return super.binanceGetAddress(inputBNB);
