@@ -135,6 +135,7 @@ export function slip44ByCoin(coin: Coin): number {
     Ethereum: 60,
     Atom: 118,
     Binance: 714,
+    Thorchain: 931,
     Ripple: 144,
     Eos: 194,
     Fio: 235,

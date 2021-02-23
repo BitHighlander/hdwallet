@@ -12,6 +12,7 @@ import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
 import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
 import { MixinNativeBcashWalletInfo, MixinNativeBcashWallet } from "./bcash";
 import { MixinNativeCardanoWalletInfo, MixinNativeCardanoWallet } from "./cardano";
+import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
 
 import type { NativeAdapterArgs } from "./adapter";
 
@@ -63,7 +64,7 @@ class NativeHDWalletInfo
       MixinNativeCosmosWalletInfo(
         MixinNativeEosWalletInfo(
           MixinNativeFioWalletInfo(
-            MixinNativeBcashWalletInfo(MixinNativeCardanoWalletInfo(MixinNativeBTCWalletInfo(NativeHDWalletBase)))
+            MixinNativeBcashWalletInfo(MixinNativeCardanoWalletInfo(MixinNativeThorchainWalletInfo(MixinNativeBTCWalletInfo(NativeHDWalletBase))))
           )
         )
       )
@@ -79,6 +80,7 @@ class NativeHDWalletInfo
   _supportsFioInfo: boolean = true;
   _supportsBcashInfo: boolean = true;
   _supportsCardanoInfo: boolean = true;
+  _supportsThorchainInfo: boolean = true;
 
   getVendor(): string {
     return "Native";
@@ -144,7 +146,7 @@ export class NativeHDWallet
       MixinNativeCosmosWallet(
         MixinNativeEosWallet(
           MixinNativeFioWallet(
-            MixinNativeBcashWallet(MixinNativeCardanoWallet(MixinNativeBTCWallet(NativeHDWalletInfo)))
+            MixinNativeBcashWallet(MixinNativeCardanoWallet(MixinNativeThorchainWallet(MixinNativeBTCWallet(NativeHDWalletInfo))))
           )
         )
       )
@@ -312,6 +314,7 @@ export class NativeHDWallet
           super.cosmosInitializeWallet(seed),
           super.binanceInitializeWallet(seed),
           super.fioInitializeWallet(seed),
+          super.thorchainInitializeWallet(seed),
         ]);
 
         this.#initialized = true;
