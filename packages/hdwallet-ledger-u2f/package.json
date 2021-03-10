@@ -22,5 +22,6 @@
     "@ledgerhq/hw-transport-u2f": "^4.48.0",
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1"
-  }
+  },
+  "gitHead": "75ba05330430d0b746782f2b189d11d4ee7ce013"
 }

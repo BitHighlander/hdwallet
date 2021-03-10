@@ -22,5 +22,6 @@
     "eventemitter2": "^5.0.1",
     "lodash": "^4.17.15",
     "semver": "^6.3.0"
-  }
+  },
+  "gitHead": "75ba05330430d0b746782f2b189d11d4ee7ce013"
 }

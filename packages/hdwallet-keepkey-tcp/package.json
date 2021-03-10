@@ -24,5 +24,6 @@
     "modulePathIgnorePatterns": [
       "node_modules"
     ]
-  }
+  },
+  "gitHead": "75ba05330430d0b746782f2b189d11d4ee7ce013"
 }

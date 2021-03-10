@@ -318,17 +318,19 @@ export interface HDWallet extends HDWalletInfo {
   /**
    * Get any address by string
    */
-  getAddress(msg: any): Promise<string>;
+  //TODO implementMe everywhere
+  //getAddress(msg: any): Promise<string>;
 
   /**
    * Check whether the device has been initialized with a secret.
    */
   isInitialized(): Promise<boolean>;
 
-  /**
-   * Check whether the wallet is in testnet mode
-   */
-  isTestnet(): Boolean;
+  //TODO implementMe everywhere
+  // /**
+  //  * Check whether the wallet is in testnet mode
+  //  */
+  // isTestnet(): Boolean;
 
   /**
    * Check whether the device is locked.
