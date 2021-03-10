@@ -315,6 +315,7 @@ export class NativeHDWallet
 
         await Promise.all([
           super.btcInitializeWallet(seed),
+          super.bcashInitializeWallet(seed),
           super.ethInitializeWallet(seed),
           super.cosmosInitializeWallet(seed),
           super.binanceInitializeWallet(seed),
