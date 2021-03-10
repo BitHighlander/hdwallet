@@ -33,12 +33,13 @@ function getKeyPair(
   seed: Buffer,
   addressNList: number[],
   coin = "bitcoin",
-  scriptType?: BTCScriptType
+  scriptType?: BTCScriptType,
+  isTestnet?: boolean
 ): ECPairInterface {
-  const network = getNetwork(coin, scriptType);
+  const network = getNetwork(coin, scriptType, isTestnet);
   const wallet = bitcoin.bip32.fromSeed(seed, network);
   const path = core.addressNListToBIP32(addressNList);
-  return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), getNetwork(coin, scriptType));
+  return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), getNetwork(coin, scriptType, isTestnet));
 }
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: TBase) {
@@ -134,8 +135,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     _supportsBTC: boolean;
 
     #wallet: Buffer;
+    #isTestnet: boolean;
 
-    async btcInitializeWallet(seed: Buffer): Promise<void> {
+    async btcInitializeWallet(seed: Buffer, isTestnet:boolean): Promise<void> {
+      this.#isTestnet = isTestnet
       this.#wallet = seed;
     }
 
@@ -164,7 +167,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     buildInput(coin: core.Coin, input: core.BTCSignTxInput): InputData {
       return this.needsMnemonic(!!this.#wallet, () => {
         const { addressNList, amount, hex, scriptType, tx, vout } = input;
-        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
+        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType, this.#isTestnet);
 
         const isSegwit = segwit.includes(scriptType);
         const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
@@ -201,9 +204,9 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
       return this.needsMnemonic(!!this.#wallet, () => {
         const { addressNList, coin, scriptType } = msg;
-        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
+        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType, this.#isTestnet);
         const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
-        return coin.toLowerCase() === "bitcoincash" ? toCashAddress(address) : address;
+        return address;
       });
     }
 

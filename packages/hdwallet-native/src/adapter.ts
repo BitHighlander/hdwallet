@@ -2,8 +2,9 @@ import * as core from "@bithighlander/hdwallet-core";
 import { create, NativeHDWallet } from "./native";
 
 export type NativeAdapterArgs = {
-  mnemonic?: string;
   deviceId: string;
+  mnemonic?: string;
+  isTestnet?: boolean;
 };
 
 export class NativeAdapter {

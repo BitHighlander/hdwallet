@@ -172,14 +172,20 @@ export class NativeHDWallet
   _supportsDebugLink = false;
   _isNative = true;
 
+  private testnet: boolean;
   #deviceId: string;
   #initialized: boolean;
   #mnemonic: string;
+
 
   constructor({ mnemonic, deviceId }: NativeAdapterArgs) {
     super();
     this.#mnemonic = mnemonic;
     this.#deviceId = deviceId;
+  }
+
+  isTestnet(): boolean {
+    return this.testnet;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -202,7 +208,7 @@ export class NativeHDWallet
     return "Native";
   }
 
-  getAddress(msg: core.GetAddress): Promise<string> {
+  async getAddress(msg: core.GetAddress): Promise<string> {
     switch (msg.coin.toLowerCase()) {
       case "bitcoin":
       case "bitcoincash":
@@ -312,9 +318,8 @@ export class NativeHDWallet
     return this.needsMnemonic(!!this.#mnemonic, async () => {
       try {
         const seed = await mnemonicToSeed(this.#mnemonic);
-
         await Promise.all([
-          super.btcInitializeWallet(seed),
+          super.btcInitializeWallet(seed,this.isTestnet()),
           super.bcashInitializeWallet(seed),
           super.ethInitializeWallet(seed),
           super.cosmosInitializeWallet(seed),
@@ -363,6 +368,8 @@ export class NativeHDWallet
   async loadDevice(msg: LoadDevice): Promise<void> {
     if (typeof msg?.mnemonic !== "string" || !validateMnemonic(msg.mnemonic))
       throw new Error("Required property [mnemonic] is missing or invalid");
+
+    if(msg.isTestnet) this.testnet = true
 
     this.#mnemonic = msg.mnemonic;
     if (typeof msg.deviceId === "string") this.#deviceId = msg.deviceId;

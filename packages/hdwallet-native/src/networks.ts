@@ -165,34 +165,43 @@ const networks: Networks = {
   },
 };
 
-export function getNetwork(coin: string, scriptType?: string): Network {
+/*
+  I dont get how any of this works...
+  why switch if everything is bitcoin????
+ */
+export function getNetwork(coin: string, scriptType?: string, isTestnet?: boolean): Network {
   coin = coin.toLowerCase();
-
   let network: NetworkDescription;
-  switch (coin) {
-    case "dash":
-    case "digibyte":
-    case "dogecoin":
-    case "litecoin":
-    case "testnet":
-      //HACK dont use "xpub" native formats
-      //TODO handle all
-      network = networks[coin];
-      break;
-    case "bitcoin":
-    //TODO: all below are missing network data
-    case "bitcoincash":
-    case "cosmos":
-    case "thorchain":
-    case "binance":
-    case "ethereum":
-    case "eos":
-    case "fio":
-      network = networks["bitcoin"];
-      break;
-    default:
-      throw new Error(`${coin} network not supported`);
+  if(isTestnet) {
+    network = networks['testnet'];
+  } else {
+    // TODO whyyyyyyy
+    switch (coin) {
+      case "dash":
+      case "digibyte":
+      case "dogecoin":
+      case "litecoin":
+      case "testnet":
+        //HACK dont use "xpub" native formats
+        //TODO handle all
+        network = networks[coin];
+        break;
+      case "bitcoin":
+      //TODO: all below are missing network data
+      case "bitcoincash":
+      case "cosmos":
+      case "thorchain":
+      case "binance":
+      case "ethereum":
+      case "eos":
+      case "fio":
+        network = networks["bitcoin"];
+        break;
+      default:
+        throw new Error(`${coin} network not supported`);
+    }
   }
+
 
   const bip32 = network[scriptType || "p2sh"];
 

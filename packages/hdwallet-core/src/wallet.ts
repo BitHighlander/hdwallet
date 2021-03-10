@@ -83,6 +83,8 @@ export interface RecoverDevice {
 }
 
 export interface LoadDevice {
+  /** Use Testnet (defaults to mainnet) */
+  isTestnet?: boolean;
   /** 12, 18, or 24 word BIP39 mnemonic */
   mnemonic: string;
   /** User-identifiable device label */
@@ -314,9 +316,19 @@ export interface HDWallet extends HDWalletInfo {
   getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>>;
 
   /**
+   * Get any address by string
+   */
+  getAddress(msg: any): Promise<string>;
+
+  /**
    * Check whether the device has been initialized with a secret.
    */
   isInitialized(): Promise<boolean>;
+
+  /**
+   * Check whether the wallet is in testnet mode
+   */
+  isTestnet(): Boolean;
 
   /**
    * Check whether the device is locked.
@@ -395,4 +407,5 @@ export interface HDWallet extends HDWalletInfo {
    * Close connection with device
    */
   disconnect(): Promise<void>;
+
 }
