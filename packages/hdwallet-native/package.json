@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-native",
-  "version": "1.9.3",
+  "version": "1.9.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@bithighlander/hdwallet-core": "^1.9.3",
+    "@pioneer-platform/utxo-crypto": "^6.2.2",
     "bchaddrjs": "^0.4.9",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",

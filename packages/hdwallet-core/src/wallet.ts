@@ -34,6 +34,8 @@ export interface GetPublicKey {
 
 export interface PublicKey {
   xpub?: string;
+  tpub?: string;
+  zpub?: string;
   address?: string;
   path?: string;
   coin?: string;

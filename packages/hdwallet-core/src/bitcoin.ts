@@ -85,7 +85,7 @@ export interface BTCSignTxOutput {
 
 export interface BTCSignTx {
   coin: string;
-  memo: string;
+  memo?: string;
   inputs: Array<BTCSignTxInput>;
   outputs: Array<BTCSignTxOutput>;
   version?: number;

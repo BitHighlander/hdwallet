@@ -13,6 +13,7 @@ import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
 import { MixinNativeBcashWalletInfo, MixinNativeBcashWallet } from "./bcash";
 import { MixinNativeCardanoWalletInfo, MixinNativeCardanoWallet } from "./cardano";
 import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
+let crypto = require("@pioneer-platform/utxo-crypto")
 
 import type { NativeAdapterArgs } from "./adapter";
 
@@ -290,8 +291,13 @@ export class NativeHDWallet
             address: await this.getAddress(addressInfo),
             master: await this.getAddress(addressInfo),
             type: getPublicKey.type,
-            xpub,
           };
+          if(this.isTestnet){
+            pubkey.tpub = await crypto.xpubConvert(xpub,'tpub')
+          }else{
+            pubkey.xpub = xpub
+          }
+
           if (getPublicKey.type == "address") {
             pubkey.pubkey = pubkey.address;
           } else {
