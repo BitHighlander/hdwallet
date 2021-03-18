@@ -282,7 +282,7 @@ export class NativeHDWallet
             scriptType: getPublicKey.script_type,
           };
 
-          let pubkey: core.PublicKey = {
+          let pubkey: any = {
             coin: getPublicKey.network,
             network: getPublicKey.network,
             script_type: getPublicKey.script_type,
