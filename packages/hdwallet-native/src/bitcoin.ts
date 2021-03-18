@@ -226,6 +226,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             psbt.addInput({
               hash: input.txid,
               index: input.vout,
+              sequence: msg.RBF ? 0xfffffffd : undefined, // Needs to be at least 2 below max int value to be RBF
               ...inputData,
             });
           } catch (e) {

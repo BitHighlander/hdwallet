@@ -301,7 +301,7 @@ export class NativeHDWallet
           if (getPublicKey.type == "address") {
             pubkey.pubkey = pubkey.address;
           } else {
-            pubkey.pubkey = pubkey.xpub;
+            pubkey.pubkey = pubkey.xpub || pubkey.tpub;
           }
 
           return pubkey;
