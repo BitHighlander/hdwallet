@@ -15,3 +15,7 @@ export * from "./eos";
 export * from "./fio";
 export * from "./bcash";
 export * from "./cardano";
+export * from "./kava";
+export * from "./secret";
+export * from "./terra";
+

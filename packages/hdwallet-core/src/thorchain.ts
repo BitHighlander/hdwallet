@@ -4,6 +4,7 @@ import { BIP32Path, PathDescription } from "./wallet";
 export interface ThorchainGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
+  testnet?: boolean;
   /** Optional. Required for showDisplay == true. */
   address?: string;
 }
@@ -60,6 +61,7 @@ export interface ThorchainSignTx {
   account_number: string;
   sequence: string;
   fee?: number;
+  testnet?: boolean;
 }
 
 export type ThorchainSignedTx = ThorchainTx;
@@ -98,7 +100,7 @@ export function thorchainDescribePath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
     verbose: pathStr,
-    coin: "Atom",
+    coin: "Thorchain",
     isKnown: false,
   };
 
@@ -127,7 +129,7 @@ export function thorchainDescribePath(path: BIP32Path): PathDescription {
     verbose: `Thorchain Account #${index}`,
     accountIdx: index,
     wholeAccount: true,
-    coin: "Atom",
+    coin: "Thorchain",
     isKnown: true,
     isPrefork: false,
   };

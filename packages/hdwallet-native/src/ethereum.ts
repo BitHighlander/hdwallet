@@ -1,4 +1,5 @@
 import * as core from "@bithighlander/hdwallet-core";
+import { mnemonicToSeed } from "bip39";
 import { Wallet, utils } from "ethers";
 import txDecoder from "ethereum-tx-decoder";
 import { HDNode, defaultPath } from "@ethersproject/hdnode";

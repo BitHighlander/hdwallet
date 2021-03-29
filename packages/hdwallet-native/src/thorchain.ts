@@ -1,5 +1,4 @@
 import * as core from "@bithighlander/hdwallet-core";
-
 import txBuilder from "cosmos-tx-builder";
 import { BIP32Interface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
@@ -8,7 +7,6 @@ import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
-
 const THOR_CHAIN = "thorchain";
 
 export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor>(Base: TBase) {
@@ -27,7 +25,7 @@ export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor>(B
     }
 
     thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
-      const slip44 = core.slip44ByCoin("Atom")
+      const slip44 = core.slip44ByCoin("Thorchain")
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],

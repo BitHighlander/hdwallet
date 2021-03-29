@@ -167,7 +167,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     buildInput(coin: core.Coin, input: core.BTCSignTxInput): InputData {
       return this.needsMnemonic(!!this.#wallet, () => {
         const { addressNList, amount, hex, scriptType, tx, vout } = input;
-        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType, this.#isTestnet);
+        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
 
         const isSegwit = segwit.includes(scriptType);
         const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
@@ -204,9 +204,9 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
       return this.needsMnemonic(!!this.#wallet, () => {
         const { addressNList, coin, scriptType } = msg;
-        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType, this.#isTestnet);
+        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
         const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
-        return address;
+        return coin.toLowerCase() === "bitcoincash" ? toCashAddress(address) : address;
       });
     }
 
@@ -226,7 +226,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             psbt.addInput({
               hash: input.txid,
               index: input.vout,
-              sequence: msg.RBF ? 0xfffffffd : undefined, // Needs to be at least 2 below max int value to be RBF
               ...inputData,
             });
           } catch (e) {
@@ -255,6 +254,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             throw new Error(`failed to add output: ${e}`);
           }
         });
+
+        if(msg.opReturnData) {
+          const data = Buffer.from(msg.opReturnData, 'utf8')
+          const embed = bitcoin.payments.embed({data: [data]})
+          psbt.addOutput({ script: embed.output, value: 0 })
+        }
 
         if(msg.memo) {
           const data = Buffer.from(msg.memo, 'utf8')

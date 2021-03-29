@@ -13,6 +13,10 @@ import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
 import { MixinNativeBcashWalletInfo, MixinNativeBcashWallet } from "./bcash";
 import { MixinNativeCardanoWalletInfo, MixinNativeCardanoWallet } from "./cardano";
 import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
+import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
+import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
+import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
+// import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
 let crypto = require("@pioneer-platform/utxo-crypto")
 
 import type { NativeAdapterArgs } from "./adapter";
@@ -78,10 +82,17 @@ class NativeHDWalletInfo
   _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
-  _supportsFioInfo: boolean = true;
+  _supportsFioInfo: boolean = false;
+  _supportsThorchainInfo: boolean = false;
   _supportsBcashInfo: boolean = true;
-  _supportsCardanoInfo: boolean = true;
-  _supportsThorchainInfo: boolean = true;
+  _supportsSecretInfo: boolean = true;
+  _supportsSecret: boolean = true;
+  _supportsKava: boolean = true;
+  _supportsKavaInfo: boolean = true;
+  _supportsTerra: boolean = true;
+  _supportsTerraInfo: boolean = true;
+  _supportsCardano: boolean = false;
+  _supportsCardanoInfo: boolean = false;
 
   getVendor(): string {
     return "Native";
@@ -111,7 +122,6 @@ class NativeHDWalletInfo
     switch (msg.coin.toLowerCase()) {
       case "bitcoin":
       case "bitcoincash":
-      case "bcash":
       case "dash":
       case "digibyte":
       case "dogecoin":
@@ -127,14 +137,25 @@ class NativeHDWalletInfo
         return core.describeETHPath(msg.path);
       case "atom":
         return core.cosmosDescribePath(msg.path);
+      case "rune":
+      case "trune":
+      case "thorchain":
+        return core.thorchainDescribePath(msg.path);
+      case "secret":
+      case "scrt":
+      case "tscrt":
+        return core.secretDescribePath(msg.path);
+      case "luna":
+      case "terra":
+      case "tluna":
+        return core.terraDescribePath(msg.path);
+      case "kava":
+      case "tkava":
+        return core.kavaDescribePath(msg.path);
       case "binance":
         return core.binanceDescribePath(msg.path);
-      case "eos":
-        return core.binanceDescribePath(msg.path);
       case "fio":
-        return core.binanceDescribePath(msg.path);
-      case "cardano":
-        return core.binanceDescribePath(msg.path);
+        return core.fioDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -142,25 +163,10 @@ class NativeHDWalletInfo
 }
 
 export class NativeHDWallet
-  extends MixinNativeBinanceWallet(
-    MixinNativeETHWallet(
-      MixinNativeCosmosWallet(
-        MixinNativeEosWallet(
-          MixinNativeFioWallet(
-            MixinNativeBcashWallet(MixinNativeCardanoWallet(MixinNativeThorchainWallet(MixinNativeBTCWallet(NativeHDWalletInfo))))
-          )
-        )
-      )
-    )
+  extends MixinNativeBTCWallet(
+    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo))))
   )
-  implements
-    core.HDWallet,
-    core.BTCWallet,
-    core.ETHWallet,
-    core.CosmosWallet,
-    core.BinanceWallet,
-    core.EosWallet,
-    core.FioWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
@@ -168,25 +174,17 @@ export class NativeHDWallet
   _supportsRipple = false;
   _supportsEos = false;
   _supportsFio = true;
-  _supportsCardano = true;
-  _supportsBcash = true;
   _supportsDebugLink = false;
   _isNative = true;
 
-  private testnet: boolean;
   #deviceId: string;
   #initialized: boolean;
   #mnemonic: string;
-
 
   constructor({ mnemonic, deviceId }: NativeAdapterArgs) {
     super();
     this.#mnemonic = mnemonic;
     this.#deviceId = deviceId;
-  }
-
-  isTestnet(): boolean {
-    return this.testnet;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -236,21 +234,21 @@ export class NativeHDWallet
           addressNList: msg.path,
         };
         return super.fioGetAddress(inputFIO);
-      case "eos":
-        let inputEOS: core.EosAccountPath = {
-          addressNList: msg.path,
-        };
-        return super.eosGetAddress(inputEOS);
+      // case "eos":
+      //   let inputEOS: core.EosAccountPath = {
+      //     addressNList: msg.path,
+      //   };
+      //   return super.eosGetAddress(inputEOS);
       case "cosmos":
         let inputATOM: core.CosmosGetAddress = {
           addressNList: msg.path,
         };
         return super.cosmosGetAddress(inputATOM);
-      case "thorchain":
-        let inputRUNE: core.ThorchainGetAddress = {
-          addressNList: msg.path,
-        };
-        return super.thorchainGetAddress(inputRUNE);
+      // case "thorchain":
+      //   let inputRUNE: core.ThorchainGetAddress = {
+      //     addressNList: msg.path,
+      //   };
+      //   return super.thorchainGetAddress(inputRUNE);
       case "binance":
         let inputBNB: core.BinanceAccountPath = {
           addressNList: msg.path,
@@ -292,11 +290,12 @@ export class NativeHDWallet
             master: await this.getAddress(addressInfo),
             type: getPublicKey.type,
           };
-          if(this.isTestnet){
-            pubkey.tpub = await crypto.xpubConvert(xpub,'tpub')
-          }else{
-            pubkey.xpub = xpub
-          }
+          //TODO
+          // if(this.isTestnet){
+          //   pubkey.tpub = await crypto.xpubConvert(xpub,'tpub')
+          // }else{
+          //   pubkey.xpub = xpub
+          // }
 
           if (getPublicKey.type == "address") {
             pubkey.pubkey = pubkey.address;
@@ -324,6 +323,7 @@ export class NativeHDWallet
     return this.needsMnemonic(!!this.#mnemonic, async () => {
       try {
         const seed = await mnemonicToSeed(this.#mnemonic);
+
         await Promise.all([
           super.btcInitializeWallet(seed,this.isTestnet()),
           super.bcashInitializeWallet(seed),
@@ -332,6 +332,12 @@ export class NativeHDWallet
           super.binanceInitializeWallet(seed),
           super.fioInitializeWallet(seed),
           super.thorchainInitializeWallet(seed),
+          super.secretInitializeWallet(seed),
+          super.secretSetMnemonic(this.#mnemonic),
+          super.terraInitializeWallet(seed),
+          super.terraSetMnemonic(this.#mnemonic),
+          super.kavaInitializeWallet(seed),
+          super.kavaSetMnemonic(this.#mnemonic),
         ]);
 
         this.#initialized = true;
@@ -365,6 +371,10 @@ export class NativeHDWallet
     super.ethWipe();
     super.cosmosWipe();
     super.binanceWipe();
+    super.thorchainWipe();
+    super.secretWipe();
+    super.terraWipe();
+    super.kavaWipe();
   }
 
   async reset(): Promise<void> {}

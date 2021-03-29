@@ -1,42 +1,43 @@
-import { BIP32Path } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { BIP32Path, PathDescription } from "./wallet";
 
 export interface CardanoGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
-declare namespace Cardano {
-  namespace sdk {
-    interface Msg {
-      type: string;
-      value: any;
-    }
-    type Coins = Coin[];
-    interface Coin {
-      denom: string;
-      amount: string;
-    }
+
+export namespace Cardano {
+  export interface Msg {
+    type: string;
+    value: any;
   }
 
-  interface StdFee {
-    amount: sdk.Coins;
+  export type Coins = Coin[];
+
+  export interface Coin {
+    denom: string;
+    amount: string;
+  }
+
+  export interface StdFee {
+    amount: Coins;
     gas: string;
   }
+
   namespace crypto {
-    interface PubKey {
+    export interface PubKey {
       type: string;
       value: string;
     }
   }
 
-  interface StdSignature {
+  export interface StdSignature {
+    pub_key?: crypto.PubKey;
     signature: string;
-    serializedTx: string;
   }
 
-  interface StdTx {
-    msg: sdk.Msg[];
+  export interface StdTx {
+    msg: Msg[];
     fee: StdFee;
     signatures: null | StdSignature[];
     memo: string;
@@ -44,26 +45,22 @@ declare namespace Cardano {
 }
 
 export interface CardanoTx {
-  type: string;
-  value: Cardano.StdTx;
-}
-
-export interface CardanoPayment {
-  amount: string;
-  destination: string;
-  destinationTag?: string;
+  msg: Cardano.Msg[];
+  fee: Cardano.StdFee;
+  signatures: null | Cardano.StdSignature[];
+  memo: string;
 }
 
 export interface CardanoSignTx {
   addressNList: BIP32Path;
-  tx: CardanoTx;
-  flags?: string;
+  tx: Cardano.StdTx;
+  chain_id: string;
+  account_number: string;
   sequence: string;
-  lastLedgerSequence?: string;
-  payment?: CardanoPayment;
+  fee?: number;
 }
 
-export declare type CardanoSignedTx = CardanoTx;
+export type CardanoSignedTx = CardanoTx;
 
 export interface CardanoGetAccountPaths {
   accountIdx: number;
@@ -93,4 +90,47 @@ export interface CardanoWallet extends CardanoWalletInfo {
 
   cardanoGetAddress(msg: CardanoGetAddress): Promise<string>;
   cardanoSignTx(msg: CardanoSignTx): Promise<CardanoSignedTx>;
+}
+
+//TODO
+// Cardano m / 1852' / 1815' / 0' / 0 / 0
+export function cardanoDescribePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Ada",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  //Note: cardano does not follow bip44!
+  //https://cips.cardano.org/cips/cip1852/
+  if (path[0] != 0x80000000 + 1852) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Ada")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Cardano Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Ada",
+    isKnown: true,
+    isPrefork: false,
+  };
 }

@@ -191,6 +191,10 @@ export function getNetwork(coin: string, scriptType?: string, isTestnet?: boolea
       case "bitcoincash":
       case "cosmos":
       case "thorchain":
+      case "secret":
+      case "terra":
+      case "kava":
+      case "cardano":
       case "binance":
       case "ethereum":
       case "eos":

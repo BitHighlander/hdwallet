@@ -74,6 +74,16 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsEos: boolean = false;
   _supportsFioInfo: boolean = false;
   _supportsFio: boolean = false;
+  _supportsThorchainInfo: boolean = false;
+  _supportsThorchain: boolean = false;
+  _supportsSecretInfo: boolean = false;
+  _supportsSecret: boolean = false;
+  _supportsKava: boolean = false;
+  _supportsKavaInfo: boolean = false;
+  _supportsTerra: boolean = false;
+  _supportsTerraInfo: boolean = false;
+  _supportsCardano: boolean = false;
+  _supportsCardanoInfo: boolean = false;
 
   transport = new PortisTransport(new Keyring());
 
@@ -334,6 +344,11 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
   _supportsFioInfo: boolean = false;
+  _supportsThorchainInfo: boolean = false;
+  _supportsSecretInfo: boolean = false;
+  _supportsKavaInfo: boolean = false;
+  _supportsTerraInfo: boolean = false;
+  _supportsCardanoInfo: boolean = false;
 
   public getVendor(): string {
     return "Portis";
