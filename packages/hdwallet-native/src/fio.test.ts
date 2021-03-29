@@ -1,4 +1,4 @@
-import { bip32ToAddressNList } from "@shapeshiftoss/hdwallet-core";
+import { bip32ToAddressNList } from "@bithighlander/hdwallet-core";
 import { mnemonicToSeed } from "bip39";
 import { NativeHDWallet } from "./native";
 

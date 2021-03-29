@@ -29,6 +29,12 @@ import {
   CosmosGetAddress,
   CosmosSignTx,
   CosmosSignedTx,
+  ThorchainWalletInfo,
+  ThorchainGetAccountPaths,
+  ThorchainAccountPath,
+  ThorchainGetAddress,
+  ThorchainSignTx,
+  ThorchainSignedTx,
   BinanceWalletInfo,
   BinanceGetAccountPaths,
   BinanceAccountPath,
@@ -66,6 +72,7 @@ import {
   addressNListToBIP32,
   hardenedPath,
   relativePath,
+  ThorchainWallet,
 } from "@bithighlander/hdwallet-core";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
@@ -76,6 +83,7 @@ import { protoFieldToSetMethod, translateInputScriptType } from "./utils";
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum";
 import * as Cosmos from "./cosmos";
+import * as Thorchain from "./thorchain";
 import * as Ripple from "./ripple";
 import * as Binance from "./binance";
 import * as Eos from "./eos";
@@ -260,6 +268,45 @@ function describeCosmosPath(path: BIP32Path): PathDescription {
   };
 }
 
+function describeThorchainPath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Rune",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Rune")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `THORChain Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Rune",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
 function describeEosPath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
@@ -385,7 +432,8 @@ export class KeepKeyHDWalletInfo
     CosmosWalletInfo,
     BinanceWalletInfo,
     RippleWalletInfo,
-    EosWalletInfo {
+    EosWalletInfo,
+    ThorchainWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
@@ -393,6 +441,11 @@ export class KeepKeyHDWalletInfo
   _supportsBinanceInfo: boolean = true;
   _supportsEosInfo: boolean = true;
   _supportsFioInfo: boolean = false;
+  _supportsThorchainInfo: boolean = true;
+  _supportsSecretInfo: boolean = false;
+  _supportsKavaInfo: boolean = false;
+  _supportsTerraInfo: boolean = false;
+  _supportsCardanoInfo: boolean = false;
 
   public getVendor(): string {
     return "KeepKey";
@@ -440,6 +493,10 @@ export class KeepKeyHDWalletInfo
 
   public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
     return Cosmos.cosmosGetAccountPaths(msg);
+  }
+
+  public thorchainGetAccountPaths(msg: ThorchainGetAccountPaths): Array<ThorchainAccountPath> {
+    return Thorchain.thorchainGetAccountPaths(msg);
   }
 
   public rippleGetAccountPaths(msg: RippleGetAccountPaths): Array<RippleAccountPath> {
@@ -549,6 +606,21 @@ export class KeepKeyHDWalletInfo
     };
   }
 
+  public thorchainNextAccountPath(msg: ThorchainAccountPath): ThorchainAccountPath | undefined {
+    let description = describeThorchainPath(msg.addressNList);
+    if (!description.isKnown) {
+      return undefined;
+    }
+
+    let addressNList = msg.addressNList;
+    addressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList,
+    };
+  }
+
   public rippleNextAccountPath(msg: RippleAccountPath): RippleAccountPath | undefined {
     let description = describeRipplePath(msg.addressNList);
     if (!description.isKnown) {
@@ -611,6 +683,16 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   _supportsBinance: boolean = true;
   _supportsEos: boolean = true;
   _supportsFio: boolean = false;
+  _supportsThorchainInfo: boolean = true;
+  _supportsThorchain: boolean = true;
+  _supportsSecretInfo: boolean = false;
+  _supportsSecret: boolean = false;
+  _supportsKava: boolean = false;
+  _supportsKavaInfo: boolean = false;
+  _supportsTerra: boolean = false;
+  _supportsTerraInfo: boolean = false;
+  _supportsCardano: boolean = false;
+  _supportsCardanoInfo: boolean = false;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
@@ -658,8 +740,9 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public async isLocked(): Promise<boolean> {
     const features = await this.getFeatures();
-    if (features.pinProtection && !features.pinProtection) return true;
-    if (features.passphraseProtection && !features.passphraseCached) return true;
+    if (features.pinProtection && !features.pinCached) return true;
+    if (features.passphraseProtection && !features.passphraseCached)
+      return true;
     return false;
   }
 
@@ -965,6 +1048,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     this._supportsRipple = Semver.gte(fwVersion, "v6.4.0");
     this._supportsBinance = Semver.gte(fwVersion, "v6.4.0");
     this._supportsEos = Semver.gte(fwVersion, "v6.4.0");
+    // this._supportsCosmos = Semver.get(fwVersion, "v7.0.0");
 
     this.cacheFeatures(event.message);
     return event.message as Messages.Features.AsObject;
@@ -1171,6 +1255,18 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx> {
     return Cosmos.cosmosSignTx(this.transport, msg);
+  }
+
+  public thorchainGetAccountPaths(msg: ThorchainGetAccountPaths): Array<ThorchainAccountPath> {
+    return this.info.thorchainGetAccountPaths(msg);
+  }
+
+  public thorchainGetAddress(msg: ThorchainGetAddress): Promise<string> {
+    return Thorchain.thorchainGetAddress(this.transport, msg);
+  }
+
+  public thorchainSignTx(msg: ThorchainSignTx): Promise<ThorchainSignedTx> {
+    return Thorchain.thorchainSignTx(this.transport, msg);
   }
 
   public binanceGetAccountPaths(msg: BinanceGetAccountPaths): Array<BinanceAccountPath> {

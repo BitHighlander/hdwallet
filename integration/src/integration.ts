@@ -12,6 +12,10 @@ import { binanceTests } from "./binance";
 import { rippleTests } from "./ripple";
 import { eosTests } from "./eos";
 import { fioTests } from "./fio";
+import { thorchainTests } from "./thorchain";
+import { secretTests } from "./secret";
+import { terraTests } from "./terra";
+import { kavaTests } from "./kava";
 import { WalletSuite } from "./wallets/suite";
 
 /**
@@ -106,6 +110,38 @@ export function integration(suite: WalletSuite): void {
       });
 
       rippleTests(() => ({ wallet, info }));
+    });
+
+    describe("ThorchainWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Thorchain");
+      });
+
+      thorchainTests(() => ({ wallet, info }));
+    });
+
+    describe("SecretWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Secret");
+      });
+
+      secretTests(() => ({ wallet, info }));
+    });
+
+    describe("TerraWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Terra");
+      });
+
+      terraTests(() => ({ wallet, info }));
+    });
+
+    describe("KavaWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Kava");
+      });
+
+      kavaTests(() => ({ wallet, info }));
     });
 
     describe("SelfTest", () => {

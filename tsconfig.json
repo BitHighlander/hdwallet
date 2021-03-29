@@ -29,7 +29,7 @@
     "resolveJsonModule": true,
     "baseUrl": "./packages",
     "paths": {
-      "@shapeshiftoss/*": ["$1/src/*"]
+      "@bithighlander/*": ["$1/src/*"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

@@ -121,6 +121,7 @@ export function base64toHEX(base64: string): string {
   return "0x" + HEX.toUpperCase();
 }
 
+// https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 export function slip44ByCoin(coin: Coin): number {
   return {
     Bitcoin: 0,
@@ -138,6 +139,11 @@ export function slip44ByCoin(coin: Coin): number {
     Ripple: 144,
     Eos: 194,
     Fio: 235,
+    Thorchain: 931,
+    Cardano: 1815,
+    Secret: 529,
+    Terra: 118, //match atom
+    Kava: 459,
   }[coin];
 }
 
