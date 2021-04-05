@@ -140,10 +140,9 @@ export function slip44ByCoin(coin: Coin): number {
     Ripple: 144,
     Eos: 194,
     Fio: 235,
-    Thorchain: 931,
     Cardano: 1815,
     Secret: 529,
-    Terra: 118, //match atom
+    Terra: 330, //match atom
     Kava: 459,
   }[coin];
 }

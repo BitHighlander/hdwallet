@@ -16,8 +16,7 @@ import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./th
 import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
 import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
 import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
-// import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
-let crypto = require("@pioneer-platform/utxo-crypto")
+// let crypto = require("@pioneer-platform/utxo-crypto")
 
 import type { NativeAdapterArgs } from "./adapter";
 
@@ -69,7 +68,7 @@ class NativeHDWalletInfo
       MixinNativeCosmosWalletInfo(
         MixinNativeEosWalletInfo(
           MixinNativeFioWalletInfo(
-            MixinNativeBcashWalletInfo(MixinNativeCardanoWalletInfo(MixinNativeThorchainWalletInfo(MixinNativeBTCWalletInfo(NativeHDWalletBase))))
+            MixinNativeBcashWalletInfo(MixinNativeCardanoWalletInfo(MixinNativeThorchainWalletInfo(MixinNativeBTCWalletInfo(MixinNativeSecretWalletInfo(MixinNativeTerraWalletInfo(MixinNativeKavaWalletInfo(MixinNativeThorchainWalletInfo(NativeHDWalletBase))))))))
           )
         )
       )
@@ -164,9 +163,9 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo))))
+    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(MixinNativeThorchainWallet(MixinNativeSecretWallet(MixinNativeTerraWallet(MixinNativeKavaWallet(NativeHDWalletInfo))))))))
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet, core.ThorchainWallet, core.SecretWallet, core.TerraWallet, core.KavaWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
@@ -174,9 +173,14 @@ export class NativeHDWallet
   _supportsRipple = false;
   _supportsEos = false;
   _supportsFio = true;
+  _supportsThorchain = true;
+  _supportsSecret = false;
+  _supportsTerra = false;
+  _supportsKava = false;
   _supportsDebugLink = false;
   _isNative = true;
 
+  #isTestnet: boolean;
   #deviceId: string;
   #initialized: boolean;
   #mnemonic: string;
@@ -325,8 +329,8 @@ export class NativeHDWallet
         const seed = await mnemonicToSeed(this.#mnemonic);
 
         await Promise.all([
-          super.btcInitializeWallet(seed,this.isTestnet()),
-          super.bcashInitializeWallet(seed),
+          super.btcInitializeWallet(seed,this.#isTestnet),
+          // super.bcashInitializeWallet(seed),
           super.ethInitializeWallet(seed),
           super.cosmosInitializeWallet(seed),
           super.binanceInitializeWallet(seed),
@@ -385,7 +389,7 @@ export class NativeHDWallet
     if (typeof msg?.mnemonic !== "string" || !validateMnemonic(msg.mnemonic))
       throw new Error("Required property [mnemonic] is missing or invalid");
 
-    if(msg.isTestnet) this.testnet = true
+    if(msg.isTestnet) this.#isTestnet = true
 
     this.#mnemonic = msg.mnemonic;
     if (typeof msg.deviceId === "string") this.#deviceId = msg.deviceId;
