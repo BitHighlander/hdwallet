@@ -248,11 +248,11 @@ export class NativeHDWallet
           addressNList: msg.path,
         };
         return super.cosmosGetAddress(inputATOM);
-      // case "thorchain":
-      //   let inputRUNE: core.ThorchainGetAddress = {
-      //     addressNList: msg.path,
-      //   };
-      //   return super.thorchainGetAddress(inputRUNE);
+      case "thorchain":
+        let inputRUNE: core.ThorchainGetAddress = {
+          addressNList: msg.path,
+        };
+        return super.thorchainGetAddress(inputRUNE);
       case "binance":
         let inputBNB: core.BinanceAccountPath = {
           addressNList: msg.path,
@@ -295,11 +295,11 @@ export class NativeHDWallet
             type: getPublicKey.type,
           };
           //TODO
-          // if(this.isTestnet){
-          //   pubkey.tpub = await crypto.xpubConvert(xpub,'tpub')
-          // }else{
-          //   pubkey.xpub = xpub
-          // }
+          if(this.#isTestnet){
+            pubkey.tpub = await crypto.xpubConvert(xpub,'tpub')
+          }else{
+            pubkey.xpub = xpub
+          }
 
           if (getPublicKey.type == "address") {
             pubkey.pubkey = pubkey.address;
