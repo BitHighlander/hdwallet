@@ -16,12 +16,12 @@
   },
   "dependencies": {
     "@bithighlander/hdwallet-core": "^1.10.3",
-    "@keepkey/device-protocol": "^6.4.1",
+    "@keepkey/device-protocol": "7.0.2",
     "eip55": "^1.0.3",
     "ethereumjs-tx": "^1.3.7",
     "eventemitter2": "^5.0.1",
     "lodash": "^4.17.15",
     "semver": "^6.3.0"
   },
-  "gitHead": "d4c3a39bb87f4c175dc716176d20928315dded35"
+  "gitHead": "c329653584393c37c465c5a06279fe02cba8125e"
 }
