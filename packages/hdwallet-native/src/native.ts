@@ -296,7 +296,7 @@ export class NativeHDWallet
           };
           //TODO
           if(this.#isTestnet){
-            pubkey.tpub = await crypto.xpubConvert(xpub,'tpub')
+            //pubkey.tpub = await crypto.xpubConvert(xpub,'tpub')
           }else{
             pubkey.xpub = xpub
           }
