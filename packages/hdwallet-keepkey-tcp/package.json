@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-keepkey-tcp",
-  "version": "1.10.2",
+  "version": "1.10.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bithighlander/hdwallet-core": "^1.10.2",
-    "@bithighlander/hdwallet-keepkey": "^1.10.2",
+    "@bithighlander/hdwallet-core": "^1.10.3",
+    "@bithighlander/hdwallet-keepkey": "^1.10.3",
     "axios": "^0.18.0",
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1"
@@ -25,5 +25,5 @@
       "node_modules"
     ]
   },
-  "gitHead": "477b272bbbdc8674cc7ccaf06077acc9e055adc4"
+  "gitHead": "d4c3a39bb87f4c175dc716176d20928315dded35"
 }
