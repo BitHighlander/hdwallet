@@ -271,7 +271,7 @@ export class NativeHDWallet
     return this.needsMnemonic(!!this.#mnemonic, () =>
       Promise.all(
         msg.map(async (getPublicKey) => {
-          let { addressNList } = getPublicKey;
+          let { addressNList, addressNListMaster } = getPublicKey;
           const seed = await mnemonicToSeed(this.#mnemonic);
 
           const network = getNetwork("bitcoin", getPublicKey.scriptType);
@@ -279,7 +279,7 @@ export class NativeHDWallet
           const xpub = node.derivePath(core.addressNListToBIP32(addressNList)).neutered().toBase58();
 
           let addressInfo: core.GetAddress = {
-            path: addressNList,
+            path: addressNListMaster,
             coin: getPublicKey.coin.toLowerCase(),
             scriptType: getPublicKey.script_type,
           };
@@ -289,6 +289,7 @@ export class NativeHDWallet
             network: getPublicKey.network,
             script_type: getPublicKey.script_type,
             path: core.addressNListToBIP32(addressNList),
+            pathMaster: core.addressNListToBIP32(addressNListMaster),
             long: getPublicKey.coin,
             address: await this.getAddress(addressInfo),
             master: await this.getAddress(addressInfo),

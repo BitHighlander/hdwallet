@@ -18,6 +18,7 @@ export type BIP32Path = Array<number>;
 
 export interface GetPublicKey {
   addressNList: BIP32Path;
+  addressNListMaster: BIP32Path;
   showDisplay?: boolean;
   scriptType?: BTCInputScriptType;
   script_type?: BTCInputScriptType;
@@ -29,6 +30,7 @@ export interface GetPublicKey {
   address?: string;
   pubkey?: string;
   path?: string;
+  pathMaster?: string;
   long?: string;
   master?: string;
   type?: string;
