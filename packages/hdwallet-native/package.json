@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-native",
-  "version": "1.10.5",
+  "version": "1.10.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,13 +15,14 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bithighlander/hdwallet-core": "^1.10.5",
+    "@bithighlander/hdwallet-core": "^1.10.6",
     "@cosmostation/cosmosjs": "^0.9.5",
     "@pioneer-platform/utxo-crypto": "^6.2.2",
     "@terra-money/terra.js": "^1.6.0",
     "bchaddrjs": "^0.4.9",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
+    "bip84": "^0.2.5",
     "bitcoinjs-lib": "^5.1.10",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "cosmos-tx-builder": "^6.3.4",

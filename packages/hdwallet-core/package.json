@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-core",
-  "version": "1.10.5",
+  "version": "1.10.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
