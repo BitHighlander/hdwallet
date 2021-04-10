@@ -323,6 +323,7 @@ export class NativeHDWallet
               let child0 = root.deriveAccount(0)
               let account0 = new BIP84.fromZPrv(child0)
               let zpub = account0.getAccountPublicKey()
+              pubkey.address = account0.getAddress(0)
               pubkey.master = account0.getAddress(0)
               pubkey.zpub = zpub
               pubkey.pubkey = pubkey.zpub
