@@ -17,7 +17,7 @@ import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
 import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
 import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
 // let crypto = require("@pioneer-platform/utxo-crypto")
-
+const BIP84 = require('bip84')
 import type { NativeAdapterArgs } from "./adapter";
 
 export enum NativeEvents {
@@ -303,9 +303,32 @@ export class NativeHDWallet
 
           if (getPublicKey.type == "address") {
             pubkey.pubkey = pubkey.address;
-          } else {
+          } else if(getPublicKey.type == '') {
             pubkey.pubkey = pubkey.xpub || pubkey.tpub;
           }
+
+          switch(getPublicKey.type) {
+            case "address":
+              pubkey.pubkey = pubkey.address;
+              break;
+            case 'xpub':
+              pubkey.pubkey = pubkey.xpub
+              break;
+            case 'tpub':
+              pubkey.pubkey = pubkey.tpub
+              break;
+            case 'zpub':
+              let root = new BIP84.fromSeed(this.#mnemonic)
+              let child0 = root.deriveAccount(0)
+              let account0 = new BIP84.fromZPrv(child0)
+              let zpub = account0.getAccountPublicKey()
+              pubkey.zpub = zpub
+              pubkey.pubkey = pubkey.zpub
+              break;
+            default:
+              throw Error("Unhandled pubkey type! :"+getPublicKey.type)
+          }
+
 
           return pubkey;
         })
