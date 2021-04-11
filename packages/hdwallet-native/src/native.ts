@@ -302,12 +302,6 @@ export class NativeHDWallet
             pubkey.xpub = xpub
           }
 
-          if (getPublicKey.type == "address") {
-            pubkey.pubkey = pubkey.address;
-          } else if(getPublicKey.type == '') {
-            pubkey.pubkey = pubkey.xpub || pubkey.tpub;
-          }
-
           switch(getPublicKey.type) {
             case "address":
               pubkey.pubkey = pubkey.address;
@@ -331,7 +325,6 @@ export class NativeHDWallet
             default:
               throw Error("Unhandled pubkey type! :"+getPublicKey.type)
           }
-
 
           return pubkey;
         })

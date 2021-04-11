@@ -1,9 +1,14 @@
 import * as core from "@bithighlander/hdwallet-core";
 import { NativeHDWalletBase } from "./native";
 import { toCashAddress, toLegacyAddress } from "bchaddrjs";
-import { ECPairInterface } from "bitcoinjs-lib";
+
+// fork of bitcoinjs-lib that supports bitcoin cash
+// that would be worth looking into (see: https://github.com/junderw/bitcoinjs-lib/tree/cashv5).
+
+
+import { ECPairInterface } from "@bithighlander/bitcoin-cash-js-lib";
 import { getNetwork } from "./networks";
-import * as bitcoin from "bitcoinjs-lib";
+import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
 
 type BTCScriptType = core.BTCInputScriptType | core.BTCOutputScriptType;
 
@@ -169,6 +174,8 @@ export function MixinNativeBcashWallet<TBase extends core.Constructor<NativeHDWa
       psbt.setVersion(version | 1);
       locktime && psbt.setLocktime(locktime);
 
+      let hashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
+
       inputs.forEach((input) => {
         try {
           const inputData = this.buildInput(coin, input);
@@ -177,6 +184,7 @@ export function MixinNativeBcashWallet<TBase extends core.Constructor<NativeHDWa
             hash: input.txid,
             index: input.vout,
             ...inputData,
+            sighashType: hashType,
           });
         } catch (e) {
           throw new Error(`failed to add input: ${e}`);

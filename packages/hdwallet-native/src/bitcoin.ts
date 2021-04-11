@@ -1,13 +1,12 @@
-import { ECPairInterface } from "bitcoinjs-lib";
-import * as bitcoin from "bitcoinjs-lib";
+import { ECPairInterface } from "@bithighlander/bitcoin-cash-js-lib";
+import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
 import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@bithighlander/hdwallet-core";
 import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";
 
-// TODO: add bitcoincash support. Everything is working outside of transaction signing. There is a fork of bitcoinjs-lib that supports bitcoin clones that would be worth looking into (see: https://github.com/junderw/bitcoinjs-lib/tree/cashv5).
 
-const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "testnet"];
+const supportedCoins = ["bitcoin", "bitcoincash", "dash", "digibyte", "dogecoin", "litecoin", "testnet"];
 
 const segwit = ["p2wpkh", "p2sh-p2wpkh"];
 
@@ -223,6 +222,16 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           try {
             const inputData = this.buildInput(coin, input);
 
+            let inputDataFinal:any = {
+              hash: input.txid,
+              index: input.vout,
+              ...inputData,
+            }
+            if(coin.toLowerCase() === "bitcoincash"){
+              //pash forkId
+              let hashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
+              sighashType: hashType
+            }
             psbt.addInput({
               hash: input.txid,
               index: input.vout,
