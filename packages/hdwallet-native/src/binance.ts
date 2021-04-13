@@ -96,6 +96,13 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const pub_key = result.signatures[0].pub_key.toString("base64");
         const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 
+        // get txid
+        // TODO return txid
+        // const buffer = Buffer.from(result.serialized, 'base64');
+        // let hash = crypto.createHash('sha256').update(buffer).digest('hex').toUpperCase()
+
+
+
         return {
           account_number: result.account,
           chain_id: result.chain_id,

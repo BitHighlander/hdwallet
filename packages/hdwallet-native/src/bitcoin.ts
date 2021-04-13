@@ -293,6 +293,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         });
 
         return {
+          txid:tx.getId(),
           signatures,
           serializedTx: tx.toHex(),
         };
