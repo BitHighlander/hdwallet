@@ -41,5 +41,5 @@
     "@peculiar/webcrypto": "^1.1.3",
     "scrypt-js": "^3.0.1"
   },
-  "gitHead": "b2cbff5fc3732f0fc798c1c660ef78a1632ec4dc"
+  "gitHead": "4a2e0c0bea816954d2a30edce7cea84c682b1301"
 }
