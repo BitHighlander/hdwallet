@@ -118,7 +118,7 @@ class NativeHDWalletInfo
   }
 
   describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin.toLowerCase()) {
+    switch (msg.blockchain.toLowerCase()) {
       case "bitcoin":
       case "bitcoincash":
       case "dash":
@@ -126,12 +126,12 @@ class NativeHDWalletInfo
       case "dogecoin":
       case "litecoin":
       case "testnet":
-        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
+        const unknown = core.unknownUTXOPath(msg.path, msg.blockchain, msg.scriptType);
 
-        if (!super.btcSupportsCoin(msg.coin)) return unknown;
-        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
+        if (!super.btcSupportsCoin(msg.blockchain)) return unknown;
+        if (!super.btcSupportsScriptType(msg.blockchain, msg.scriptType)) return unknown;
 
-        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        return core.describeUTXOPath(msg.path, msg.blockchain, msg.scriptType);
       case "ethereum":
         return core.describeETHPath(msg.path);
       case "atom":
@@ -212,7 +212,7 @@ export class NativeHDWallet
   }
 
   async getAddress(msg: core.GetAddress): Promise<string> {
-    switch (msg.coin.toLowerCase()) {
+    switch (msg.blockchain.toLowerCase()) {
       case "bitcoin":
       case "bitcoincash":
       case "dash":
@@ -222,14 +222,14 @@ export class NativeHDWallet
       case "testnet":
         let inputClone: core.BTCAccountPath = {
           addressNList: msg.path,
-          coin: msg.coin,
+          coin: msg.blockchain,
           scriptType: msg.scriptType,
         };
         return super.btcGetAddress(inputClone);
       case "ethereum":
         let inputETH: core.BTCAccountPath = {
           addressNList: msg.path,
-          coin: msg.coin,
+          coin: msg.blockchain,
           scriptType: msg.scriptType,
         };
         return super.ethGetAddress(inputETH);
@@ -259,7 +259,7 @@ export class NativeHDWallet
         };
         return super.binanceGetAddress(inputBNB);
       default:
-        throw new Error("Unsupported path " + msg.coin);
+        throw new Error("Unsupported path " + msg.blockchain);
     }
   }
 
@@ -280,17 +280,18 @@ export class NativeHDWallet
 
           let addressInfo: core.GetAddress = {
             path: addressNListMaster,
-            coin: getPublicKey.coin.toLowerCase(),
+            coin: getPublicKey.blockchain.toLowerCase(),
             scriptType: getPublicKey.script_type,
           };
 
           let pubkey: any = {
             coin: getPublicKey.network,
+            blockchain:getPublicKey.blockchain,
             network: getPublicKey.network,
             script_type: getPublicKey.script_type,
             path: core.addressNListToBIP32(addressNList),
             pathMaster: core.addressNListToBIP32(addressNListMaster),
-            long: getPublicKey.coin,
+            long: getPublicKey.blockchain,
             address: await this.getAddress(addressInfo),
             master: await this.getAddress(addressInfo),
             type: getPublicKey.type,
