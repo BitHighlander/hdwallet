@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-ledger-u2f",
-  "version": "1.10.13",
+  "version": "1.10.14",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bithighlander/hdwallet-core": "^1.10.13",
-    "@bithighlander/hdwallet-ledger": "^1.10.13",
+    "@bithighlander/hdwallet-core": "^1.10.14",
+    "@bithighlander/hdwallet-ledger": "^1.10.14",
     "@ledgerhq/hw-app-btc": "^4.48.0",
     "@ledgerhq/hw-app-eth": "^4.48.0",
     "@ledgerhq/hw-transport": "^4.48.0",
@@ -23,5 +23,5 @@
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1"
   },
-  "gitHead": "b429ed419ef2f4bb0b5888773d19b78666c9eedf"
+  "gitHead": "008999e9a37531f2d7331d09e11c98662bac7462"
 }

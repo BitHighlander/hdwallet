@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-trezor",
-  "version": "1.10.13",
+  "version": "1.10.14",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bithighlander/hdwallet-core": "^1.10.13",
+    "@bithighlander/hdwallet-core": "^1.10.14",
     "ethereumjs-tx": "^1.3.7",
     "eventemitter2": "^5.0.1",
     "lodash": "^4.17.15"
@@ -23,5 +23,5 @@
   "devDependencies": {
     "@types/ethereumjs-tx": "^1.0.1"
   },
-  "gitHead": "b429ed419ef2f4bb0b5888773d19b78666c9eedf"
+  "gitHead": "008999e9a37531f2d7331d09e11c98662bac7462"
 }

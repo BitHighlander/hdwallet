@@ -1,5 +1,5 @@
 {
-  "version": "1.10.13",
+  "version": "1.10.14",
   "name": "@bithighlander/hdwallet-portis",
   "license": "MIT",
   "publishConfig": {
@@ -23,5 +23,5 @@
     "lodash": "^4.17.15",
     "web3": "^1.2.1"
   },
-  "gitHead": "b429ed419ef2f4bb0b5888773d19b78666c9eedf"
+  "gitHead": "008999e9a37531f2d7331d09e11c98662bac7462"
 }
