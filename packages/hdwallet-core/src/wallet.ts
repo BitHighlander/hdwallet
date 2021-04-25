@@ -20,6 +20,7 @@ export interface GetPublicKey {
   addressNList: BIP32Path;
   addressNListMaster: BIP32Path;
   showDisplay?: boolean;
+  coin?:string;
   scriptType?: BTCInputScriptType;
   script_type?: BTCInputScriptType;
   symbol?: string;
@@ -119,12 +120,14 @@ export interface ExchangeType {
 export interface DescribePath {
   path: BIP32Path;
   blockchain: string;
+  coin?: string; //please kill this
   scriptType?: BTCInputScriptType;
 }
 
 export interface GetAddress {
   path: BIP32Path;
   blockchain: string;
+  coin?:string;
   scriptType?: BTCInputScriptType;
 }
 
