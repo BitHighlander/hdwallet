@@ -211,7 +211,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
         console.error(e);
       }
       for (let i = 0; i < msg.length; i++) {
-        const { addressNList, coin } = msg[i];
+        const { addressNList } = msg[i];
         const bitcoinSlip44 = 0x80000000 + slip44ByCoin("Bitcoin");
         // TODO we really shouldnt be every using the "bitcoin" string parameter but is here for now to make it work with their btc address on their portis wallet.
         const portisResult = await this.portis.getExtendedPublicKey(
@@ -376,11 +376,11 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
   }
 
   public describePath(msg: DescribePath): PathDescription {
-    switch (msg.coin) {
-      case "Ethereum":
+    switch (msg.blockchain.toLowerCase()) {
+      case "ethereum":
         return eth.describeETHPath(msg.path);
-      case "Bitcoin":
-        return btc.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      case "bitcoin":
+        return btc.describeUTXOPath(msg.path, msg.blockchain, msg.scriptType);
       default:
         throw new Error("Unsupported path");
     }
