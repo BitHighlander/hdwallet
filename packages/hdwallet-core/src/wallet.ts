@@ -26,7 +26,7 @@ export interface GetPublicKey {
   network?: string;
   available_scripts_types?: [any];
   curve: string;
-  coin?: string;
+  blockchain?: string;
   address?: string;
   pubkey?: string;
   path?: string;
@@ -118,13 +118,13 @@ export interface ExchangeType {
 
 export interface DescribePath {
   path: BIP32Path;
-  coin: Coin;
+  blockchain: string;
   scriptType?: BTCInputScriptType;
 }
 
 export interface GetAddress {
   path: BIP32Path;
-  coin: Coin;
+  blockchain: string;
   scriptType?: BTCInputScriptType;
 }
 

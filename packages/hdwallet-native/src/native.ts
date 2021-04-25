@@ -280,7 +280,7 @@ export class NativeHDWallet
 
           let addressInfo: core.GetAddress = {
             path: addressNListMaster,
-            coin: getPublicKey.blockchain.toLowerCase(),
+            blockchain: getPublicKey.blockchain.toLowerCase(),
             scriptType: getPublicKey.script_type,
           };
 
