@@ -1,5 +1,5 @@
 import * as core from "@bithighlander/hdwallet-core";
-import txBuilder from "cosmos-tx-builder";
+// import txBuilder from "cosmos-tx-builder";
 import { BIP32Interface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
@@ -73,12 +73,12 @@ export function MixinNativeCardanoWallet<TBase extends core.Constructor<NativeHD
       });
     }
 
-    async cardanoSignTx(msg: core.CardanoSignTx): Promise<core.CardanoSignedTx> {
+    async cardanoSignTx(msg: core.CardanoSignTx): Promise<void> {
       return this.needsMnemonic(!!this.#wallet, async () => {
-        const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "cardano");
-        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, THOR_CHAIN);
-
-        return txBuilder.createSignedTx(msg.tx, result);
+        // const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "cardano");
+        // const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, THOR_CHAIN);
+        //
+        // return txBuilder.createSignedTx(msg.tx, result);
       });
     }
   };
