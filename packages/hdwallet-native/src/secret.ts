@@ -87,7 +87,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
       return this.needsMnemonic(!!this.#wallet, async () => {
         const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "secret");
         console.log("Input Thorchain: ",msg.tx, keyPair, msg.sequence, msg.account_number, "secret")
-        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, "secret");
+        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence.toString(), msg.account_number.toString(), "secret");
         return txBuilder.createSignedTx(msg.tx, result);
 
         // console.log("msg: ",msg)
