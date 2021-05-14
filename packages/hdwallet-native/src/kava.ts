@@ -6,6 +6,7 @@ import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
+import txBuilder from "tendermint-tx-builder";
 const cosmosjs = require("@cosmostation/cosmosjs");
 
 export function MixinNativeKavaWalletInfo<TBase extends core.Constructor>(Base: TBase) {
@@ -80,43 +81,50 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
 
     async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx> {
       return this.needsMnemonic(!!this.#wallet, async () => {
-        const chainId = msg.chain_id || "kava-6"
-        const kava = cosmosjs.network(" ", chainId);
-        const ecpairPriv = kava.getECPairPriv(this.#seed);
-        const amount = msg.tx.msg[0].value.amount[0].amount;
-        const to = msg.tx.msg[0].value.to_address
-        const from = msg.tx.msg[0].value.from_address
+        const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "kava");
+        console.log("Input Thorchain: ",msg.tx, keyPair, msg.sequence, msg.account_number, "kava")
+        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, "kava");
 
-        // let accountInfo = await kava.getAccounts(from)
-        const accountNumber = msg.account_number
-        const sequence = msg.sequence
+        return txBuilder.createSignedTx(msg.tx, result);
 
-        let stdSignMsg = kava.newStdMsg({
-          msgs: [
-            {
-              type: "cosmos-sdk/MsgSend",
-              value: {
-                amount: [
-                  {
-                    amount: String(amount), 	// 6 decimal places (1000000 ukava = 1 KAVA)
-                    denom: "ukava"
-                  }
-                ],
-                from_address: from,
-                to_address: to
-              }
-            }
-          ],
-          chain_id: chainId,
-          fee: { amount: [ { amount: String(5000), denom: "ukava" } ], gas: String(200000) },
-          memo: "",
-          account_number: String(accountNumber),		// If the address is a vesting account, use account_number of base_vesting_account
-          sequence: String(sequence)					// If the address is a vesting account, use sequence of base_vesting_account
-        });
 
-        const signedTx = kava.sign(stdSignMsg, ecpairPriv);
-
-        return signedTx.tx
+        // const chainId = msg.chain_id || "kava-6"
+        // const kava = cosmosjs.network(" ", chainId);
+        // const ecpairPriv = kava.getECPairPriv(this.#seed);
+        // const amount = msg.tx.msg[0].value.amount[0].amount;
+        // const to = msg.tx.msg[0].value.to_address
+        // const from = msg.tx.msg[0].value.from_address
+        //
+        // // let accountInfo = await kava.getAccounts(from)
+        // const accountNumber = msg.account_number
+        // const sequence = msg.sequence
+        //
+        // let stdSignMsg = kava.newStdMsg({
+        //   msgs: [
+        //     {
+        //       type: "cosmos-sdk/MsgSend",
+        //       value: {
+        //         amount: [
+        //           {
+        //             amount: String(amount), 	// 6 decimal places (1000000 ukava = 1 KAVA)
+        //             denom: "ukava"
+        //           }
+        //         ],
+        //         from_address: from,
+        //         to_address: to
+        //       }
+        //     }
+        //   ],
+        //   chain_id: chainId,
+        //   fee: { amount: [ { amount: String(5000), denom: "ukava" } ], gas: String(200000) },
+        //   memo: "",
+        //   account_number: String(accountNumber),		// If the address is a vesting account, use account_number of base_vesting_account
+        //   sequence: String(sequence)					// If the address is a vesting account, use sequence of base_vesting_account
+        // });
+        //
+        // const signedTx = kava.sign(stdSignMsg, ecpairPriv);
+        //
+        // return signedTx.tx
       });
     }
   };

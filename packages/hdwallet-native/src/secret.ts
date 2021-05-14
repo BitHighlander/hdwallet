@@ -6,12 +6,13 @@ import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
+import txBuilder from "tendermint-tx-builder";
 
 // Forked repo for offline signing
 // https://github.com/BitHighlander/SecretNetwork/blob/master/cosmwasm-js/packages/sdk/package.json#L2
-const {
-  EnigmaUtils, SigningCosmWasmClient, Secp256k1Pen, pubkeyToAddress, encodeSecp256k1Pubkey
-} = require("secretjs-offline");
+// const {
+//   EnigmaUtils, SigningCosmWasmClient, Secp256k1Pen, pubkeyToAddress, encodeSecp256k1Pubkey
+// } = require("secretjs-offline");
 
 export function MixinNativeSecretWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeSecretWalletInfo extends Base implements core.SecretWalletInfo {
@@ -84,39 +85,44 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#wallet, async () => {
-        console.log("msg: ",msg)
-        console.log("msg: ",JSON.stringify(msg))
+        const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "secret");
+        console.log("Input Thorchain: ",msg.tx, keyPair, msg.sequence, msg.account_number, "secret")
+        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, "secret");
+        return txBuilder.createSignedTx(msg.tx, result);
 
-        const httpUrl = '';
-        const signingPen = await Secp256k1Pen.fromMnemonic(this.#seed);
-        const pubkey = encodeSecp256k1Pubkey(signingPen.pubkey);
-        const accAddress = pubkeyToAddress(pubkey, 'secret');
-
-        const txEncryptionSeed = EnigmaUtils.GenerateNewSeed();
-        const fees = {
-          send: {
-            amount: [{ amount: this.#wallet, denom: "uscrt" }],
-            gas: "80000",
-          },
-        }
-        const client = new SigningCosmWasmClient(
-          httpUrl,
-          accAddress,
-          (signBytes:any) => signingPen.sign(signBytes),
-          txEncryptionSeed, fees
-        );
-
-        const rcpt = msg.tx.msg[0].value.to_address; // Set recipient to sender for testing
-        const amount = msg.tx.msg[0].value.amount[0].amount; // Set recipient to sender for testing
-        const chainId = msg.chain_id
-        const accountNumber = msg.account_number
-        const sequence = msg.sequence
-        const memo = msg.tx.memo
-        console.log("params: ",{rcpt,chainId, accountNumber, sequence, memo})
-
-        const sent = await client.sendTokensOffline(rcpt, [{amount: amount, denom: "uscrt"}],chainId, accountNumber, sequence, memo)
-
-        return sent;
+        // console.log("msg: ",msg)
+        // console.log("msg: ",JSON.stringify(msg))
+        //
+        // const httpUrl = '';
+        // const signingPen = await Secp256k1Pen.fromMnemonic(this.#seed);
+        // const pubkey = encodeSecp256k1Pubkey(signingPen.pubkey);
+        // const accAddress = pubkeyToAddress(pubkey, 'secret');
+        //
+        // const txEncryptionSeed = EnigmaUtils.GenerateNewSeed();
+        // const fees = {
+        //   send: {
+        //     amount: [{ amount: this.#wallet, denom: "uscrt" }],
+        //     gas: "80000",
+        //   },
+        // }
+        // const client = new SigningCosmWasmClient(
+        //   httpUrl,
+        //   accAddress,
+        //   (signBytes:any) => signingPen.sign(signBytes),
+        //   txEncryptionSeed, fees
+        // );
+        //
+        // const rcpt = msg.tx.msg[0].value.to_address; // Set recipient to sender for testing
+        // const amount = msg.tx.msg[0].value.amount[0].amount; // Set recipient to sender for testing
+        // const chainId = msg.chain_id
+        // const accountNumber = msg.account_number
+        // const sequence = msg.sequence
+        // const memo = msg.tx.memo
+        // console.log("params: ",{rcpt,chainId, accountNumber, sequence, memo})
+        //
+        // const sent = await client.sendTokensOffline(rcpt, [{amount: amount, denom: "uscrt"}],chainId, accountNumber, sequence, memo)
+        //
+        // return sent;
       });
     }
   };

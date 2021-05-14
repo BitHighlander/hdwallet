@@ -1,5 +1,5 @@
 import * as core from "@bithighlander/hdwallet-core";
-
+import txBuilder from "tendermint-tx-builder";
 import { BIP32Interface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
@@ -81,37 +81,42 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
 
     async terraSignTx(msg: core.TerraSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#wallet, async () => {
-        const mk = new MnemonicKey({
-          mnemonic:this.#seed,
-        });
-        const from = msg.tx.msg[0].value.from_address
-        const to = msg.tx.msg[0].value.to_address; // Set recipient to sender for testing
-        const amount = msg.tx.msg[0].value.amount[0].amount; // Set recipient to sender for testing
-        const chainId = msg.chain_id
-        const accountNumber = msg.account_number
-        const sequence = msg.sequence
-        const memo = msg.tx.memo
-
-        const send = new MsgSend(
-          from,
-          to,
-          { uluna: amount }
-        );
-        let fee = new StdFee(1000000, { uluna: 1000000000 })
-
-        let tx = new StdSignMsg(
-          chainId,
-          Number(accountNumber),
-          Number(sequence),
-          fee,
-          [send],
-          memo
-        );
-
-        let signed = await mk.signTx(tx);
+        const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "terra");
+        console.log("Input Thorchain: ",msg.tx, keyPair, msg.sequence, msg.account_number, "terra")
+        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, "terra");
 
 
-        return JSON.parse(signed.toJSON()).value
+        // const mk = new MnemonicKey({
+        //   mnemonic:this.#seed,
+        // });
+        // const from = msg.tx.msg[0].value.from_address
+        // const to = msg.tx.msg[0].value.to_address; // Set recipient to sender for testing
+        // const amount = msg.tx.msg[0].value.amount[0].amount; // Set recipient to sender for testing
+        // const chainId = msg.chain_id
+        // const accountNumber = msg.account_number
+        // const sequence = msg.sequence
+        // const memo = msg.tx.memo
+        //
+        // const send = new MsgSend(
+        //   from,
+        //   to,
+        //   { uluna: amount }
+        // );
+        // let fee = new StdFee(1000000, { uluna: 1000000000 })
+        //
+        // let tx = new StdSignMsg(
+        //   chainId,
+        //   Number(accountNumber),
+        //   Number(sequence),
+        //   fee,
+        //   [send],
+        //   memo
+        // );
+        //
+        // let signed = await mk.signTx(tx);
+        //
+        //
+        // return JSON.parse(signed.toJSON()).value
       });
     }
   };
