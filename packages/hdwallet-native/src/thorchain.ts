@@ -1,5 +1,5 @@
 import * as core from "@bithighlander/hdwallet-core";
-import txBuilder from "cosmos-tx-builder";
+import * as txBuilder from "tendermint-tx-builder";
 import { BIP32Interface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
