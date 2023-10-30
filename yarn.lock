@@ -5570,10 +5570,13 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/hdwallet-walletconnectv2@file:packages/hdwallet-walletconnectV2":
-  version "1.52.11"
+"@shapeshiftoss/hdwallet-walletconnectV2@1.52.12":
+  name "@shapeshiftoss/hdwallet-walletconnectv2"
+  version "1.52.12"
+  resolved "http://localhost:4873/@shapeshiftoss/hdwallet-walletconnectv2/-/hdwallet-walletconnectv2-1.52.12.tgz#f8e1a62a2057e4311eb05ce92f37e4cc657aca84"
+  integrity sha512-ULVA1LbGT3BK6OliWBpX/VNlAl6OZLDdx0gYtfO61sDllMB2Jggsc0ZGiD1Fwo1ZzJKpjhnSdpBtPls5YmAggg==
   dependencies:
-    "@shapeshiftoss/hdwallet-core" "1.52.11"
+    "@shapeshiftoss/hdwallet-core" "1.52.12"
     "@walletconnect/ethereum-provider" "^2.10.1"
     "@walletconnect/modal" "^2.6.2"
     "@web3modal/ethers5" "^3.2.0"

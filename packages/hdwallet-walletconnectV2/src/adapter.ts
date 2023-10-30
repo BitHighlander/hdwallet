@@ -29,7 +29,7 @@ export class WalletConnectV2Adapter {
       }
 
       // 1. Get projectId
-      const projectId = "YOUR_PROJECT_ID";
+      const projectId = "a28cc4392a374056df13372b666190a0";
 
       // 2. Set chains
       const mainnet = {

@@ -25,6 +25,7 @@
     "@shapeshiftoss/hdwallet-trezor": "1.52.12",
     "@shapeshiftoss/hdwallet-trezor-connect": "1.52.12",
     "@shapeshiftoss/hdwallet-walletconnect": "1.52.12",
+    "@shapeshiftoss/hdwallet-walletconnectV2": "1.52.12",
     "@shapeshiftoss/hdwallet-xdefi": "1.52.12",
     "bip32": "^2.0.4",
     "eip-712": "^1.0.0",
