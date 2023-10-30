@@ -85,6 +85,8 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case "Btc": {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - suspect @ledgerhq/hw-transport / @ledgerhq/hw-app-btc version mismatch
       const btc = new Btc({ transport });
       const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc);
       return methodInstance as LedgerTransportMethod<T, U>;
