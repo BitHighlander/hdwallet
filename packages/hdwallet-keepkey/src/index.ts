@@ -1,4 +1,5 @@
 export * from "./adapter";
+export * from "./hive";
 export * from "./keepkey";
 export * from "./solana";
 export * from "./tron";
