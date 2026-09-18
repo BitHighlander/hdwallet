@@ -45,11 +45,13 @@ describe("EVM typed-hash signing", () => {
     ["message", new Uint8Array(32), "0x1234"],
   ])("rejects a malformed %s hash before transport", async (_label, domain, message) => {
     const call = jest.fn();
-    await expect(ethSignTypedHash(makeMockTransport(call), {
-      addressNList: PATH,
-      domainSeparatorHash: domain,
-      messageHash: message,
-    })).rejects.toThrow("must be exactly 32 bytes");
+    await expect(
+      ethSignTypedHash(makeMockTransport(call), {
+        addressNList: PATH,
+        domainSeparatorHash: domain,
+        messageHash: message,
+      })
+    ).rejects.toThrow("must be exactly 32 bytes");
     expect(call).not.toHaveBeenCalled();
   });
 });

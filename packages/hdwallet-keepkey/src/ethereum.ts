@@ -9,7 +9,6 @@ import * as eip55 from "eip55";
 import * as jspb from "google-protobuf";
 
 import * as Erc7730Proto from "./ethereum-erc7730-proto";
-
 import { Transport, TransportTimeoutError } from "./transport";
 import { messageNameRegistry, messageTypeRegistry } from "./typeRegistry";
 import { toUTF8Array } from "./utils";

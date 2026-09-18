@@ -1,6 +1,5 @@
-import * as Ethereum from "./ethereum-erc7730-proto";
-
 import { makeErc7730DefinitionChunk } from "./ethereum";
+import * as Ethereum from "./ethereum-erc7730-proto";
 
 const id = new Uint8Array(32).fill(0x11);
 const envelope = new Uint8Array(1500).map((_, index) => index & 0xff);
